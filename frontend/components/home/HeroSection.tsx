@@ -32,7 +32,7 @@ export function HeroSection() {
 
   return (
     <section
-      className="relative w-full overflow-hidden h-[240px] xs:h-[280px] sm:h-[360px] md:h-[440px] lg:h-[500px]"
+      className="relative w-full overflow-hidden bg-gray-900 h-auto sm:h-[360px] md:h-[440px] lg:h-[500px]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -41,43 +41,54 @@ export function HeroSection() {
         <div
           key={src}
           className={cn(
-            "absolute inset-0 transition-opacity duration-1000",
-            i === current ? "opacity-100 z-10" : "opacity-0 z-0"
+            "sm:absolute sm:inset-0 transition-opacity duration-1000",
+            /* Mobile : empile les slides, seul le courant est visible */
+            i === current ? "opacity-100 relative sm:z-10" : "opacity-0 absolute inset-0 sm:z-0"
           )}
         >
-          <Image
+          {/* Mobile : image entière, hauteur naturelle, aucun crop */}
+          <img
             src={src}
             alt={alt}
-            fill
-            priority={i === 0}
-            sizes="100vw"
-            className="object-cover object-center sm:object-[center_25%]"
+            className="block sm:hidden w-full h-auto object-contain"
+            loading={i === 0 ? "eager" : "lazy"}
           />
+          {/* Desktop : Next/Image fill avec cover */}
+          <div className="hidden sm:block absolute inset-0">
+            <Image
+              src={src}
+              alt={alt}
+              fill
+              priority={i === 0}
+              sizes="100vw"
+              className="object-cover object-[center_25%]"
+            />
+          </div>
         </div>
       ))}
 
-      {/* Flèches de navigation */}
+      {/* Flèches de navigation — cachées sur mobile (swipe natif suffit) */}
       {SLIDES.length > 1 && (
         <>
           <button
             onClick={prev}
             aria-label="Slide précédente"
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-black/35 hover:bg-black/55 backdrop-blur-sm flex items-center justify-center transition-all border border-white/20"
+            className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/35 hover:bg-black/55 backdrop-blur-sm items-center justify-center transition-all border border-white/20"
           >
-            <ChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
+            <ChevronLeft className="w-5 h-5 text-white" />
           </button>
           <button
             onClick={next}
             aria-label="Slide suivante"
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-black/35 hover:bg-black/55 backdrop-blur-sm flex items-center justify-center transition-all border border-white/20"
+            className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/35 hover:bg-black/55 backdrop-blur-sm items-center justify-center transition-all border border-white/20"
           >
-            <ChevronRight className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
+            <ChevronRight className="w-5 h-5 text-white" />
           </button>
         </>
       )}
 
       {/* Barre de confiance + dots */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 bg-black/50 backdrop-blur-sm border-t border-white/10">
+      <div className="relative sm:absolute bottom-0 left-0 right-0 z-20 bg-black/70 sm:bg-black/50 backdrop-blur-sm border-t border-white/10">
         <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-2.5 flex items-center justify-between gap-2">
 
           {/* Badges de confiance */}
