@@ -109,32 +109,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="flex items-center gap-4 my-6">
-            <hr className="flex-1 border-gray-200" />
-            <span className="text-xs text-gray-400">ou</span>
-            <hr className="flex-1 border-gray-200" />
-          </div>
-
-          {/* Demo accounts */}
-          <div className="space-y-2">
-            <p className="text-xs text-gray-500 font-medium text-center">Comptes de démonstration</p>
-            {[
-              { label: "🏪 Vendeur 1",    email: "vendeur1@sangomarket.io", hint: "Vendeur (France)"   },
-              { label: "🏪 Vendeur 2",    email: "vendeur2@sangomarket.io", hint: "Vendeur (Sénégal)"  },
-              { label: "🛒 Client",       email: "client@sangomarket.io",   hint: "Acheteur à Bangui"  },
-              { label: "🛡️ Admin",        email: "admin@diasporamarket.cf", hint: "Panneau admin"       },
-            ].map(({ label, email, hint }) => (
-              <button
-                key={email}
-                onClick={() => { setForm({ email, password: "Demo1234!" }); }}
-                className="w-full flex items-center justify-between bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-4 py-2.5 transition-colors text-sm"
-              >
-                <span className="font-medium text-gray-800">{label}</span>
-                <span className="text-xs text-gray-500">{hint}</span>
-              </button>
-            ))}
-          </div>
         </div>
 
         <p className="text-center text-sm text-gray-500 mt-6">

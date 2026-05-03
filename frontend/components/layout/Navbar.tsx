@@ -103,7 +103,7 @@ export function Navbar() {
             </div>
             <div>
               <span className="text-base sm:text-lg font-extrabold text-gray-900">Sango</span>
-              <span className="text-base sm:text-lg font-extrabold text-orange-500">Market</span>
+              <span className="text-base sm:text-lg font-extrabold text-orange-500">Store</span>
             </div>
           </Link>
 
@@ -222,17 +222,12 @@ export function Navbar() {
                 )}
               </div>
             ) : (
-              <>
-                <Link
-                  href="/auth/login"
-                  className="hidden sm:inline-flex text-sm font-medium text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
-                >
-                  {t(nav.login, locale)}
-                </Link>
-                <Link href="/auth/register" className="btn-primary text-sm py-2 px-3 whitespace-nowrap">
-                  {t(nav.start, locale)}
-                </Link>
-              </>
+              <Link
+                href="/auth/login"
+                className="btn-primary text-sm py-2 px-4 whitespace-nowrap"
+              >
+                {t(nav.login, locale)}
+              </Link>
             )}
 
             {/* Hamburger — mobile/tablet */}
@@ -298,14 +293,9 @@ export function Navbar() {
                   </button>
                 </>
               ) : (
-                <>
-                  <Link href="/auth/login" className="btn-secondary text-sm py-2.5 justify-center" onClick={() => setMobileOpen(false)}>
-                    {t(nav.login, locale)}
-                  </Link>
-                  <Link href="/auth/register" className="btn-primary text-sm py-2.5 justify-center" onClick={() => setMobileOpen(false)}>
-                    {t(nav.start, locale)}
-                  </Link>
-                </>
+                <Link href="/auth/login" className="col-span-2 btn-primary text-sm py-2.5 justify-center" onClick={() => setMobileOpen(false)}>
+                  {t(nav.login, locale)}
+                </Link>
               )}
             </div>
           </div>

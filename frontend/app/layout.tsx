@@ -9,16 +9,16 @@ import { I18nProvider } from "@/lib/i18n/context";
 
 export const metadata: Metadata = {
   title: {
-    default: "SangoMarket – La marketplace de la diaspora centrafricaine",
-    template: "%s | SangoMarket",
+    default: "SangoStore – La marketplace de la diaspora centrafricaine",
+    template: "%s | SangoStore",
   },
   description:
-    "Commandez depuis la diaspora, recevez à Bangui. Produits authentiques depuis la France, le Sénégal, le Cameroun et plus encore. SangoMarket by Legos.",
+    "Commandez depuis la diaspora, recevez à Bangui. Produits authentiques depuis la France, le Sénégal, le Cameroun et plus encore. SangoStore by Legos.",
   keywords: ["sangomarket", "marketplace", "diaspora", "centrafrique", "bangui", "e-commerce", "afrique"],
   openGraph: {
     type: "website",
     locale: "fr_FR",
-    siteName: "SangoMarket",
+    siteName: "SangoStore",
   },
 };
 

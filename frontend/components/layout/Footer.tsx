@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Package } from "lucide-react";
+import { Mail, Phone, MapPin, Package } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
 import { translations, t } from "@/lib/i18n/translations";
 
@@ -46,7 +46,7 @@ export function Footer() {
               </div>
               <div>
                 <span className="text-xl font-extrabold text-white">Sango</span>
-                <span className="text-xl font-extrabold text-orange-400">Market</span>
+                <span className="text-xl font-extrabold text-orange-400">Store</span>
                 <span className="text-xs text-gray-500 font-medium ml-1">by Legos</span>
               </div>
             </div>
@@ -70,13 +70,6 @@ export function Footer() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 mt-6">
-              {[Facebook, Twitter, Instagram].map((Icon, i) => (
-                <a key={i} href="#" className="w-9 h-9 rounded-lg bg-gray-800 hover:bg-orange-500 flex items-center justify-center transition-colors">
-                  <Icon className="w-4 h-4" />
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Links */}
@@ -104,7 +97,7 @@ export function Footer() {
         <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-gray-800">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
             <p className="text-xs text-gray-500 text-center sm:text-left">
-              © 2024 SangoMarket by Legos. {t(f.rights, locale)}
+              © 2024 SangoStore by Legos. {t(f.rights, locale)}
             </p>
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
               <span className="text-xs text-gray-500">{t(f.payments, locale)}</span>

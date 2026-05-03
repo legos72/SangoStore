@@ -15,7 +15,7 @@ export const translations = {
     transporters:{ fr: "Transporteurs",    en: "Transporters",    es: "Transportistas", pt: "Transportadores",de: "Transporter"      },
     pickup:      { fr: "Points de retrait",en: "Pickup Points",   es: "Puntos de retiro",pt:"Pontos de coleta",de: "Abholpunkte"     },
     howItWorks:  { fr: "Comment ça marche",en: "How It Works",    es: "Cómo funciona",  pt: "Como funciona",  de: "Wie es funktioniert"},
-    login:       { fr: "Se connecter",     en: "Login",           es: "Iniciar sesión", pt: "Entrar",         de: "Anmelden"         },
+    login:       { fr: "Connecter",         en: "Login",           es: "Iniciar sesión", pt: "Entrar",         de: "Anmelden"         },
     start:       { fr: "Commencer",        en: "Get Started",     es: "Empezar",        pt: "Começar",        de: "Loslegen"         },
     search:      { fr: "Rechercher un produit, un pays…", en: "Search a product, country…", es: "Buscar producto, país…", pt: "Pesquisar produto, país…", de: "Produkt, Land suchen…" },
   },
