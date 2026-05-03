@@ -32,8 +32,7 @@ export function HeroSection() {
 
   return (
     <section
-      className="relative w-full overflow-hidden"
-      style={{ height: "clamp(220px, 40vw, 480px)" }}
+      className="relative w-full overflow-hidden h-[240px] xs:h-[280px] sm:h-[360px] md:h-[440px] lg:h-[500px]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -52,7 +51,7 @@ export function HeroSection() {
             fill
             priority={i === 0}
             sizes="100vw"
-            style={{ objectFit: "cover", objectPosition: "center 25%" }}
+            className="object-cover object-center sm:object-[center_25%]"
           />
         </div>
       ))}
@@ -63,34 +62,34 @@ export function HeroSection() {
           <button
             onClick={prev}
             aria-label="Slide précédente"
-            className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/30 hover:bg-black/55 backdrop-blur-sm flex items-center justify-center transition-all border border-white/20"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-black/35 hover:bg-black/55 backdrop-blur-sm flex items-center justify-center transition-all border border-white/20"
           >
-            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <ChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
           </button>
           <button
             onClick={next}
             aria-label="Slide suivante"
-            className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/30 hover:bg-black/55 backdrop-blur-sm flex items-center justify-center transition-all border border-white/20"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-black/35 hover:bg-black/55 backdrop-blur-sm flex items-center justify-center transition-all border border-white/20"
           >
-            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <ChevronRight className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
           </button>
         </>
       )}
 
       {/* Barre de confiance + dots */}
       <div className="absolute bottom-0 left-0 right-0 z-20 bg-black/50 backdrop-blur-sm border-t border-white/10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 flex items-center justify-between gap-2">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-2.5 flex items-center justify-between gap-2">
 
           {/* Badges de confiance */}
-          <div className="flex items-center gap-3 sm:gap-6 flex-1">
+          <div className="flex items-center gap-2 sm:gap-6 flex-1">
             {[
               { icon: ShieldCheck, label: t(hero.trust.escrow, locale),   color: "text-green-400"  },
               { icon: Truck,       label: t(hero.trust.gp, locale),        color: "text-blue-400"   },
               { icon: CheckCircle, label: t(hero.trust.payment, locale),   color: "text-orange-400" },
             ].map(({ icon: Icon, label, color }) => (
               <div key={label} className="flex items-center gap-1 sm:gap-1.5">
-                <Icon className={cn("w-3.5 h-3.5 flex-shrink-0", color)} />
-                <span className="text-white/85 text-[10px] sm:text-xs font-medium leading-tight hidden xs:block">{label}</span>
+                <Icon className={cn("w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0", color)} />
+                <span className="text-white/85 text-[9px] sm:text-xs font-medium leading-tight">{label}</span>
               </div>
             ))}
           </div>

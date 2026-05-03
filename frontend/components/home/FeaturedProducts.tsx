@@ -105,13 +105,13 @@ export function FeaturedProducts() {
   const chipDisabled = loading ? "opacity-60 pointer-events-none" : "";
 
   return (
-    <section className="py-8 sm:py-12 bg-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-5 sm:py-12 bg-white">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <div className="flex items-end justify-between mb-4 sm:mb-6">
+        <div className="flex items-end justify-between mb-3 sm:mb-6">
           <div>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900">{t(h.featured, locale)}</h2>
+            <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">{t(h.featured, locale)}</h2>
             <p className="text-gray-400 text-xs sm:text-sm mt-0.5">
               {t(h.featuredSub, locale)}
               {hasFilters && !loading && !error && (
@@ -129,12 +129,12 @@ export function FeaturedProducts() {
         </div>
 
         {/* Filter panel */}
-        <div className="mb-6 sm:mb-8 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="mb-4 sm:mb-8 bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
           {/* Category row */}
-          <div className="px-4 sm:px-5 pt-4 pb-3 border-b border-gray-50">
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.12em] mb-3 flex items-center gap-1.5">
-              <span className="w-1 h-3 rounded-full bg-orange-400 inline-block" />
+          <div className="px-3 sm:px-5 pt-3 sm:pt-4 pb-2.5 sm:pb-3 border-b border-gray-50">
+            <p className="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-[0.12em] mb-2 sm:mb-3 flex items-center gap-1.5">
+              <span className="w-1 h-2.5 sm:h-3 rounded-full bg-orange-400 inline-block" />
               {t(f.category, locale)}
             </p>
             <ScrollRow>
@@ -143,14 +143,14 @@ export function FeaturedProducts() {
                   key={value}
                   onClick={() => setActiveCategory(value)}
                   className={cn(
-                    "inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 select-none",
+                    "inline-flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 select-none",
                     chipDisabled,
                     activeCategory === value
                       ? "bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-md shadow-orange-200 scale-[1.03]"
                       : "bg-gray-50 text-gray-600 hover:bg-orange-50 hover:text-orange-600 hover:scale-[1.02] active:scale-[0.98]"
                   )}
                 >
-                  <span className="text-base leading-none">{icon}</span>
+                  <span className="text-sm sm:text-base leading-none">{icon}</span>
                   <span>{value === "all" ? t(f.all, locale) : CATEGORY_LABELS[value as ProductCategory]}</span>
                 </button>
               ))}
@@ -158,23 +158,23 @@ export function FeaturedProducts() {
           </div>
 
           {/* Country row */}
-          <div className="px-4 sm:px-5 pt-3.5 pb-4">
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.12em] mb-3 flex items-center gap-1.5">
-              <span className="w-1 h-3 rounded-full bg-blue-400 inline-block" />
+          <div className="px-3 sm:px-5 pt-2.5 sm:pt-3.5 pb-3 sm:pb-4">
+            <p className="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-[0.12em] mb-2 sm:mb-3 flex items-center gap-1.5">
+              <span className="w-1 h-2.5 sm:h-3 rounded-full bg-blue-400 inline-block" />
               {t(f.country, locale)}
             </p>
             <ScrollRow>
               <button
                 onClick={() => setActiveCountry(null)}
                 className={cn(
-                  "inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 select-none",
+                  "inline-flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 select-none",
                   chipDisabled,
                   activeCountry === null
                     ? "bg-gray-900 text-white shadow-md shadow-gray-300 scale-[1.03]"
                     : "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900 hover:scale-[1.02] active:scale-[0.98]"
                 )}
               >
-                <span className="text-base leading-none">🌍</span>
+                <span className="text-sm sm:text-base leading-none">🌍</span>
                 <span>{t(f.allCountries, locale)}</span>
               </button>
 
@@ -183,14 +183,14 @@ export function FeaturedProducts() {
                   key={country.code}
                   onClick={() => setActiveCountry(activeCountry === country.code ? null : country.code)}
                   className={cn(
-                    "inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 select-none",
+                    "inline-flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 select-none",
                     chipDisabled,
                     activeCountry === country.code
                       ? "bg-gray-900 text-white shadow-md shadow-gray-300 scale-[1.03]"
                       : "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900 hover:scale-[1.02] active:scale-[0.98]"
                   )}
                 >
-                  <span className="text-base leading-none">{country.flag}</span>
+                  <span className="text-sm sm:text-base leading-none">{country.flag}</span>
                   <span>{country.name}</span>
                 </button>
               ))}
@@ -230,7 +230,7 @@ export function FeaturedProducts() {
 
         {/* Skeleton loading */}
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
             ))}
@@ -262,7 +262,7 @@ export function FeaturedProducts() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
               {filtered.map(product => (
                 <ProductCard key={product.id} product={product} />
               ))}
