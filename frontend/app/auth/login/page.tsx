@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Package, ArrowRight, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Package, ArrowRight, Loader2, Clock, XCircle } from "lucide-react";
 import { api, setToken, setUser } from "@/lib/api";
 
 export default function LoginPage() {
@@ -49,9 +49,27 @@ export default function LoginPage() {
 
         <div className="card p-5 sm:p-8">
           {error && (
-            <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
-              {error}
-            </div>
+            error.includes("attente de validation") ? (
+              <div className="mb-4 flex items-start gap-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800">
+                <Clock className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-500" />
+                <div>
+                  <p className="font-semibold mb-0.5">Compte en attente de validation</p>
+                  <p className="text-xs text-amber-700">Notre équipe examine votre profil. Vous recevrez un email sous 24–48h.</p>
+                </div>
+              </div>
+            ) : error.includes("pas été approuvée") ? (
+              <div className="mb-4 flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+                <XCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-500" />
+                <div>
+                  <p className="font-semibold mb-0.5">Demande non approuvée</p>
+                  <p className="text-xs">Votre demande n'a pas été acceptée. <a href="mailto:contact@sangostore.com" className="underline">Contactez-nous</a> pour plus d'informations.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+                {error}
+              </div>
+            )
           )}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>

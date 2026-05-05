@@ -10,6 +10,7 @@ export interface Country {
 // ─── UTILISATEURS ─────────────────────────────────────────────────────────────
 
 export type UserRole = "client" | "vendeur" | "transporteur" | "admin";
+export type UserStatus = "pending" | "approved" | "rejected";
 
 export interface User {
   id: string;

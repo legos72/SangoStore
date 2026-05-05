@@ -2,39 +2,128 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff, Package, ArrowRight, Loader2, CheckCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Package, ArrowRight, Loader2, CheckCircle, Clock, XCircle } from "lucide-react";
 import { COUNTRIES } from "@/lib/countries";
 import type { UserRole } from "@/lib/types";
+import { api, setToken, setUser } from "@/lib/api";
+import toast from "react-hot-toast";
 
-const ROLE_OPTIONS: { value: UserRole; label: string; icon: string; desc: string }[] = [
-  { value: "client",       icon: "🛒", label: "Client",       desc: "J'achète des produits à Bangui" },
-  { value: "vendeur",      icon: "🏪", label: "Vendeur",      desc: "Je vends depuis la diaspora" },
-  { value: "transporteur", icon: "🚚", label: "Transporteur", desc: "Je transporte vers Bangui (GP)" },
+const ROLE_OPTIONS: { value: UserRole; label: string; icon: string; desc: string; badge?: string }[] = [
+  {
+    value: "client",
+    icon: "🛒",
+    label: "Client",
+    desc: "J'achète des produits à Bangui",
+  },
+  {
+    value: "vendeur",
+    icon: "🏪",
+    label: "Vendeur",
+    desc: "Je vends depuis la diaspora",
+    badge: "Validation requise",
+  },
+  {
+    value: "transporteur",
+    icon: "🚚",
+    label: "Transporteur",
+    desc: "Je transporte vers Bangui (GP)",
+    badge: "Validation requise",
+  },
 ];
 
+type RegisterResult = "approved" | "pending" | null;
+
 export default function RegisterPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<1 | 2>(1);
+  const [loading, setLoading]           = useState(false);
+  const [step, setStep]                 = useState<1 | 2>(1);
+  const [result, setResult]             = useState<RegisterResult>(null);
+  const [error, setError]               = useState("");
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    password: "",
-    confirmPassword: "",
-    role: "" as UserRole | "",
-    countryCode: "",
+    name:            "",
+    email:           "",
+    phone:           "",
+    password:        "",
+    role:            "" as UserRole | "",
+    countryCode:     "",
   });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (step === 1) { setStep(2); return; }
+    if (!form.role) return;
+
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    setLoading(false);
-    alert("Compte créé ! En production, un email de validation vous serait envoyé.");
+    setError("");
+
+    try {
+      const res = await api.auth.register({
+        name:        form.name,
+        email:       form.email,
+        phone:       form.phone || undefined,
+        password:    form.password,
+        role:        form.role,
+        countryCode: form.countryCode,
+      }) as any;
+
+      if (res.status === "pending") {
+        setResult("pending");
+      } else {
+        // Client — token reçu, connexion immédiate
+        setToken(res.token);
+        setUser(res.user);
+        toast.success("Bienvenue sur SangoStore !");
+        router.push("/dashboard");
+      }
+    } catch (err: any) {
+      setError(err?.message ?? "Une erreur est survenue");
+    } finally {
+      setLoading(false);
+    }
   }
 
+  /* ── Écran de confirmation "En attente" ───────────────────── */
+  if (result === "pending") {
+    return (
+      <div className="min-h-[calc(100vh-64px)] flex items-center justify-center py-6 sm:py-12 bg-gray-50">
+        <div className="w-full max-w-md mx-4">
+          <div className="card p-8 text-center">
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-5">
+              <Clock className="w-8 h-8 text-amber-500" />
+            </div>
+            <h2 className="text-xl font-extrabold text-gray-900 mb-2">
+              Compte en cours de validation
+            </h2>
+            <p className="text-gray-500 text-sm leading-relaxed mb-6">
+              Votre demande a bien été reçue. Notre équipe va examiner votre profil
+              et vous recontactera par email dans les <strong>24 à 48h</strong>.
+            </p>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-left mb-6">
+              <p className="text-amber-800 text-sm font-medium mb-1">Ce qui se passe maintenant :</p>
+              <ul className="text-amber-700 text-xs space-y-1.5 list-disc list-inside">
+                <li>Un email de confirmation vous a été envoyé</li>
+                <li>Notre équipe vérifie votre profil</li>
+                <li>Vous recevrez un email d'approbation ou de refus</li>
+              </ul>
+            </div>
+            <Link href="/" className="btn-primary w-full py-3 flex items-center justify-center gap-2">
+              Retour à l'accueil
+            </Link>
+            <p className="text-xs text-gray-400 mt-4">
+              Une question ?{" "}
+              <a href="mailto:contact@sangostore.com" className="text-orange-500 hover:underline">
+                Contactez-nous
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Formulaire ────────────────────────────────────────────── */
   return (
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center py-6 sm:py-12 bg-gray-50">
       <div className="w-full max-w-lg mx-4">
@@ -65,17 +154,21 @@ export default function RegisterPage() {
         </div>
 
         <div className="card p-5 sm:p-8">
+          {error && (
+            <div className="mb-4 flex items-start gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+              <XCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-5">
             {step === 1 && (
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Nom complet</label>
                   <input
-                    type="text"
-                    required
-                    placeholder="Jean-Baptiste Ngombo"
-                    className="input"
-                    value={form.name}
+                    type="text" required placeholder="Jean-Baptiste Ngombo"
+                    className="input" value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                   />
                 </div>
@@ -83,22 +176,19 @@ export default function RegisterPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
                   <input
-                    type="email"
-                    required
-                    placeholder="votre@email.com"
-                    className="input"
-                    value={form.email}
+                    type="email" required placeholder="votre@email.com"
+                    className="input" value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Téléphone / WhatsApp</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Téléphone / WhatsApp <span className="text-gray-400 font-normal">(optionnel)</span>
+                  </label>
                   <input
-                    type="tel"
-                    placeholder="+33 6 12 34 56 78"
-                    className="input"
-                    value={form.phone}
+                    type="tel" placeholder="+33 6 12 34 56 78"
+                    className="input" value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   />
                 </div>
@@ -106,16 +196,12 @@ export default function RegisterPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Pays de résidence</label>
                   <select
-                    required
-                    className="select"
-                    value={form.countryCode}
+                    required className="select" value={form.countryCode}
                     onChange={(e) => setForm({ ...form, countryCode: e.target.value })}
                   >
                     <option value="">Choisir votre pays…</option>
                     {COUNTRIES.map((c) => (
-                      <option key={c.code} value={c.code}>
-                        {c.flag} {c.name}
-                      </option>
+                      <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
                     ))}
                   </select>
                 </div>
@@ -124,19 +210,13 @@ export default function RegisterPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Mot de passe</label>
                   <div className="relative">
                     <input
-                      type={showPassword ? "text" : "password"}
-                      required
-                      minLength={8}
-                      placeholder="8 caractères minimum"
-                      className="input pr-10"
+                      type={showPassword ? "text" : "password"} required minLength={8}
+                      placeholder="8 caractères minimum" className="input pr-10"
                       value={form.password}
                       onChange={(e) => setForm({ ...form, password: e.target.value })}
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
+                    <button type="button" onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
@@ -153,13 +233,12 @@ export default function RegisterPage() {
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">Quel est votre rôle ?</h3>
                   <p className="text-sm text-gray-500 mb-4">
-                    Vous pourrez changer de rôle plus tard dans vos paramètres.
+                    Les comptes vendeur et transporteur nécessitent une validation.
                   </p>
                   <div className="space-y-3">
-                    {ROLE_OPTIONS.map(({ value, icon, label, desc }) => (
+                    {ROLE_OPTIONS.map(({ value, icon, label, desc, badge }) => (
                       <button
-                        type="button"
-                        key={value}
+                        type="button" key={value}
                         onClick={() => setForm({ ...form, role: value })}
                         className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
                           form.role === value
@@ -168,14 +247,21 @@ export default function RegisterPage() {
                         }`}
                       >
                         <span className="text-2xl">{icon}</span>
-                        <div>
-                          <div className={`font-semibold text-sm ${form.role === value ? "text-orange-700" : "text-gray-900"}`}>
-                            {label}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`font-semibold text-sm ${form.role === value ? "text-orange-700" : "text-gray-900"}`}>
+                              {label}
+                            </span>
+                            {badge && (
+                              <span className="text-[10px] font-semibold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                                {badge}
+                              </span>
+                            )}
                           </div>
                           <div className="text-xs text-gray-500">{desc}</div>
                         </div>
                         {form.role === value && (
-                          <CheckCircle className="w-5 h-5 text-orange-500 ml-auto" />
+                          <CheckCircle className="w-5 h-5 text-orange-500 flex-shrink-0" />
                         )}
                       </button>
                     ))}

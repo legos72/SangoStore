@@ -42,6 +42,7 @@ export interface AuthUser {
   name: string;
   email: string;
   role: "client" | "vendeur" | "transporteur" | "admin";
+  accountStatus?: "pending" | "approved" | "rejected";
 }
 
 export interface ApiResponse<T> {
@@ -273,5 +274,29 @@ export const api = {
 
     create: (data: any) =>
       apiFetch<any>("/api/trips", { method: "POST", body: JSON.stringify(data) }),
+  },
+
+  // ── Admin ─────────────────────────────────────────────────────────────────
+  admin: {
+    listUsers: (params?: { status?: string; role?: string; search?: string }) =>
+      apiFetch<any[]>(`/api/admin/users${qs(params as any)}`),
+
+    updateUserStatus: (id: string, status: "approved" | "rejected") =>
+      apiFetch<any>(`/api/admin/users/${id}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      }),
+
+    pendingCount: () =>
+      apiFetch<{ count: number }>("/api/admin/users/pending-count"),
+
+    stats: () =>
+      apiFetch<any>("/api/admin/stats"),
+
+    listProducts: (params?: { search?: string; category?: string; available?: string }) =>
+      apiFetch<any[]>(`/api/admin/products${qs(params as any)}`),
+
+    listOrders: (params?: { status?: string }) =>
+      apiFetch<any[]>(`/api/admin/orders${qs(params as any)}`),
   },
 };
