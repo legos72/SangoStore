@@ -12,7 +12,7 @@ import {
 import { MOCK_PRODUCTS, MOCK_TRIPS } from "@/lib/data";
 import { formatPrice, CATEGORY_LABELS, CATEGORY_ICONS } from "@/lib/utils";
 import { ProductCard } from "@/components/product/ProductCard";
-import { api } from "@/lib/api";
+import { api, getImageUrl } from "@/lib/api";
 import { apiToProduct } from "@/lib/adapters";
 import type { Trip, Transporter, Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -509,7 +509,7 @@ export default function ProductDetailPage() {
           <div className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm">
             {product.images?.[0] ? (
               <img
-                src={product.images[activeImage] || product.images[0]}
+                src={getImageUrl(product.images[activeImage] || product.images[0])}
                 alt={product.title}
                 className="absolute inset-0 w-full h-full object-contain p-2"
                 onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}

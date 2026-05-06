@@ -6,6 +6,7 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Package, ArrowLeft, Tag, 
 import { useCart } from "@/contexts/CartContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useState } from "react";
+import { getImageUrl } from "@/lib/api";
 
 function useTotals(items: ReturnType<typeof useCart>["items"]) {
   const totals: Record<string, number> = {};
@@ -130,7 +131,7 @@ export default function CartPage() {
                       </div>
                     ) : (
                       <Image
-                        src={item.product.images[0]}
+                        src={getImageUrl(item.product.images[0])}
                         alt={item.product.title}
                         fill
                         className="object-cover hover:scale-105 transition-transform duration-300"
@@ -275,7 +276,7 @@ export default function CartPage() {
                           <span className="absolute inset-0 flex items-center justify-center text-sm">📦</span>
                         ) : (
                           <Image
-                            src={item.product.images[0]}
+                            src={getImageUrl(item.product.images[0])}
                             alt={item.product.title}
                             fill
                             className="object-cover"

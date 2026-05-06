@@ -9,6 +9,12 @@
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
+export function getImageUrl(path: string | null | undefined): string {
+  if (!path) return "";
+  if (path.startsWith("http")) return path;
+  return `${BASE}${path}`;
+}
+
 // ─── Token helpers ────────────────────────────────────────────────────────────
 
 export function getToken(): string | null {

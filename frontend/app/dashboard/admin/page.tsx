@@ -11,7 +11,7 @@ import {
   CreditCard, MapPin, UserCheck, BarChart3, Activity,
   ChevronRight, Send, Phone, Mail, AlertCircle,
 } from "lucide-react";
-import { api, getUser } from "@/lib/api";
+import { api, getUser, getImageUrl } from "@/lib/api";
 import { formatPrice, formatDate, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import type { OrderStatus } from "@/lib/types";
@@ -810,7 +810,7 @@ export default function AdminDashboard() {
                               <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 bg-slate-800">
                                 {product.images?.[0] && (
                                   <img
-                                    src={product.images[0].startsWith("/uploads") ? `http://localhost:4000${product.images[0]}` : product.images[0]}
+                                    src={getImageUrl(product.images[0])}
                                     alt=""
                                     className="w-full h-full object-cover"
                                   />

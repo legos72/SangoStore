@@ -9,6 +9,7 @@ import { truncate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { getImageUrl } from "@/lib/api";
 
 interface ProductCardProps {
   product: Product;
@@ -93,7 +94,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
         <Link href={`/produits/${product.id}`}
           className="relative w-32 sm:w-44 flex-shrink-0 bg-white overflow-hidden flex items-center justify-center">
           {imgError || !product.images[0] ? imgFallback : (
-            <img src={product.images[0]} alt={product.title}
+            <img src={getImageUrl(product.images[0])} alt={product.title}
               className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
               loading="lazy" onError={() => setImgError(true)} />
           )}
@@ -202,7 +203,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
         <Link href={`/produits/${product.id}`} className="absolute inset-0 flex items-center justify-center">
           {imgError || !product.images[0] ? imgFallback : (
             <img
-              src={product.images[0]}
+              src={getImageUrl(product.images[0])}
               alt={product.title}
               className="w-full h-full object-contain
                          group-hover:scale-105 transition-transform duration-500 ease-out"

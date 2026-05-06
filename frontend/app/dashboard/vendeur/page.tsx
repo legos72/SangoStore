@@ -16,7 +16,7 @@ import { MOCK_ORDERS, MOCK_USERS } from "@/lib/data";
 
 const MY_ORDERS = MOCK_ORDERS;
 const VENDOR_ID = "u1";
-import { api, getUser } from "@/lib/api";
+import { api, getUser, getImageUrl } from "@/lib/api";
 import type { VendorProduct, AuthUser } from "@/lib/api";
 import type { OrderStatus } from "@/lib/types";
 
@@ -456,7 +456,7 @@ export default function VendeurDashboard() {
                   {products.slice(0, 4).map(product => (
                     <div key={product.id} className="flex items-center gap-3 px-5 py-3">
                       <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
-                        {product.images[0] && <img src={product.images[0]} alt="" className="w-full h-full object-cover" />}
+                        {product.images[0] && <img src={getImageUrl(product.images[0])} alt="" className="w-full h-full object-cover" />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-gray-800 truncate">{product.title}</p>
@@ -539,7 +539,7 @@ export default function VendeurDashboard() {
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-11 h-11 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
-                              {product.images[0] && <img src={product.images[0]} alt="" className="w-full h-full object-cover" />}
+                              {product.images[0] && <img src={getImageUrl(product.images[0])} alt="" className="w-full h-full object-cover" />}
                             </div>
                             <div className="max-w-[200px]">
                               <p className="text-sm font-semibold text-gray-900 line-clamp-1">{product.title}</p>
@@ -717,7 +717,7 @@ export default function VendeurDashboard() {
                       {myItems.map(item => (
                         <div key={item.product.id} className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                            <img src={item.product.images[0]} alt="" className="w-full h-full object-cover" />
+                            <img src={getImageUrl(item.product.images[0])} alt="" className="w-full h-full object-cover" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-semibold text-gray-800 truncate">{item.product.title}</p>
