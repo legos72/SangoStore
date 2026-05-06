@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, Phone, MapPin, Package } from "lucide-react";
+import { Mail, Phone, MapPin, Shield, Lock, Star, ArrowRight, MessageCircle } from "lucide-react";
+import { LogoCart } from "@/components/ui/LogoCart";
 import { useI18n } from "@/lib/i18n/context";
 import { translations, t } from "@/lib/i18n/translations";
 
@@ -12,78 +13,138 @@ export function Footer() {
 
   const FOOTER_LINKS = {
     marketplace: [
-      { href: "/produits",           label: t(nav.products, locale)      },
-      { href: "/transporteurs",      label: t(nav.transporters, locale)  },
-      { href: "/retrait",            label: t(nav.pickup, locale)        },
-      { href: "/comment-ca-marche",  label: t(nav.howItWorks, locale)    },
+      { href: "/produits",          label: t(nav.products, locale)     },
+      { href: "/transporteurs",     label: t(nav.transporters, locale) },
+      { href: "/retrait",           label: t(nav.pickup, locale)       },
+      { href: "/comment-ca-marche", label: t(nav.howItWorks, locale)   },
     ],
     compte: [
-      { href: "/auth/login",         label: t(nav.login, locale)         },
-      { href: "/auth/register",      label: t(nav.start, locale)         },
-      { href: "/dashboard",          label: "Dashboard"                  },
-      { href: "/dashboard/vendeur",  label: "Espace vendeur"             },
+      { href: "/auth/login",        label: t(nav.login, locale)        },
+      { href: "/auth/register",     label: t(nav.start, locale)        },
+      { href: "/dashboard",         label: "Dashboard"                 },
+      { href: "/dashboard/vendeur", label: "Espace vendeur"            },
     ],
     aide: [
-      { href: "/faq",                label: "FAQ"                        },
-      { href: "/contact",            label: "Contact"                    },
-      { href: "/cgv",                label: "CGV"                        },
-      { href: "/confidentialite",    label: "Confidentialité"            },
+      { href: "/faq",               label: "FAQ"                       },
+      { href: "/contact",           label: "Contact"                   },
+      { href: "/cgv",               label: "CGV"                       },
+      { href: "/confidentialite",   label: "Confidentialité"           },
     ],
   };
 
+  const TRUST = [
+    { icon: Lock,   label: "Paiement sécurisé", sub: "Escrow protégé" },
+    { icon: Shield, label: "Vendeurs vérifiés",  sub: "Profils validés" },
+    { icon: Star,   label: "Satisfaction",       sub: "Garantie retour" },
+  ];
+
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="h-1 bg-gradient-to-r from-orange-500 via-orange-400 to-orange-600" />
+    <footer style={{ background: "linear-gradient(180deg, #0D1321 0%, #060C18 100%)" }} className="text-gray-400">
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-10">
+      {/* Top accent bar */}
+      <div className="h-[3px] bg-gradient-to-r from-transparent via-orange-500 to-transparent" />
 
-          {/* Brand */}
-          <div className="col-span-2 lg:col-span-2">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-                <Package className="w-5 h-5 text-white" />
+      {/* ── Trust strip ─────────────────────────────────────── */}
+      <div className="border-b border-white/5">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
+          <div className="grid grid-cols-3 gap-3 sm:gap-6">
+            {TRUST.map(({ icon: Icon, label, sub }) => (
+              <div key={label} className="flex items-center gap-2.5 sm:gap-3">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-4 h-4 text-orange-400" />
+                </div>
+                <div className="hidden sm:block">
+                  <p className="text-white text-xs font-semibold leading-none">{label}</p>
+                  <p className="text-gray-500 text-[11px] mt-0.5">{sub}</p>
+                </div>
+                <p className="sm:hidden text-[11px] text-gray-300 font-medium leading-tight">{label}</p>
               </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main content ────────────────────────────────────── */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10">
+
+          {/* Brand col */}
+          <div className="col-span-2">
+            <Link href="/" className="flex items-center gap-2 mb-4">
+              <LogoCart size={40} />
               <div>
-                <span className="text-xl font-extrabold text-white">Sango</span>
+                <span className="text-xl font-extrabold text-red-400">Sango</span>
                 <span className="text-xl font-extrabold text-orange-400">Store</span>
-                <span className="text-xs text-gray-500 font-medium ml-1">by Legos</span>
               </div>
-            </div>
+            </Link>
 
-            <p className="text-sm text-gray-400 leading-relaxed max-w-xs mb-6">
-              {t(f.tagline, locale)}
+            <p className="text-sm text-gray-400 leading-relaxed max-w-[280px] mb-6">
+              La marketplace de la diaspora centrafricaine. Achetez, vendez et expédiez en toute confiance vers Bangui.
             </p>
 
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-orange-400 flex-shrink-0" />
+            {/* Contact */}
+            <ul className="space-y-2.5 text-sm mb-6">
+              <li className="flex items-center gap-2.5">
+                <MapPin className="w-3.5 h-3.5 text-orange-400 flex-shrink-0" />
                 <span>Bangui, République Centrafricaine</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-orange-400 flex-shrink-0" />
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Phone className="w-3.5 h-3.5 text-orange-400 flex-shrink-0" />
                 <span>+236 72 123 456</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-orange-400 flex-shrink-0" />
-                <span>contact@sangomarket.cf</span>
-              </div>
-            </div>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Mail className="w-3.5 h-3.5 text-orange-400 flex-shrink-0" />
+                <span>contact@sangostore.com</span>
+              </li>
+            </ul>
 
+            {/* Social */}
+            <div className="flex items-center gap-2">
+              <a
+                href="#"
+                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-orange-500/20 border border-white/8 hover:border-orange-500/40 flex items-center justify-center transition-all"
+                aria-label="Facebook"
+              >
+                <svg className="w-3.5 h-3.5 fill-gray-400 hover:fill-orange-400" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+              </a>
+              <a
+                href="#"
+                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-orange-500/20 border border-white/8 hover:border-orange-500/40 flex items-center justify-center transition-all"
+                aria-label="WhatsApp"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-gray-400" />
+              </a>
+              <a
+                href="#"
+                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-orange-500/20 border border-white/8 hover:border-orange-500/40 flex items-center justify-center transition-all"
+                aria-label="Instagram"
+              >
+                <svg className="w-3.5 h-3.5 fill-none stroke-gray-400" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                </svg>
+              </a>
+            </div>
           </div>
 
-          {/* Links */}
+          {/* Nav cols */}
           {[
             { title: t(f.marketplace, locale), links: FOOTER_LINKS.marketplace },
             { title: t(f.myAccount, locale),   links: FOOTER_LINKS.compte      },
             { title: t(f.helpLegal, locale),   links: FOOTER_LINKS.aide        },
           ].map(({ title, links }) => (
             <div key={title}>
-              <h4 className="text-white font-semibold text-sm mb-4">{title}</h4>
-              <ul className="space-y-2.5">
+              <h4 className="text-white font-bold text-xs uppercase tracking-widest mb-5 flex items-center gap-2">
+                <span className="w-4 h-[2px] bg-orange-500 rounded-full inline-block" />
+                {title}
+              </h4>
+              <ul className="space-y-3">
                 {links.map(({ href, label }) => (
                   <li key={href}>
-                    <Link href={href} className="text-sm text-gray-400 hover:text-orange-400 transition-colors">
+                    <Link
+                      href={href}
+                      className="text-sm text-gray-400 hover:text-orange-400 transition-colors flex items-center gap-1.5 group"
+                    >
+                      <ArrowRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-orange-400" />
                       {label}
                     </Link>
                   </li>
@@ -92,23 +153,32 @@ export function Footer() {
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Bottom */}
-        <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-gray-800">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-            <p className="text-xs text-gray-500 text-center sm:text-left">
-              © 2024 SangoStore by Legos. {t(f.rights, locale)}
+      {/* ── Bottom bar ──────────────────────────────────────── */}
+      <div className="border-t border-white/5">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+
+            <p className="text-xs text-gray-600 text-center sm:text-left order-2 sm:order-1">
+              © {new Date().getFullYear()} <span className="text-gray-500 font-medium">SangoStore</span> by Legos — Tous droits réservés
             </p>
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
-              <span className="text-xs text-gray-500">{t(f.payments, locale)}</span>
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 bg-orange-500/20 text-orange-400 text-xs font-bold rounded-md">Orange Money</span>
-                <span className="px-2.5 py-1 bg-gray-800 text-gray-300 text-xs font-bold rounded-md">Cash</span>
-              </div>
+
+            {/* Payment badges */}
+            <div className="flex items-center gap-2 order-1 sm:order-2">
+              <span className="text-[11px] text-gray-600 mr-1">Paiements :</span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-orange-500/15 border border-orange-500/25 text-orange-400 text-[11px] font-bold rounded-md">
+                🟠 Orange Money
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/5 border border-white/10 text-gray-400 text-[11px] font-bold rounded-md">
+                💵 Cash
+              </span>
             </div>
           </div>
-          <p className="text-xs text-gray-600 mt-3 text-center">
-            🔒 {t(f.escrowNote, locale)}
+
+          <p className="text-[11px] text-gray-700 mt-3 text-center flex items-center justify-center gap-1.5">
+            <Lock className="w-3 h-3 text-gray-600" />
+            Paiements sécurisés par escrow — votre argent est protégé jusqu'à la livraison
           </p>
         </div>
       </div>

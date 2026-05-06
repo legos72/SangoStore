@@ -287,12 +287,6 @@ export const api = {
     listUsers: (params?: { status?: string; role?: string; search?: string }) =>
       apiFetch<any[]>(`/api/admin/users${qs(params as any)}`),
 
-    updateUserStatus: (id: string, status: "approved" | "rejected") =>
-      apiFetch<any>(`/api/admin/users/${id}/status`, {
-        method: "PATCH",
-        body: JSON.stringify({ status }),
-      }),
-
     pendingCount: () =>
       apiFetch<{ count: number }>("/api/admin/users/pending-count"),
 
@@ -304,5 +298,28 @@ export const api = {
 
     listOrders: (params?: { status?: string }) =>
       apiFetch<any[]>(`/api/admin/orders${qs(params as any)}`),
+
+    suspendUser: (id: string, isActive: boolean) =>
+      apiFetch<any>(`/api/admin/users/${id}/active`, {
+        method: "PATCH", body: JSON.stringify({ isActive }),
+      }),
+
+    messageUser: (id: string, subject: string, message: string) =>
+      apiFetch<any>(`/api/admin/users/${id}/message`, {
+        method: "POST", body: JSON.stringify({ subject, message }),
+      }),
+
+    toggleProduct: (id: string, isAvailable: boolean) =>
+      apiFetch<any>(`/api/admin/products/${id}/availability`, {
+        method: "PATCH", body: JSON.stringify({ isAvailable }),
+      }),
+
+    deleteProduct: (id: string) =>
+      apiFetch<void>(`/api/admin/products/${id}`, { method: "DELETE" }),
+
+    updateUserStatus: (id: string, status: "approved" | "rejected", reason?: string) =>
+      apiFetch<any>(`/api/admin/users/${id}/status`, {
+        method: "PATCH", body: JSON.stringify({ status, reason }),
+      }),
   },
 };

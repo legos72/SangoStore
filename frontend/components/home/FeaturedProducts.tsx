@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, X, ChevronLeft, ChevronRight, AlertCircle, RefreshCw } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductCardSkeleton } from "@/components/product/ProductCardSkeleton";
+import { FlagImage } from "@/components/ui/FlagImage";
 import { COUNTRIES } from "@/lib/countries";
 import { CATEGORY_LABELS, CATEGORY_ICONS, cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n/context";
@@ -129,28 +130,30 @@ export function FeaturedProducts() {
         </div>
 
         {/* Filter panel */}
-        <div className="mb-4 sm:mb-8 bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="mb-4 sm:mb-7 bg-gray-50/70 rounded-2xl border border-gray-100 overflow-hidden">
 
           {/* Category row */}
-          <div className="px-3 sm:px-5 pt-3 sm:pt-4 pb-2.5 sm:pb-3 border-b border-gray-50">
-            <p className="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-[0.12em] mb-2 sm:mb-3 flex items-center gap-1.5">
-              <span className="w-1 h-2.5 sm:h-3 rounded-full bg-orange-400 inline-block" />
-              {t(f.category, locale)}
-            </p>
+          <div className="px-3 sm:px-4 pt-2.5 pb-2 border-b border-gray-100">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-[3px] h-3 rounded-full bg-orange-400 flex-shrink-0" />
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                {t(f.category, locale)}
+              </span>
+            </div>
             <ScrollRow>
               {CATEGORY_KEYS.map(({ value, icon }) => (
                 <button
                   key={value}
                   onClick={() => setActiveCategory(value)}
                   className={cn(
-                    "inline-flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 select-none",
+                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-150 select-none",
                     chipDisabled,
                     activeCategory === value
-                      ? "bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-md shadow-orange-200 scale-[1.03]"
-                      : "bg-gray-50 text-gray-600 hover:bg-orange-50 hover:text-orange-600 hover:scale-[1.02] active:scale-[0.98]"
+                      ? "bg-orange-500 text-white shadow-sm shadow-orange-200"
+                      : "bg-white text-gray-500 border border-gray-200 hover:border-orange-300 hover:text-orange-600"
                   )}
                 >
-                  <span className="text-sm sm:text-base leading-none">{icon}</span>
+                  <span className="text-[13px] leading-none">{icon}</span>
                   <span>{value === "all" ? t(f.all, locale) : CATEGORY_LABELS[value as ProductCategory]}</span>
                 </button>
               ))}
@@ -158,23 +161,26 @@ export function FeaturedProducts() {
           </div>
 
           {/* Country row */}
-          <div className="px-3 sm:px-5 pt-2.5 sm:pt-3.5 pb-3 sm:pb-4">
-            <p className="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-[0.12em] mb-2 sm:mb-3 flex items-center gap-1.5">
-              <span className="w-1 h-2.5 sm:h-3 rounded-full bg-blue-400 inline-block" />
-              {t(f.country, locale)}
-            </p>
+          <div className="px-3 sm:px-4 pt-2.5 pb-2.5">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-[3px] h-3 rounded-full bg-blue-400 flex-shrink-0" />
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                {t(f.country, locale)}
+              </span>
+            </div>
             <ScrollRow>
+              {/* Tous les pays */}
               <button
                 onClick={() => setActiveCountry(null)}
                 className={cn(
-                  "inline-flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 select-none",
+                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-150 select-none",
                   chipDisabled,
                   activeCountry === null
-                    ? "bg-gray-900 text-white shadow-md shadow-gray-300 scale-[1.03]"
-                    : "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900 hover:scale-[1.02] active:scale-[0.98]"
+                    ? "bg-gray-800 text-white shadow-sm"
+                    : "bg-white text-gray-500 border border-gray-200 hover:border-gray-400 hover:text-gray-800"
                 )}
               >
-                <span className="text-sm sm:text-base leading-none">🌍</span>
+                <span className="text-[13px] leading-none">🌍</span>
                 <span>{t(f.allCountries, locale)}</span>
               </button>
 
@@ -183,14 +189,14 @@ export function FeaturedProducts() {
                   key={country.code}
                   onClick={() => setActiveCountry(activeCountry === country.code ? null : country.code)}
                   className={cn(
-                    "inline-flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 select-none",
+                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-150 select-none",
                     chipDisabled,
                     activeCountry === country.code
-                      ? "bg-gray-900 text-white shadow-md shadow-gray-300 scale-[1.03]"
-                      : "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900 hover:scale-[1.02] active:scale-[0.98]"
+                      ? "bg-gray-800 text-white shadow-sm"
+                      : "bg-white text-gray-500 border border-gray-200 hover:border-gray-400 hover:text-gray-800"
                   )}
                 >
-                  <span className="text-sm sm:text-base leading-none">{country.flag}</span>
+                  <FlagImage code={country.code} size="sm" />
                   <span>{country.name}</span>
                 </button>
               ))}
@@ -199,28 +205,27 @@ export function FeaturedProducts() {
 
           {/* Active filter tags */}
           {hasFilters && (
-            <div className="flex items-center flex-wrap gap-2 px-4 sm:px-5 py-2.5 bg-orange-50/60 border-t border-orange-100">
-              <span className="text-[11px] text-orange-400 font-semibold">{t(f.activeFilters, locale)} :</span>
+            <div className="flex items-center flex-wrap gap-1.5 px-3 sm:px-4 py-2 bg-orange-50 border-t border-orange-100">
               {activeCategory !== "all" && (
-                <span className="inline-flex items-center gap-1.5 bg-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                <span className="inline-flex items-center gap-1 bg-orange-500 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
                   {CATEGORY_ICONS[activeCategory as ProductCategory]} {CATEGORY_LABELS[activeCategory as ProductCategory]}
-                  <button onClick={() => setActiveCategory("all")} className="ml-0.5 opacity-80 hover:opacity-100 transition-opacity">
-                    <X className="w-3 h-3" />
+                  <button onClick={() => setActiveCategory("all")} className="opacity-75 hover:opacity-100 ml-0.5">
+                    <X className="w-2.5 h-2.5" />
                   </button>
                 </span>
               )}
               {activeCountry && (
-                <span className="inline-flex items-center gap-1.5 bg-gray-800 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-                  {COUNTRIES.find(c => c.code === activeCountry)?.flag}{" "}
+                <span className="inline-flex items-center gap-1 bg-gray-700 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
+                  <FlagImage code={activeCountry} size="sm" />
                   {COUNTRIES.find(c => c.code === activeCountry)?.name}
-                  <button onClick={() => setActiveCountry(null)} className="ml-0.5 opacity-80 hover:opacity-100 transition-opacity">
-                    <X className="w-3 h-3" />
+                  <button onClick={() => setActiveCountry(null)} className="opacity-75 hover:opacity-100 ml-0.5">
+                    <X className="w-2.5 h-2.5" />
                   </button>
                 </span>
               )}
               <button
                 onClick={() => { setActiveCategory("all"); setActiveCountry(null); }}
-                className="text-xs text-orange-500 hover:text-orange-700 font-semibold underline underline-offset-2 transition-colors ml-1"
+                className="text-[11px] text-orange-500 hover:text-orange-700 font-semibold underline underline-offset-2 transition-colors ml-1"
               >
                 {t(f.clearAll, locale)}
               </button>

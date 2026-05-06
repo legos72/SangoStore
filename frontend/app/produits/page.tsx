@@ -106,7 +106,7 @@ function ProduitsContent() {
 
       {/* Filters panel */}
       {filtersOpen && (
-        <div className="card p-4 sm:p-5 mb-6 animate-fade-in">
+        <div className="card p-4 sm:p-5 mb-6 animate-fade-in !overflow-visible">
           <SearchAndFilter filters={filters} onChange={setFilters} totalResults={total} />
         </div>
       )}

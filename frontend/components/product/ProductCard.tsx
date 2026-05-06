@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { getImageUrl } from "@/lib/api";
+import { FlagImage } from "@/components/ui/FlagImage";
 
 interface ProductCardProps {
   product: Product;
@@ -119,7 +120,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
             <span className="text-[10px] font-semibold text-gray-400 capitalize tracking-wide">
               {product.category}
             </span>
-            <span className="text-sm leading-none">{product.originCountry.flag}</span>
+            <FlagImage code={product.originCountry.code} />
           </div>
 
           {/* Title */}
@@ -135,7 +136,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
             <div className="min-w-0">
               <div className="flex items-baseline gap-1.5 flex-wrap">
                 <span className={cn(
-                  "text-base sm:text-lg font-extrabold leading-none",
+                  "text-base sm:text-lg font-normal leading-none",
                   promoActive ? "text-orange-600" : "text-gray-900"
                 )}>
                   {format(displayPrice, product.currency)}
@@ -177,7 +178,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
                   ? <><Check className="w-3.5 h-3.5" />Ajouté</>
                   : inCart
                   ? "Au panier"
-                  : <><ShoppingCart className="w-3.5 h-3.5" />Commander</>
+                  : <><ShoppingCart className="w-3.5 h-3.5" />Acheter</>
                 }
               </button>
             ) : (
@@ -252,7 +253,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
           <span className="text-[10px] font-semibold text-gray-400 capitalize tracking-wide">
             {product.category}
           </span>
-          <span className="text-sm leading-none">{product.originCountry.flag}</span>
+          <FlagImage code={product.originCountry.code} />
         </div>
 
         {/* Title */}
@@ -268,7 +269,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
           <div className="min-w-0">
             <div className="flex items-baseline gap-1.5 flex-wrap">
               <span className={cn(
-                "text-sm sm:text-base font-extrabold leading-none",
+                "text-sm sm:text-base font-normal leading-none",
                 promoActive ? "text-orange-600" : "text-gray-900"
               )}>
                 {format(displayPrice, product.currency)}
@@ -302,7 +303,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
                 ? <><Check className="w-3 h-3" />Ajouté</>
                 : inCart
                 ? "Au panier"
-                : "Commander"
+                : "Acheter"
               }
             </button>
           ) : (

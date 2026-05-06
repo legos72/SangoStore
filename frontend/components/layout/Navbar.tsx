@@ -8,6 +8,7 @@ import {
   Package, ShoppingCart, User, LogOut, ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LogoCart } from "@/components/ui/LogoCart";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { CurrencySwitcher } from "@/components/ui/CurrencySwitcher";
 import { useCart } from "@/contexts/CartContext";
@@ -97,12 +98,10 @@ export function Navbar() {
         <div className="flex items-center justify-between h-14 sm:h-16 gap-3">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-            </div>
+          <Link href="/" className="flex items-center gap-1.5 flex-shrink-0">
+            <LogoCart size={34} />
             <div>
-              <span className="text-base sm:text-lg font-extrabold text-gray-900">Sango</span>
+              <span className="text-base sm:text-lg font-extrabold text-red-600">Sango</span>
               <span className="text-base sm:text-lg font-extrabold text-orange-500">Store</span>
             </div>
           </Link>

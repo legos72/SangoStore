@@ -3,7 +3,7 @@ import { query, queryOne } from "../config/database";
 import { AppError } from "../middleware/errorHandler";
 import { authenticate, authorize } from "../middleware/auth";
 import type { AuthRequest } from "../middleware/auth";
-import { sendAccountApprovedEmail, sendAccountRejectedEmail } from "../services/email";
+import { sendAccountApprovedEmail, sendAccountRejectedEmail, sendAccountSuspendedEmail, sendAdminMessageEmail } from "../services/email";
 
 export const adminRouter = Router();
 
@@ -63,7 +63,8 @@ adminRouter.patch("/users/:id/status", async (req: AuthRequest, res) => {
   if (status === "approved") {
     sendAccountApprovedEmail(user.email, user.name, user.role).catch(() => {});
   } else {
-    sendAccountRejectedEmail(user.email, user.name).catch(() => {});
+    const reason = typeof req.body.reason === "string" ? req.body.reason.trim() : undefined;
+    sendAccountRejectedEmail(user.email, user.name, reason || undefined).catch(() => {});
   }
 
   res.json({
@@ -175,4 +176,66 @@ adminRouter.get("/orders", async (req, res) => {
   }
 
   res.json({ status: "success", data: orders });
+});
+
+// PATCH /api/admin/users/:id/active  { isActive: boolean }
+adminRouter.patch("/users/:id/active", async (req: AuthRequest, res) => {
+  const { id } = req.params;
+  const { isActive } = req.body;
+  if (typeof isActive !== "boolean") {
+    throw new AppError("isActive doit être un booléen", 400);
+  }
+  const user = await queryOne<any>("SELECT id, name, email FROM users WHERE id = $1", [id]);
+  if (!user) throw new AppError("Utilisateur introuvable", 404);
+
+  await query("UPDATE users SET is_active = $1 WHERE id = $2", [isActive, id]);
+
+  if (!isActive) {
+    sendAccountSuspendedEmail(user.email, user.name).catch(() => {});
+  }
+
+  res.json({ status: "success", message: isActive ? "Compte réactivé" : "Compte suspendu" });
+});
+
+// POST /api/admin/users/:id/message  { subject, message }
+adminRouter.post("/users/:id/message", async (req: AuthRequest, res) => {
+  const { id } = req.params;
+  const { subject, message } = req.body;
+  if (!subject?.trim() || !message?.trim()) {
+    throw new AppError("Sujet et message requis", 400);
+  }
+  const user = await queryOne<any>("SELECT id, name, email FROM users WHERE id = $1", [id]);
+  if (!user) throw new AppError("Utilisateur introuvable", 404);
+
+  await sendAdminMessageEmail(user.email, user.name, subject.trim(), message.trim());
+
+  res.json({ status: "success", message: "Message envoyé" });
+});
+
+// PATCH /api/admin/products/:id/availability  { isAvailable: boolean }
+adminRouter.patch("/products/:id/availability", async (req: AuthRequest, res) => {
+  const { id } = req.params;
+  const { isAvailable } = req.body;
+  if (typeof isAvailable !== "boolean") {
+    throw new AppError("isAvailable doit être un booléen", 400);
+  }
+  const product = await queryOne<any>("SELECT id, title FROM products WHERE id = $1", [id]);
+  if (!product) throw new AppError("Produit introuvable", 404);
+
+  await query("UPDATE products SET is_available = $1 WHERE id = $2", [isAvailable, id]);
+
+  res.json({ status: "success", message: isAvailable ? "Produit activé" : "Produit désactivé" });
+});
+
+// DELETE /api/admin/products/:id
+adminRouter.delete("/products/:id", async (req: AuthRequest, res) => {
+  const { id } = req.params;
+  const product = await queryOne<any>("SELECT id FROM products WHERE id = $1", [id]);
+  if (!product) throw new AppError("Produit introuvable", 404);
+
+  await query("DELETE FROM order_items WHERE product_id = $1", [id]);
+  await query("DELETE FROM product_reviews WHERE product_id = $1", [id]);
+  await query("DELETE FROM products WHERE id = $1", [id]);
+
+  res.json({ status: "success", message: "Produit supprimé" });
 });
