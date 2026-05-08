@@ -11,7 +11,14 @@ const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 export function getImageUrl(path: string | null | undefined): string {
   if (!path) return "";
+  // Old images stored as http://localhost:4000/uploads/... → extract relative path
+  if (path.includes("localhost") || path.includes("127.0.0.1")) {
+    const match = path.match(/\/uploads\/.+/);
+    if (match) return `${BASE}${match[0]}`;
+  }
+  // Already a full external URL → keep as-is
   if (path.startsWith("http")) return path;
+  // Relative path → prefix with API base
   return `${BASE}${path}`;
 }
 

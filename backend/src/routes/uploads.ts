@@ -49,14 +49,12 @@ async function processAndSave(buffer: Buffer): Promise<string> {
   return filename;
 }
 
-const baseUrl = () => process.env.BACKEND_URL || "http://localhost:4000";
-
 // POST /api/uploads/image
 uploadsRouter.post("/image", authenticate, upload.single("image"), async (req, res) => {
   if (!req.file) throw new AppError("Aucun fichier reçu", 400);
 
   const filename = await processAndSave(req.file.buffer);
-  const url = `${baseUrl()}/uploads/${filename}`;
+  const url = `/uploads/${filename}`;
 
   res.json({ status: "success", url, filename, size: req.file.size });
 });
@@ -68,7 +66,7 @@ uploadsRouter.post("/images", authenticate, upload.array("images", 5), async (re
   }
 
   const filenames = await Promise.all(req.files.map(f => processAndSave(f.buffer)));
-  const urls = filenames.map(f => `${baseUrl()}/uploads/${f}`);
+  const urls = filenames.map(f => `/uploads/${f}`);
 
   res.json({ status: "success", urls });
 });

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { COUNTRIES } from "@/lib/countries";
+import { ImageUploader } from "@/components/ui/ImageUploader";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -780,77 +781,20 @@ export default function ModifierProduitPage() {
         <Card>
           <SectionHeader
             step={4} icon={ImageIcon} title="Images du produit"
-            subtitle="Modifiez ou ajoutez des photos (6 max)"
+            subtitle="Glissez-déposez ou sélectionnez jusqu'à 6 photos — tous formats acceptés"
             color="blue"
           />
           <Divider />
-
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-            {form.images.map((img, i) => (
-              <label
-                key={i}
-                className={cn(
-                  "relative group aspect-square rounded-2xl overflow-hidden border-2 cursor-pointer transition-all",
-                  img
-                    ? "border-transparent"
-                    : "border-dashed border-gray-200 bg-gray-50 hover:border-orange-300 hover:bg-orange-50"
-                )}
-              >
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  className="hidden"
-                  onChange={e => {
-                    const file = e.target.files?.[0];
-                    if (file) handleFileChange(i, file);
-                    e.target.value = "";
-                  }}
-                />
-                {img ? (
-                  <>
-                    <img src={img} alt="" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                      <Upload className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={e => { e.preventDefault(); e.stopPropagation(); removeImage(i); }}
-                      className="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                    {i === 0 && (
-                      <span className="absolute bottom-1.5 left-1.5 text-[9px] font-bold bg-black/60 text-white px-1.5 py-0.5 rounded-full">
-                        Principale
-                      </span>
-                    )}
-                  </>
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 p-2">
-                    <div className="w-8 h-8 rounded-xl bg-gray-100 group-hover:bg-orange-100 flex items-center justify-center transition-colors">
-                      <Plus className="w-4 h-4 text-gray-400 group-hover:text-orange-500 transition-colors" />
-                    </div>
-                    <span className="text-[10px] text-gray-400 group-hover:text-orange-500 font-semibold text-center transition-colors leading-tight">
-                      Ajouter
-                    </span>
-                  </div>
-                )}
-              </label>
-            ))}
-            {form.images.length < 6 && (
-              <button
-                type="button"
-                onClick={addImage}
-                className="aspect-square rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 hover:border-orange-300 hover:bg-orange-50 flex flex-col items-center justify-center gap-1.5 transition-all group"
-              >
-                <div className="w-8 h-8 rounded-xl bg-gray-100 group-hover:bg-orange-100 flex items-center justify-center transition-colors">
-                  <Plus className="w-4 h-4 text-gray-400 group-hover:text-orange-500 transition-colors" />
-                </div>
-                <span className="text-[10px] text-gray-400 group-hover:text-orange-500 font-semibold transition-colors">Ajouter</span>
-              </button>
-            )}
-          </div>
-          {errors.images && <ErrMsg>{errors.images}</ErrMsg>}
+          <ImageUploader
+            images={form.images}
+            files={imageFiles.current}
+            error={errors.images}
+            onFilesChange={(newFiles, newPreviews) => {
+              imageFiles.current = newFiles;
+              setErrors(prev => ({ ...prev, images: undefined }));
+              set("images", newPreviews);
+            }}
+          />
         </Card>
 
         {/* ═══ SECTION 5 — Détails ════════════════════════════════════════ */}
