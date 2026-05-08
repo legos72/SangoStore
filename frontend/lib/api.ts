@@ -287,6 +287,46 @@ export const api = {
 
     create: (data: any) =>
       apiFetch<any>("/api/trips", { method: "POST", body: JSON.stringify(data) }),
+
+    patch: (id: string, data: any) =>
+      apiFetch<any>(`/api/trips/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  },
+
+  // ── Transport bookings ────────────────────────────────────────────────────
+  transport: {
+    createBooking: (data: any) =>
+      apiFetch<any>("/api/transport/bookings", { method: "POST", body: JSON.stringify(data) }),
+
+    myBookings: () =>
+      apiFetch<any[]>("/api/transport/bookings"),
+
+    getBooking: (id: string) =>
+      apiFetch<any>(`/api/transport/bookings/${id}`),
+
+    track: (trackingNumber: string) =>
+      apiFetch<any>(`/api/transport/track/${trackingNumber}`),
+
+    // Transporter
+    transporterBookings: (params?: { status?: string }) =>
+      apiFetch<any[]>(`/api/transport/transporter/bookings${qs(params as any)}`),
+
+    transporterTrips: () =>
+      apiFetch<any[]>("/api/transport/transporter/trips"),
+
+    acceptBooking: (id: string) =>
+      apiFetch<any>(`/api/transport/bookings/${id}/status`, {
+        method: "PATCH", body: JSON.stringify({ status: "accepted" }),
+      }),
+
+    refuseBooking: (id: string) =>
+      apiFetch<any>(`/api/transport/bookings/${id}/status`, {
+        method: "PATCH", body: JSON.stringify({ status: "refused" }),
+      }),
+
+    updateTracking: (id: string, trackingStatus: string, description?: string, location?: string) =>
+      apiFetch<any>(`/api/transport/bookings/${id}/tracking`, {
+        method: "PATCH", body: JSON.stringify({ trackingStatus, description, location }),
+      }),
   },
 
   // ── Admin ─────────────────────────────────────────────────────────────────

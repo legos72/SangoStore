@@ -33,35 +33,38 @@ function ScrollRow({ children }: { children: React.ReactNode }) {
 
   function scroll(dir: "left" | "right") {
     if (!ref.current) return;
-    ref.current.scrollBy({ left: dir === "right" ? 220 : -220, behavior: "smooth" });
+    ref.current.scrollBy({ left: dir === "right" ? 180 : -180, behavior: "smooth" });
   }
 
   return (
     <div className="relative flex items-center">
-      <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none rounded-l-xl" />
+      {/* Fades — desktop only */}
+      <div className="hidden sm:block absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-50/90 to-transparent z-10 pointer-events-none" />
+      <div className="hidden sm:block absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50/90 to-transparent z-10 pointer-events-none" />
+
+      {/* Arrows — desktop only, minimal */}
       <button
         onClick={() => scroll("left")}
-        className="absolute left-0 z-20 w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 shadow flex items-center justify-center hover:bg-orange-50 hover:border-orange-300 hover:shadow-md active:scale-95 transition-all duration-150"
+        className="hidden sm:flex absolute left-0 z-20 w-5 h-5 rounded-full bg-white border border-gray-200 shadow-sm items-center justify-center hover:bg-orange-50 hover:border-orange-300 active:scale-90 transition-all duration-150"
         aria-label="Défiler à gauche"
       >
-        <ChevronLeft className="w-3.5 h-3.5 text-gray-500" />
+        <ChevronLeft className="w-3 h-3 text-gray-500" />
       </button>
 
       <div
         ref={ref}
-        className="flex items-center gap-2 overflow-x-auto scroll-smooth px-8"
+        className="flex items-center gap-1.5 overflow-x-auto scroll-smooth sm:px-6"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {children}
       </div>
 
-      <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none rounded-r-xl" />
       <button
         onClick={() => scroll("right")}
-        className="absolute right-0 z-20 w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 shadow flex items-center justify-center hover:bg-orange-50 hover:border-orange-300 hover:shadow-md active:scale-95 transition-all duration-150"
+        className="hidden sm:flex absolute right-0 z-20 w-5 h-5 rounded-full bg-white border border-gray-200 shadow-sm items-center justify-center hover:bg-orange-50 hover:border-orange-300 active:scale-90 transition-all duration-150"
         aria-label="Défiler à droite"
       >
-        <ChevronRight className="w-3.5 h-3.5 text-gray-500" />
+        <ChevronRight className="w-3 h-3 text-gray-500" />
       </button>
     </div>
   );
@@ -130,11 +133,12 @@ export function FeaturedProducts() {
         </div>
 
         {/* Filter panel */}
-        <div className="mb-4 sm:mb-7 bg-gray-50/70 rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="mb-3 sm:mb-7 rounded-xl sm:rounded-2xl border border-gray-100 bg-gray-50/60 overflow-hidden">
 
           {/* Category row */}
-          <div className="px-3 sm:px-4 pt-2.5 pb-2 border-b border-gray-100">
-            <div className="flex items-center gap-2 mb-2">
+          <div className="px-2 sm:px-4 py-1.5 sm:py-2.5 border-b border-gray-100/80">
+            {/* Label — desktop only */}
+            <div className="hidden sm:flex items-center gap-2 mb-1.5">
               <span className="w-[3px] h-3 rounded-full bg-orange-400 flex-shrink-0" />
               <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                 {t(f.category, locale)}
@@ -146,14 +150,14 @@ export function FeaturedProducts() {
                   key={value}
                   onClick={() => setActiveCategory(value)}
                   className={cn(
-                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-150 select-none",
+                    "inline-flex items-center gap-1 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-150 select-none",
                     chipDisabled,
                     activeCategory === value
-                      ? "bg-orange-500 text-white shadow-sm shadow-orange-200"
+                      ? "bg-orange-500 text-white"
                       : "bg-white text-gray-500 border border-gray-200 hover:border-orange-300 hover:text-orange-600"
                   )}
                 >
-                  <span className="text-[13px] leading-none">{icon}</span>
+                  <span className="text-[11px] sm:text-[12px] leading-none">{icon}</span>
                   <span>{value === "all" ? t(f.all, locale) : CATEGORY_LABELS[value as ProductCategory]}</span>
                 </button>
               ))}
@@ -161,26 +165,26 @@ export function FeaturedProducts() {
           </div>
 
           {/* Country row */}
-          <div className="px-3 sm:px-4 pt-2.5 pb-2.5">
-            <div className="flex items-center gap-2 mb-2">
+          <div className="px-2 sm:px-4 py-1.5 sm:py-2.5">
+            {/* Label — desktop only */}
+            <div className="hidden sm:flex items-center gap-2 mb-1.5">
               <span className="w-[3px] h-3 rounded-full bg-blue-400 flex-shrink-0" />
               <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                 {t(f.country, locale)}
               </span>
             </div>
             <ScrollRow>
-              {/* Tous les pays */}
               <button
                 onClick={() => setActiveCountry(null)}
                 className={cn(
-                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-150 select-none",
+                  "inline-flex items-center gap-1 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-150 select-none",
                   chipDisabled,
                   activeCountry === null
-                    ? "bg-gray-800 text-white shadow-sm"
+                    ? "bg-gray-800 text-white"
                     : "bg-white text-gray-500 border border-gray-200 hover:border-gray-400 hover:text-gray-800"
                 )}
               >
-                <span className="text-[13px] leading-none">🌍</span>
+                <span className="text-[11px] leading-none">🌍</span>
                 <span>{t(f.allCountries, locale)}</span>
               </button>
 
@@ -189,10 +193,10 @@ export function FeaturedProducts() {
                   key={country.code}
                   onClick={() => setActiveCountry(activeCountry === country.code ? null : country.code)}
                   className={cn(
-                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-150 select-none",
+                    "inline-flex items-center gap-1 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-150 select-none",
                     chipDisabled,
                     activeCountry === country.code
-                      ? "bg-gray-800 text-white shadow-sm"
+                      ? "bg-gray-800 text-white"
                       : "bg-white text-gray-500 border border-gray-200 hover:border-gray-400 hover:text-gray-800"
                   )}
                 >
@@ -205,27 +209,27 @@ export function FeaturedProducts() {
 
           {/* Active filter tags */}
           {hasFilters && (
-            <div className="flex items-center flex-wrap gap-1.5 px-3 sm:px-4 py-2 bg-orange-50 border-t border-orange-100">
+            <div className="flex items-center flex-wrap gap-1 px-2 sm:px-4 py-1.5 bg-orange-50 border-t border-orange-100">
               {activeCategory !== "all" && (
-                <span className="inline-flex items-center gap-1 bg-orange-500 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-0.5 bg-orange-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
                   {CATEGORY_ICONS[activeCategory as ProductCategory]} {CATEGORY_LABELS[activeCategory as ProductCategory]}
                   <button onClick={() => setActiveCategory("all")} className="opacity-75 hover:opacity-100 ml-0.5">
-                    <X className="w-2.5 h-2.5" />
+                    <X className="w-2 h-2" />
                   </button>
                 </span>
               )}
               {activeCountry && (
-                <span className="inline-flex items-center gap-1 bg-gray-700 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-0.5 bg-gray-700 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
                   <FlagImage code={activeCountry} size="sm" />
                   {COUNTRIES.find(c => c.code === activeCountry)?.name}
                   <button onClick={() => setActiveCountry(null)} className="opacity-75 hover:opacity-100 ml-0.5">
-                    <X className="w-2.5 h-2.5" />
+                    <X className="w-2 h-2" />
                   </button>
                 </span>
               )}
               <button
                 onClick={() => { setActiveCategory("all"); setActiveCountry(null); }}
-                className="text-[11px] text-orange-500 hover:text-orange-700 font-semibold underline underline-offset-2 transition-colors ml-1"
+                className="text-[10px] text-orange-500 hover:text-orange-700 font-semibold underline underline-offset-2 transition-colors ml-0.5"
               >
                 {t(f.clearAll, locale)}
               </button>
@@ -241,7 +245,6 @@ export function FeaturedProducts() {
             ))}
           </div>
         ) : error ? (
-          /* Error state */
           <div className="text-center py-10 sm:py-16 bg-red-50 rounded-2xl border border-red-100">
             <AlertCircle className="w-10 h-10 text-red-300 mx-auto mb-3" />
             <p className="text-gray-600 font-semibold mb-1">Impossible de charger les produits</p>
@@ -254,7 +257,6 @@ export function FeaturedProducts() {
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          /* Empty state */
           <div className="text-center py-10 sm:py-16 bg-gray-50 rounded-2xl border border-gray-100">
             <div className="text-4xl mb-3">🔍</div>
             <p className="text-gray-500 font-medium">{t(f.noProducts, locale)}</p>

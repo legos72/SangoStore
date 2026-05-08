@@ -28,7 +28,16 @@ transportersRouter.get("/", async (req, res) => {
     `SELECT t.*,
        u.name, u.country_code, u.avatar_url,
        COALESCE(AVG(r.rating), 0)::NUMERIC(3,2) AS avg_rating,
-       COUNT(DISTINCT r.id) AS review_count
+       COUNT(DISTINCT r.id) AS review_count,
+       (SELECT row_to_json(tr)
+        FROM (
+          SELECT id, origin_country, destination_city, departure_date, price_per_kg, currency, available_capacity
+          FROM trips
+          WHERE transporter_id = t.id AND is_active = TRUE AND departure_date >= NOW()
+          ORDER BY departure_date ASC
+          LIMIT 1
+        ) tr
+       ) AS next_trip
      FROM transporters t
      LEFT JOIN users u ON t.user_id = u.id
      LEFT JOIN transporter_reviews r ON r.transporter_id = t.id

@@ -18,6 +18,7 @@ import { paymentsRouter } from "./routes/payments";
 import { uploadsRouter } from "./routes/uploads";
 import { vendorRouter } from "./routes/vendor";
 import { adminRouter } from "./routes/admin";
+import { transportRouter } from "./routes/transport";
 import { errorHandler } from "./middleware/errorHandler";
 import { notFound } from "./middleware/notFound";
 
@@ -84,6 +85,7 @@ app.use("/api/payments",     paymentsRouter);
 app.use("/api/uploads",      uploadsRouter);
 app.use("/api/vendor",       vendorRouter);
 app.use("/api/admin",        adminRouter);
+app.use("/api/transport",    transportRouter);
 
 // ─── Error handling ───────────────────────────────────────────────────────────
 app.use(notFound);

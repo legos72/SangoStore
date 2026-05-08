@@ -3,8 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { HeroSection } from "@/components/home/HeroSection";
 import { StatsSection } from "@/components/home/StatsSection";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
-import { TransporterCard } from "@/components/transporter/TransporterCard";
-import { MOCK_TRANSPORTERS, MOCK_TRIPS } from "@/lib/data";
+import { HomeTransporters } from "@/components/home/HomeTransporters";
 import { COUNTRIES } from "@/lib/countries";
 
 const HOW_IT_WORKS = [
@@ -15,8 +14,6 @@ const HOW_IT_WORKS = [
 ];
 
 export default function HomePage() {
-  const featuredTransporters = MOCK_TRANSPORTERS.slice(0, 3);
-
   return (
     <>
       <HeroSection />
@@ -24,30 +21,8 @@ export default function HomePage() {
       {/* Produits avec filtres catégorie + pays */}
       <FeaturedProducts />
 
-      {/* ── Transporters (remonté avant Origine) ───────────────────────── */}
-      <section className="py-8 sm:py-14 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-4 sm:mb-6">
-            <div>
-              <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">Transporteurs certifiés</h2>
-              <p className="text-gray-400 text-xs sm:text-sm mt-0.5">Nos GPs et transitaires de confiance vers Bangui</p>
-            </div>
-            <Link href="/transporteurs" className="btn-outline-orange text-sm hidden sm:flex">
-              Tous les transporteurs <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {featuredTransporters.map((t) => (
-              <TransporterCard key={t.id} transporter={t} trips={MOCK_TRIPS} />
-            ))}
-          </div>
-          <div className="sm:hidden mt-4 text-center">
-            <Link href="/transporteurs" className="btn-outline-orange text-sm inline-flex">
-              Tous les transporteurs <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* ── Transporters ────────────────────────────────────────────────── */}
+      <HomeTransporters />
 
       {/* ── Browse by country (après Transporteurs) ─────────────────────── */}
       <section className="py-8 sm:py-14 text-white" style={{ background: "linear-gradient(160deg, #0F1928 0%, #0A1120 60%, #1a1206 100%)" }}>

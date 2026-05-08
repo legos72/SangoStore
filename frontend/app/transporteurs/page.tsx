@@ -1,35 +1,56 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { Star, CheckCircle, Filter, Plus, Phone, MessageCircle, Calendar, Package } from "lucide-react";
-import { CountryFilter } from "@/components/product/CountryFilter";
-import { MOCK_TRANSPORTERS, MOCK_TRIPS } from "@/lib/data";
-import { formatPrice, formatDate } from "@/lib/utils";
-import type { Trip } from "@/lib/types";
+import {
+  Star, Plus, Package, Loader2, ArrowRight,
+} from "lucide-react";
+import { api } from "@/lib/api";
+import { FlagImage } from "@/components/ui/FlagImage";
+import { TransporterCard } from "@/components/transporter/TransporterCard";
 import { cn } from "@/lib/utils";
 
 type ViewMode = "transporteurs" | "trajets";
 
 export default function TransporteursPage() {
-  const [view, setView] = useState<ViewMode>("transporteurs");
+  const [view, setView]                   = useState<ViewMode>("transporteurs");
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [transporters, setTransporters]   = useState<any[]>([]);
+  const [trips, setTrips]                 = useState<any[]>([]);
+  const [loading, setLoading]             = useState(true);
 
-  const filteredTransporters = useMemo(
-    () =>
-      selectedCountry
-        ? MOCK_TRANSPORTERS.filter((t) => t.user.countryCode === selectedCountry)
-        : MOCK_TRANSPORTERS,
-    [selectedCountry]
-  );
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      try {
+        const [tRes, trRes] = await Promise.all([
+          api.transporters.list(selectedCountry ? { country: selectedCountry } : undefined),
+          api.trips.list(selectedCountry ? { country: selectedCountry } : undefined),
+        ]);
+        setTransporters(tRes.data ?? []);
+        setTrips((trRes.data ?? []).filter((t: any) => t.is_active));
+      } catch {
+        setTransporters([]);
+        setTrips([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [selectedCountry]);
 
-  const filteredTrips = useMemo(
-    () =>
-      selectedCountry
-        ? MOCK_TRIPS.filter((t) => t.originCountry.code === selectedCountry && t.isActive)
-        : MOCK_TRIPS.filter((t) => t.isActive),
-    [selectedCountry]
-  );
+  // Extract unique origin countries from trips
+  const countries = useMemo(() => {
+    const seen = new Set<string>();
+    const list: string[] = [];
+    for (const t of trips) {
+      if (t.origin_country && !seen.has(t.origin_country)) {
+        seen.add(t.origin_country);
+        list.push(t.origin_country);
+      }
+    }
+    return list;
+  }, [trips]);
 
   return (
     <div className="page-container py-6 sm:py-8">
@@ -68,113 +89,62 @@ export default function TransporteursPage() {
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
           Filtrer par pays de départ
         </p>
-        <CountryFilter selected={selectedCountry} onChange={setSelectedCountry} />
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setSelectedCountry(null)}
+            className={cn(
+              "flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all",
+              !selectedCountry
+                ? "bg-orange-500 text-white border-orange-500"
+                : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"
+            )}
+          >
+            🌍 Tous les pays
+          </button>
+          {["FR", "BE", "CH", "CM", "SN", "CI", "GA", "CG"].map(code => (
+            <button
+              key={code}
+              onClick={() => setSelectedCountry(code === selectedCountry ? null : code)}
+              className={cn(
+                "flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all",
+                selectedCountry === code
+                  ? "bg-orange-500 text-white border-orange-500"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"
+              )}
+            >
+              <FlagImage code={code} size="sm" />
+              {code}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Content */}
-      {view === "transporteurs" ? (
+      {loading ? (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 className="w-7 h-7 animate-spin text-orange-500" />
+        </div>
+      ) : view === "transporteurs" ? (
         <>
-          {filteredTransporters.length === 0 ? (
+          {transporters.length === 0 ? (
             <div className="card p-8 sm:p-12 text-center text-gray-500">
               Aucun transporteur disponible depuis ce pays.
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredTransporters.map((transporter) => {
-                const trips = MOCK_TRIPS.filter(
-                  (t) => t.transporter.id === transporter.id && t.isActive
-                );
-                return (
-                  <div key={transporter.id} className="card-hover p-5 space-y-4">
-                    {/* Header */}
-                    <div className="flex items-start gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center text-xl font-bold text-orange-600 flex-shrink-0">
-                        {transporter.companyName.charAt(0)}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-semibold text-sm text-gray-900">
-                            {transporter.companyName}
-                          </span>
-                          {transporter.isVerified && (
-                            <span className="badge-green text-[11px]">
-                              <CheckCircle className="w-3 h-3" /> Vérifié
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                          <span className="text-sm font-semibold">{transporter.rating}</span>
-                          <span className="text-xs text-gray-500">({transporter.reviewCount} avis)</span>
-                        </div>
-                        <div className="text-xs text-gray-500 mt-0.5">
-                          {transporter.user.countryCode === "FR" ? "🇫🇷" :
-                           transporter.user.countryCode === "SN" ? "🇸🇳" :
-                           transporter.user.countryCode === "CM" ? "🇨🇲" : "🌍"}{" "}
-                          {transporter.user.countryCode}
-                        </div>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-gray-500 line-clamp-2">{transporter.description}</p>
-
-                    {/* Trips summary */}
-                    {trips.length > 0 && (
-                      <div className="bg-orange-50 border border-orange-100 rounded-xl p-3 space-y-1.5">
-                        <span className="text-xs font-semibold text-orange-700 flex items-center gap-1">
-                          <Package className="w-3.5 h-3.5" />
-                          {trips.length} trajet{trips.length > 1 ? "s" : ""} disponible{trips.length > 1 ? "s" : ""}
-                        </span>
-                        {trips.slice(0, 2).map((trip) => (
-                          <div key={trip.id} className="text-xs text-gray-600 flex justify-between">
-                            <span>
-                              {trip.originCountry.flag} → 🇨🇫 Bangui — Départ{" "}
-                              {new Date(trip.departureDate).toLocaleDateString("fr-FR", {
-                                day: "numeric",
-                                month: "short",
-                              })}
-                            </span>
-                            <span className="font-semibold text-orange-600">
-                              {formatPrice(trip.pricePerKg, trip.currency)}/kg
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Contacts */}
-                    <div className="flex gap-2">
-                      <a
-                        href={`tel:${transporter.contact.phone}`}
-                        className="btn-secondary text-xs flex-1 py-2"
-                      >
-                        <Phone className="w-3.5 h-3.5" /> Appeler
-                      </a>
-                      {transporter.contact.whatsapp && (
-                        <a
-                          href={`https://wa.me/${transporter.contact.whatsapp.replace(/\D/g, "")}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn-primary text-xs flex-1 py-2"
-                        >
-                          <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+              {transporters.map((t: any) => (
+                <TransporterCard key={t.id} transporter={t} />
+              ))}
             </div>
           )}
         </>
       ) : (
         <div className="space-y-4">
-          {filteredTrips.length === 0 ? (
+          {trips.length === 0 ? (
             <div className="card p-8 sm:p-12 text-center text-gray-500">
               Aucun trajet disponible depuis ce pays.
             </div>
           ) : (
-            filteredTrips.map((trip) => (
+            trips.map((trip: any) => (
               <TripCard key={trip.id} trip={trip} />
             ))
           )}
@@ -184,15 +154,16 @@ export default function TransporteursPage() {
   );
 }
 
-function TripCard({ trip }: { trip: Trip }) {
+
+function TripCard({ trip: t }: { trip: any }) {
   return (
     <div className="card-hover p-5">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         {/* Route */}
         <div className="flex items-center gap-3 flex-1">
           <div className="text-center">
-            <div className="text-2xl">{trip.originCountry.flag}</div>
-            <div className="text-xs text-gray-500 mt-0.5">{trip.originCountry.name}</div>
+            <FlagImage code={t.origin_country} size="md" />
+            <div className="text-xs text-gray-500 mt-0.5">{t.origin_country}</div>
           </div>
           <div className="flex-1 flex flex-col items-center">
             <div className="w-full h-0.5 bg-orange-200 relative">
@@ -201,8 +172,8 @@ function TripCard({ trip }: { trip: Trip }) {
             <span className="text-xs text-orange-500 font-medium mt-1">GP / Transit</span>
           </div>
           <div className="text-center">
-            <div className="text-2xl">🇨🇫</div>
-            <div className="text-xs text-gray-500 mt-0.5">{trip.destinationCity}</div>
+            <FlagImage code="CF" size="md" />
+            <div className="text-xs text-gray-500 mt-0.5">{t.destination_city}</div>
           </div>
         </div>
 
@@ -211,58 +182,52 @@ function TripCard({ trip }: { trip: Trip }) {
           <div className="text-center">
             <div className="text-xs text-gray-400 font-medium">Départ</div>
             <div className="font-semibold text-gray-900">
-              {new Date(trip.departureDate).toLocaleDateString("fr-FR", {
-                day: "numeric",
-                month: "short",
-              })}
+              {new Date(t.departure_date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
             </div>
           </div>
-          {trip.arrivalDate && (
+          {t.arrival_date && (
             <div className="text-center">
               <div className="text-xs text-gray-400 font-medium">Arrivée</div>
               <div className="font-semibold text-gray-900">
-                {new Date(trip.arrivalDate).toLocaleDateString("fr-FR", {
-                  day: "numeric",
-                  month: "short",
-                })}
+                {new Date(t.arrival_date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
               </div>
             </div>
           )}
           <div className="text-center">
             <div className="text-xs text-gray-400 font-medium">Prix/kg</div>
             <div className="font-bold text-orange-600">
-              {formatPrice(trip.pricePerKg, trip.currency)}
+              {parseFloat(t.price_per_kg).toLocaleString("fr-FR")} {t.currency}
             </div>
           </div>
           <div className="text-center">
             <div className="text-xs text-gray-400 font-medium">Capacité</div>
-            <div className="font-semibold text-gray-900">{trip.availableCapacity} kg</div>
+            <div className="font-semibold text-gray-900">{t.available_capacity} kg</div>
           </div>
         </div>
 
         {/* Transporter + CTA */}
         <div className="flex items-center gap-3">
           <div className="text-xs text-gray-500">
-            <div className="font-semibold text-gray-800">{trip.transporter.companyName}</div>
-            <div className="flex items-center gap-1">
-              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-              {trip.transporter.rating}
-            </div>
+            <div className="font-semibold text-gray-800">{t.company_name}</div>
+            {t.avg_rating && (
+              <div className="flex items-center gap-1">
+                <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                {parseFloat(t.avg_rating).toFixed(1)}
+              </div>
+            )}
           </div>
-          <a
-            href={`https://wa.me/${trip.transporter.contact.whatsapp?.replace(/\D/g, "")}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary text-xs py-2 px-4 whitespace-nowrap"
+          <Link
+            href={`/transporteurs/${t.transporter_id}`}
+            className="btn-primary text-xs py-2 px-4 whitespace-nowrap gap-1.5"
           >
-            <MessageCircle className="w-3.5 h-3.5" />
-            Contacter
-          </a>
+            <Package className="w-3.5 h-3.5" />
+            Réserver
+          </Link>
         </div>
       </div>
 
-      {trip.description && (
-        <p className="text-xs text-gray-500 mt-3 pt-3 border-t border-gray-100">{trip.description}</p>
+      {t.description && (
+        <p className="text-xs text-gray-500 mt-3 pt-3 border-t border-gray-100">{t.description}</p>
       )}
     </div>
   );

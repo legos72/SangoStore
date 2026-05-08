@@ -89,6 +89,9 @@ export default function DashboardPage() {
   const [currentUser, setCurrentUser] = useState<ReturnType<typeof getUser>>(null);
   const [orders, setOrders]           = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [colis, setColis]             = useState<any[]>([]);
+  const [loadingColis, setLoadingColis]   = useState(false);
+  const [clientTab, setClientTab]     = useState<"commandes" | "colis">("commandes");
 
   useEffect(() => {
     const user = getUser();
@@ -99,12 +102,21 @@ export default function DashboardPage() {
     if (user.role === "admin") { router.push("/dashboard/admin"); return; }
     // Vendeur → dashboard vendeur
     if (user.role === "vendeur") { router.push("/dashboard/vendeur"); return; }
+    // Transporteur → dashboard transporteur
+    if (user.role === "transporteur") { router.push("/dashboard/transporteur"); return; }
 
-    // Transporteur et client : charger les commandes réelles
+    // Charger les commandes marketplace
     api.orders.list()
       .then((res: any) => setOrders(res.data ?? []))
       .catch(() => setOrders([]))
       .finally(() => setLoadingOrders(false));
+
+    // Charger les colis transport
+    setLoadingColis(true);
+    api.transport.myBookings()
+      .then((res: any) => setColis(res.data ?? []))
+      .catch(() => setColis([]))
+      .finally(() => setLoadingColis(false));
   }, [router]);
 
   if (!currentUser) {
@@ -119,59 +131,6 @@ export default function DashboardPage() {
   const pendingOrders = orders.filter(o => o.status !== "recupere" && o.status !== "annule");
   const doneOrders    = orders.filter(o => o.status === "recupere");
   const urgentOrders  = orders.filter(o => o.status === "pret_retrait");
-
-  // ── TRANSPORTEUR ────────────────────────────────────────────────────────────
-  if (currentUser.role === "transporteur") {
-    return (
-      <div className="page-container py-8 space-y-6">
-        {/* Hero */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 p-6 text-white shadow-lg">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-2xl font-extrabold border border-white/30">
-                {initials}
-              </div>
-              <div>
-                <h1 className="text-xl font-extrabold">{currentUser.name}</h1>
-                <p className="text-blue-100 text-sm mt-0.5">Espace transporteur</p>
-              </div>
-            </div>
-            <Link href="/transporteurs/publier" className="flex items-center gap-1.5 bg-white text-blue-600 text-xs font-bold px-3 py-2 rounded-xl shadow-sm">
-              <Plus className="w-3.5 h-3.5" /> Nouveau trajet
-            </Link>
-          </div>
-        </div>
-
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <div className="font-semibold text-amber-800 text-sm">Compte en cours de vérification</div>
-            <p className="text-xs text-amber-700 mt-1">
-              Pour publier des trajets et recevoir des colis, votre compte transporteur doit être validé par l'équipe SangoStore.
-              Vous recevrez un email de confirmation.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: "Trajets actifs",   value: "—", icon: Truck,   bg: "bg-blue-50",   ic: "bg-blue-100 text-blue-600" },
-            { label: "Colis en transit", value: "—", icon: Package, bg: "bg-orange-50", ic: "bg-orange-100 text-orange-600" },
-            { label: "Clients servis",   value: "—", icon: Users,   bg: "bg-purple-50", ic: "bg-purple-100 text-purple-600" },
-            { label: "Note moyenne",     value: "—", icon: Star,    bg: "bg-green-50",  ic: "bg-green-100 text-green-600" },
-          ].map(({ label, value, icon: Icon, bg, ic }) => (
-            <div key={label} className={cn("rounded-2xl p-4", bg)}>
-              <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center mb-3", ic)}>
-                <Icon className="w-4 h-4" />
-              </div>
-              <div className="text-2xl font-extrabold text-gray-900">{value}</div>
-              <div className="text-xs text-gray-500 mt-0.5">{label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   // ── CLIENT ───────────────────────────────────────────────────────────────────
   return (
@@ -289,76 +248,181 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Orders */}
+      {/* Tabs: Commandes / Colis transport */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-gray-900">Mes commandes récentes</h2>
-          <Link href="/commandes" className="text-sm text-orange-500 hover:text-orange-700 font-semibold flex items-center gap-1">
-            Toutes <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+        <div className="flex gap-1 bg-gray-100 rounded-xl p-1 w-full sm:w-fit mb-4">
+          {([
+            { key: "commandes", label: "🛍️ Mes commandes" },
+            { key: "colis",     label: "✈️ Mes colis transport" },
+          ] as { key: typeof clientTab; label: string }[]).map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setClientTab(key)}
+              className={cn(
+                "flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition-all",
+                clientTab === key ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-700"
+              )}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
-        {loadingOrders ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-5 h-5 animate-spin text-orange-400" />
-          </div>
-        ) : orders.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-gray-200 py-14 flex flex-col items-center gap-3 text-center">
-            <ShoppingBag className="w-10 h-10 text-gray-200" />
-            <p className="font-semibold text-gray-400 text-sm">Aucune commande pour l'instant</p>
-            <Link href="/produits" className="btn-primary text-sm mt-1">
-              Découvrir les produits
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {orders.slice(0, 5).map((order: any) => {
-              const isUrgent = order.status === "pret_retrait";
-              return (
-                <div key={order.id} className={cn(
-                  "bg-white rounded-2xl border shadow-sm overflow-hidden transition-all hover:shadow-md",
-                  isUrgent ? "border-green-300 ring-1 ring-green-200" : "border-gray-100"
-                )}>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 pb-3">
-                    <div className="flex items-start gap-3">
-                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-base", isUrgent ? "bg-green-100" : "bg-gray-50")}>
-                        {order.status === "recupere" ? "✅" : order.status === "pret_retrait" ? "🔔" : order.status === "expedie" ? "✈️" : "📦"}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-sm text-gray-900">#{order.order_number}</span>
-                          <StatusBadge status={order.status} />
-                        </div>
-                        <p className="text-xs text-gray-400 mt-0.5">{formatDate(order.created_at)}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <div className="text-right">
-                        <div className="font-bold text-gray-900">
-                          {formatPrice(order.total_amount, order.currency)}
-                        </div>
-                        <div className="text-xs text-gray-400 mt-0.5">
-                          {order.payment_status === "bloque" ? "🔒 Escrow" : "✅ Libéré"}
-                        </div>
-                      </div>
-                      <Link
-                        href={`/commandes/${order.id}`}
-                        className="flex items-center gap-1.5 bg-gray-50 hover:bg-orange-50 border border-gray-100 hover:border-orange-200 text-gray-600 hover:text-orange-600 text-xs font-semibold px-3 py-2 rounded-xl transition-all"
-                      >
-                        <Eye className="w-3.5 h-3.5" /> Suivi
-                      </Link>
-                    </div>
-                  </div>
+        {/* Commandes marketplace */}
+        {clientTab === "commandes" && (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-gray-900">Mes commandes récentes</h2>
+              <Link href="/commandes" className="text-sm text-orange-500 hover:text-orange-700 font-semibold flex items-center gap-1">
+                Toutes <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
 
-                  {order.status !== "en_attente" && order.status !== "annule" && (
-                    <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
-                      <MiniTimeline status={order.status} />
+            {loadingOrders ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-5 h-5 animate-spin text-orange-400" />
+              </div>
+            ) : orders.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-gray-200 py-14 flex flex-col items-center gap-3 text-center">
+                <ShoppingBag className="w-10 h-10 text-gray-200" />
+                <p className="font-semibold text-gray-400 text-sm">Aucune commande pour l'instant</p>
+                <Link href="/produits" className="btn-primary text-sm mt-1">
+                  Découvrir les produits
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {orders.slice(0, 5).map((order: any) => {
+                  const isUrgent = order.status === "pret_retrait";
+                  return (
+                    <div key={order.id} className={cn(
+                      "bg-white rounded-2xl border shadow-sm overflow-hidden transition-all hover:shadow-md",
+                      isUrgent ? "border-green-300 ring-1 ring-green-200" : "border-gray-100"
+                    )}>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 pb-3">
+                        <div className="flex items-start gap-3">
+                          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-base", isUrgent ? "bg-green-100" : "bg-gray-50")}>
+                            {order.status === "recupere" ? "✅" : order.status === "pret_retrait" ? "🔔" : order.status === "expedie" ? "✈️" : "📦"}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-bold text-sm text-gray-900">#{order.order_number}</span>
+                              <StatusBadge status={order.status} />
+                            </div>
+                            <p className="text-xs text-gray-400 mt-0.5">{formatDate(order.created_at)}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          <div className="text-right">
+                            <div className="font-bold text-gray-900">
+                              {formatPrice(order.total_amount, order.currency)}
+                            </div>
+                            <div className="text-xs text-gray-400 mt-0.5">
+                              {order.payment_status === "bloque" ? "🔒 Escrow" : "✅ Libéré"}
+                            </div>
+                          </div>
+                          <Link
+                            href={`/commandes/${order.id}`}
+                            className="flex items-center gap-1.5 bg-gray-50 hover:bg-orange-50 border border-gray-100 hover:border-orange-200 text-gray-600 hover:text-orange-600 text-xs font-semibold px-3 py-2 rounded-xl transition-all"
+                          >
+                            <Eye className="w-3.5 h-3.5" /> Suivi
+                          </Link>
+                        </div>
+                      </div>
+
+                      {order.status !== "en_attente" && order.status !== "annule" && (
+                        <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
+                          <MiniTimeline status={order.status} />
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Colis transport */}
+        {clientTab === "colis" && (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-gray-900">Mes colis transport</h2>
+              <Link href="/transporteurs" className="text-sm text-orange-500 hover:text-orange-700 font-semibold flex items-center gap-1">
+                Envoyer un colis <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            {loadingColis ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-5 h-5 animate-spin text-orange-400" />
+              </div>
+            ) : colis.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-gray-200 py-14 flex flex-col items-center gap-3 text-center">
+                <Truck className="w-10 h-10 text-gray-200" />
+                <p className="font-semibold text-gray-400 text-sm">Aucun colis transport</p>
+                <p className="text-xs text-gray-400">Envoyez vos colis via nos transporteurs GP</p>
+                <Link href="/transporteurs" className="btn-primary text-sm mt-1">
+                  Voir les transporteurs
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {colis.map((b: any) => {
+                  const statusCfg: Record<string, { label: string; cls: string }> = {
+                    pending:    { label: "En attente",  cls: "bg-yellow-50 text-yellow-700 border border-yellow-200" },
+                    accepted:   { label: "Accepté",    cls: "bg-blue-50 text-blue-700 border border-blue-200" },
+                    in_transit: { label: "En transit", cls: "bg-orange-50 text-orange-700 border border-orange-200" },
+                    delivered:  { label: "Livré",      cls: "bg-green-50 text-green-700 border border-green-200" },
+                    refused:    { label: "Refusé",     cls: "bg-red-50 text-red-700 border border-red-200" },
+                  };
+                  const cfg = statusCfg[b.status] ?? { label: b.status, cls: "bg-gray-50 text-gray-600 border border-gray-100" };
+                  return (
+                    <div key={b.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition-all">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 flex-wrap mb-2">
+                            <span className={cn("text-[11px] font-semibold px-2.5 py-1 rounded-full", cfg.cls)}>
+                              {cfg.label}
+                            </span>
+                            {b.tracking_number && (
+                              <span className="text-[11px] font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                                {b.tracking_number}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                            <span>{b.origin_country} → 🇨🇫 {b.destination_city}</span>
+                            <span>·</span>
+                            <span>{b.weight_kg} kg</span>
+                          </div>
+                          <p className="text-xs text-gray-500 line-clamp-1">{b.package_description}</p>
+                          {b.transporter_company && (
+                            <p className="text-xs text-gray-400 mt-1">Transporteur : {b.transporter_company}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-right">
+                            <div className="font-bold text-gray-900 text-sm">
+                              {parseFloat(b.total_price).toLocaleString("fr-FR")} {b.currency}
+                            </div>
+                          </div>
+                          {b.tracking_number && (
+                            <Link
+                              href={`/suivi/${b.tracking_number}`}
+                              className="flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-600 text-xs font-semibold px-3 py-2 rounded-xl hover:bg-orange-100 transition-colors whitespace-nowrap"
+                            >
+                              <Eye className="w-3.5 h-3.5" /> Suivre
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
         )}
       </div>
 

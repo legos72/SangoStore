@@ -78,8 +78,10 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
   }
 
   const imgFallback = (
-    <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-      <Package className="w-10 h-10 text-gray-300" />
+    <div className="absolute inset-0 flex flex-col items-center justify-center"
+      style={{ background: "linear-gradient(135deg,#fef3e2 0%,#fde8c4 100%)" }}>
+      <Package className="w-7 h-7 text-orange-300" />
+      <span className="text-[9px] text-orange-300 font-semibold mt-1 uppercase tracking-widest">Produit</span>
     </div>
   );
 
@@ -193,21 +195,21 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
   /* ── GRID VARIANT ─────────────────────────────────────────────────────── */
   return (
     <div className={cn(
-      "group relative flex flex-col rounded-2xl overflow-hidden bg-white",
-      "border border-gray-200 hover:border-orange-200",
-      "shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200",
+      "group relative flex flex-col rounded-xl overflow-hidden bg-white",
+      "border border-gray-100 hover:border-orange-200",
+      "shadow-[0_1px_3px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.10)]",
+      "hover:-translate-y-0.5 active:scale-[0.985] transition-all duration-200",
       className
     )}>
 
-      {/* ── IMAGE — edge-to-edge, no padding ───────────────────── */}
-      <div className="relative aspect-square overflow-hidden bg-white flex-shrink-0">
+      {/* ── IMAGE ─────────────────────────────────────────── */}
+      <div className="relative h-[130px] sm:h-[155px] overflow-hidden flex-shrink-0 bg-white">
         <Link href={`/produits/${product.id}`} className="absolute inset-0 flex items-center justify-center">
           {imgError || !product.images[0] ? imgFallback : (
             <img
               src={getImageUrl(product.images[0])}
               alt={product.title}
-              className="w-full h-full object-contain
-                         group-hover:scale-105 transition-transform duration-500 ease-out"
+              className="w-full h-full object-contain group-hover:scale-[1.04] transition-transform duration-500 ease-out"
               loading="lazy"
               onError={() => setImgError(true)}
             />
@@ -216,74 +218,83 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
 
         {/* Promo badge */}
         {promoActive && (
-          <span className="absolute top-2 left-2 z-20 bg-red-500 text-white
-                           text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-sm">
+          <span className="absolute top-1.5 left-1.5 z-20 bg-red-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shadow-sm">
             -{discountPct}%
           </span>
         )}
 
-        {/* Wishlist */}
+        {/* Wishlist — discret */}
         <button
           onClick={toggleLike}
           className={cn(
-            "absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center",
-            "bg-white/85 backdrop-blur-sm shadow-sm transition-colors",
+            "absolute top-1.5 right-1.5 z-10 w-6 h-6 rounded-full flex items-center justify-center",
+            "bg-white/80 backdrop-blur-sm shadow-sm transition-all active:scale-90",
             liked ? "bg-red-50" : "hover:bg-white"
           )}
           aria-label={liked ? "Retirer des favoris" : "Ajouter aux favoris"}
         >
-          <Heart className={cn("w-3.5 h-3.5 transition-colors", liked ? "fill-red-500 text-red-500" : "text-gray-400")} />
+          <Heart className={cn("w-3 h-3 transition-colors", liked ? "fill-red-500 text-red-500" : "text-gray-400")} />
         </button>
 
         {/* Unavailable overlay */}
         {(!product.isAvailable || product.stock === 0) && (
-          <div className="absolute inset-0 bg-black/35 flex items-center justify-center z-10">
-            <span className="bg-white text-gray-800 text-xs font-semibold px-3 py-1 rounded-full">
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-10">
+            <span className="bg-white text-gray-700 text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
               Indisponible
             </span>
           </div>
         )}
       </div>
 
-      {/* ── CONTENT ────────────────────────────────────────────── */}
-      <div className="flex flex-col flex-1 px-3 pt-2 pb-2.5 gap-0.5">
+      {/* ── CONTENT ───────────────────────────────────────── */}
+      <div className="flex flex-col flex-1 px-2 sm:px-3 pt-1.5 pb-2">
 
-        {/* Category + flag + stock */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-semibold text-gray-400 capitalize tracking-wide">
+        {/* Flag + catégorie */}
+        <div className="flex items-center gap-1 mb-1">
+          <FlagImage code={product.originCountry.code} size="sm" />
+          <span className="text-[9px] text-gray-400 capitalize tracking-wide truncate">
             {product.category}
           </span>
-          <FlagImage code={product.originCountry.code} />
         </div>
 
-        {/* Title */}
+        {/* Titre — 2 lignes max, pas de min-height */}
         <Link href={`/produits/${product.id}`}>
-          <h3 className="text-[13px] sm:text-sm font-semibold text-gray-900 leading-snug
-                         line-clamp-2 group-hover:text-orange-600 transition-colors min-h-[2.5em]">
+          <h3 className="text-[11px] sm:text-xs font-semibold text-gray-900 leading-tight line-clamp-2 group-hover:text-orange-600 transition-colors">
             {product.title}
           </h3>
         </Link>
 
-        {/* Price + Commander — sur la même ligne */}
-        <div className="flex items-center justify-between gap-2 mt-1.5">
-          <div className="min-w-0">
-            <div className="flex items-baseline gap-1.5 flex-wrap">
+        {/* Prix + bouton */}
+        <div className="flex items-center justify-between gap-1 mt-auto pt-1.5">
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <div className="flex items-baseline gap-1 overflow-hidden">
               <span className={cn(
-                "text-sm sm:text-base font-normal leading-none",
+                "text-xs sm:text-sm font-bold leading-none whitespace-nowrap",
                 promoActive ? "text-orange-600" : "text-gray-900"
               )}>
                 {format(displayPrice, product.currency)}
               </span>
               {promoActive && (
-                <span className="text-[10px] text-gray-400 line-through leading-none">
+                <span className="hidden sm:inline text-[9px] text-gray-400 line-through leading-none whitespace-nowrap">
                   {format(product.price, product.currency)}
                 </span>
               )}
             </div>
             {showConversion && (
-              <p className="text-[10px] text-gray-400 mt-0.5">
-                &asymp;&nbsp;{formatOriginal(displayPrice, product.currency)}
+              <p className="text-[9px] text-gray-400 whitespace-nowrap mt-0.5">
+                ≈&nbsp;{formatOriginal(displayPrice, product.currency)}
               </p>
+            )}
+            {/* Badge GROS — subtil */}
+            {bestTier && (
+              <div className="flex items-center gap-0.5 mt-0.5">
+                <span className="text-[8px] font-bold bg-gray-100 text-gray-500 px-1 py-px rounded-sm leading-none tracking-wide">
+                  GROS
+                </span>
+                <span className="text-[9px] text-gray-500 leading-none whitespace-nowrap">
+                  {format(bestTier.price, product.currency)}
+                </span>
+              </div>
             )}
           </div>
 
@@ -291,7 +302,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
             <button
               onClick={handleAddToCart}
               className={cn(
-                "flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all active:scale-95",
+                "flex-shrink-0 flex items-center gap-0.5 px-2 py-1 rounded-lg text-[10px] font-bold transition-all active:scale-95",
                 justAdded
                   ? "bg-green-500 text-white"
                   : inCart
@@ -299,29 +310,12 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
                   : "bg-orange-500 hover:bg-orange-600 text-white"
               )}
             >
-              {justAdded
-                ? <><Check className="w-3 h-3" />Ajouté</>
-                : inCart
-                ? "Au panier"
-                : "Acheter"
-              }
+              {justAdded ? <><Check className="w-2.5 h-2.5" />OK</> : inCart ? "✓ Panier" : "Acheter"}
             </button>
           ) : (
-            <span className="text-[10px] font-medium text-gray-400 flex-shrink-0">Indisponible</span>
+            <span className="text-[9px] text-gray-400 flex-shrink-0">Indispo.</span>
           )}
         </div>
-
-        {/* Prix de gros — affiché en bas si disponible */}
-        {bestTier && (
-          <div className="flex items-center gap-1 mt-1">
-            <span className="text-[9px] font-extrabold bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full leading-none">
-              GROS
-            </span>
-            <span className="text-[10px] text-indigo-600 font-semibold">
-              {format(bestTier.price, product.currency)} &ge;{bestTier.min_qty}&nbsp;u.
-            </span>
-          </div>
-        )}
       </div>
     </div>
   );

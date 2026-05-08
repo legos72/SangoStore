@@ -56,6 +56,7 @@ export function Navbar() {
   const NAV_LINKS = [
     { href: "/produits",          label: t(nav.products, locale),   icon: ShoppingBag },
     { href: "/transporteurs",     label: "Envoyer un colis",        icon: Truck       },
+    { href: "/suivi",             label: "Suivre mon colis",         icon: Package     },
     { href: "/retrait",           label: "Points relais",           icon: MapPin      },
     { href: "/comment-ca-marche", label: t(nav.howItWorks, locale), icon: Package     },
   ];
@@ -238,6 +239,27 @@ export function Navbar() {
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
+        </div>
+
+        {/* ── Mobile quick-access strip (lg:hidden) ─────────────────── */}
+        <div className="lg:hidden border-t border-gray-100/80 -mx-4 sm:-mx-6 px-3 py-2 flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+          {[
+            { href: "/produits",      label: "Produits",          icon: ShoppingBag, active: "bg-orange-500 text-white border-orange-500", idle: "bg-white text-gray-700 border-gray-200 hover:border-orange-400 hover:text-orange-600" },
+            { href: "/transporteurs", label: "Envoyer un colis",  icon: Truck,       active: "bg-blue-600 text-white border-blue-600",   idle: "bg-white text-gray-700 border-gray-200 hover:border-blue-400 hover:text-blue-600" },
+            { href: "/suivi",         label: "Suivre mon colis",  icon: Package,     active: "bg-green-600 text-white border-green-600", idle: "bg-white text-gray-700 border-gray-200 hover:border-green-400 hover:text-green-600" },
+          ].map(({ href, label, icon: Icon, active, idle }) => (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all shadow-sm",
+                pathname === href ? active : idle
+              )}
+            >
+              <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+              {label}
+            </Link>
+          ))}
         </div>
 
         {/* Mobile search bar */}
