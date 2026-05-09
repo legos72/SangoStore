@@ -61,10 +61,14 @@ adminRouter.patch("/users/:id/status", async (req: AuthRequest, res) => {
   await query("UPDATE users SET status = $1 WHERE id = $2", [status, id]);
 
   if (status === "approved") {
-    sendAccountApprovedEmail(user.email, user.name, user.role).catch(() => {});
+    sendAccountApprovedEmail(user.email, user.name, user.role).catch((err: Error) => {
+      console.error(`[Admin] Email d'approbation non envoyé à ${user.email}:`, err.message);
+    });
   } else {
     const reason = typeof req.body.reason === "string" ? req.body.reason.trim() : undefined;
-    sendAccountRejectedEmail(user.email, user.name, reason || undefined).catch(() => {});
+    sendAccountRejectedEmail(user.email, user.name, reason || undefined).catch((err: Error) => {
+      console.error(`[Admin] Email de rejet non envoyé à ${user.email}:`, err.message);
+    });
   }
 
   res.json({
@@ -191,7 +195,9 @@ adminRouter.patch("/users/:id/active", async (req: AuthRequest, res) => {
   await query("UPDATE users SET is_active = $1 WHERE id = $2", [isActive, id]);
 
   if (!isActive) {
-    sendAccountSuspendedEmail(user.email, user.name).catch(() => {});
+    sendAccountSuspendedEmail(user.email, user.name).catch((err: Error) => {
+      console.error(`[Admin] Email de suspension non envoyé à ${user.email}:`, err.message);
+    });
   }
 
   res.json({ status: "success", message: isActive ? "Compte réactivé" : "Compte suspendu" });

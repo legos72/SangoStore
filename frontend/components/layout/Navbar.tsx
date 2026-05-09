@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   ShoppingBag, Truck, Menu, X, Search, MapPin, Globe,
   Package, ShoppingCart, User, LogOut, ChevronDown,
+  LayoutDashboard, Shield, Store,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LogoCart } from "@/components/ui/LogoCart";
@@ -20,6 +21,12 @@ interface StoredUser {
   role: string;
   email?: string;
 }
+
+const ROLE_DASHBOARD: Record<string, { href: string; label: string; icon: React.ElementType; color: string }> = {
+  vendeur:      { href: "/dashboard/vendeur",      label: "Espace vendeur",      icon: Store,           color: "text-orange-600 bg-orange-50 hover:bg-orange-100" },
+  admin:        { href: "/dashboard/admin",         label: "Dashboard Admin",     icon: Shield,          color: "text-purple-600 bg-purple-50 hover:bg-purple-100" },
+  transporteur: { href: "/dashboard/transporteur",  label: "Espace transporteur", icon: Truck,           color: "text-blue-600 bg-blue-50 hover:bg-blue-100"       },
+};
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen]     = useState(false);
@@ -80,6 +87,8 @@ export function Navbar() {
   const initials = currentUser?.name
     ? currentUser.name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()
     : "?";
+
+  const dashboardInfo = currentUser ? ROLE_DASHBOARD[currentUser.role] ?? null : null;
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md border-b" style={{ backgroundColor: "rgba(253,252,248,0.97)", borderColor: "#E2D9C8" }}>
@@ -188,11 +197,37 @@ export function Navbar() {
                 </button>
 
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-full mt-1.5 w-52 bg-white border border-gray-100 rounded-2xl shadow-xl py-1.5 z-50 animate-fade-in">
+                  <div className="absolute right-0 top-full mt-1.5 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl py-1.5 z-50 animate-fade-in">
+                    {/* User info */}
                     <div className="px-4 py-2.5 border-b border-gray-50">
                       <p className="text-sm font-semibold text-gray-900 truncate">{currentUser.name}</p>
                       <p className="text-xs text-gray-400 capitalize">{currentUser.role}</p>
                     </div>
+
+                    {/* Dashboard link — pro roles only */}
+                    {dashboardInfo && (
+                      <Link
+                        href={dashboardInfo.href}
+                        onClick={() => setUserMenuOpen(false)}
+                        className={cn("flex items-center gap-2.5 mx-2 mt-1.5 mb-0.5 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors", dashboardInfo.color)}
+                      >
+                        <dashboardInfo.icon className="w-4 h-4 flex-shrink-0" />
+                        {dashboardInfo.label}
+                      </Link>
+                    )}
+
+                    {/* Client-only links */}
+                    {currentUser.role === "client" && (
+                      <Link
+                        href="/commandes"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <Package className="w-4 h-4 text-gray-400" />
+                        Mes commandes
+                      </Link>
+                    )}
+
                     <Link
                       href="/compte"
                       onClick={() => setUserMenuOpen(false)}
@@ -201,14 +236,7 @@ export function Navbar() {
                       <User className="w-4 h-4 text-gray-400" />
                       Mon compte
                     </Link>
-                    <Link
-                      href="/commandes"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <Package className="w-4 h-4 text-gray-400" />
-                      Mes commandes
-                    </Link>
+
                     <div className="border-t border-gray-100 mt-1 pt-1">
                       <button
                         onClick={handleLogout}
@@ -303,18 +331,31 @@ export function Navbar() {
               <LanguageSwitcher />
             </div>
 
-            <div className="pt-3 border-t border-gray-100 grid grid-cols-2 gap-2">
+            <div className="pt-3 border-t border-gray-100 space-y-2">
               {currentUser ? (
                 <>
-                  <Link href="/compte" className="btn-secondary text-sm py-2.5 justify-center" onClick={() => setMobileOpen(false)}>
-                    Mon compte
-                  </Link>
-                  <button onClick={() => { handleLogout(); setMobileOpen(false); }} className="btn-secondary text-sm py-2.5 justify-center text-red-500">
-                    Se déconnecter
-                  </button>
+                  {/* Dashboard button — pro roles */}
+                  {dashboardInfo && (
+                    <Link
+                      href={dashboardInfo.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={cn("flex items-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-bold transition-colors", dashboardInfo.color)}
+                    >
+                      <dashboardInfo.icon className="w-4 h-4 flex-shrink-0" />
+                      {dashboardInfo.label}
+                    </Link>
+                  )}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link href="/compte" className="btn-secondary text-sm py-2.5 justify-center" onClick={() => setMobileOpen(false)}>
+                      Mon compte
+                    </Link>
+                    <button onClick={() => { handleLogout(); setMobileOpen(false); }} className="btn-secondary text-sm py-2.5 justify-center text-red-500">
+                      Se déconnecter
+                    </button>
+                  </div>
                 </>
               ) : (
-                <Link href="/auth/login" className="col-span-2 btn-primary text-sm py-2.5 justify-center" onClick={() => setMobileOpen(false)}>
+                <Link href="/auth/login" className="btn-primary text-sm py-2.5 justify-center w-full" onClick={() => setMobileOpen(false)}>
                   {t(nav.login, locale)}
                 </Link>
               )}

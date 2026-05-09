@@ -16,9 +16,6 @@ import { v4 as uuidv4 } from "uuid";
 
 const UPLOADS_DIR = path.join(__dirname, "../../uploads");
 
-// SangoStore warm-white — matches the site's cream background
-const PADDING_BG = { r: 252, g: 249, b: 244, alpha: 1 } as const;
-
 // ─── Tier 1 : Sharp ──────────────────────────────────────────────────────────
 
 async function processWithSharp(buffer: Buffer): Promise<string> {
@@ -44,16 +41,15 @@ async function processWithSharp(buffer: Buffer): Promise<string> {
     }
   } catch { /* keep oriented */ }
 
-  // Step 3 — resize to 760×760 (contain, no crop), then add a clean 20 px
-  // neutral margin → 800×800 final.  Product fills ~95 % of the card instead
-  // of ~70 % that pure contain produces.
+  // Step 3 — smart-crop to fill an 800×800 square. "attention" detects the
+  // visually important area (face, product center) so portrait fashion photos
+  // stay well-framed instead of showing side whitespace.
   await sharp(source)
-    .resize(760, 760, {
-      fit: "contain",
-      background: PADDING_BG,
+    .resize(800, 800, {
+      fit: "cover",
+      position: "attention",
       withoutEnlargement: false,
     })
-    .extend({ top: 20, bottom: 20, left: 20, right: 20, background: PADDING_BG })
     .sharpen({ sigma: 0.8 })
     .webp({ quality: 85, effort: 4 })
     .toFile(dest);

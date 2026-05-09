@@ -80,10 +80,9 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
   }
 
   const imgFallback = (
-    <div className="absolute inset-0 flex flex-col items-center justify-center"
-      style={{ background: "linear-gradient(135deg,#fef3e2 0%,#fde8c4 100%)" }}>
-      <Package className="w-7 h-7 text-orange-300" />
-      <span className="text-[9px] text-orange-300 font-semibold mt-1 uppercase tracking-widest">Produit</span>
+    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100">
+      <Package className="w-8 h-8 text-gray-300" />
+      <span className="text-[9px] text-gray-300 font-semibold mt-1 uppercase tracking-widest">Produit</span>
     </div>
   );
 
@@ -97,10 +96,10 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
       )}>
         {/* Image — edge-to-edge, no padding */}
         <Link href={`/produits/${product.id}`}
-          className="relative w-32 sm:w-44 flex-shrink-0 bg-white overflow-hidden flex items-center justify-center">
+          className="relative w-28 h-28 sm:w-36 sm:h-36 flex-shrink-0 bg-gray-50 overflow-hidden">
           {imgError || !product.images[0] ? imgFallback : (
             <img src={getImageUrl(product.images[0])} alt={product.title}
-              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
               loading="lazy" onError={() => setImgError(true)} />
           )}
           {promoActive && (
@@ -207,12 +206,12 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
       )}
     >
       {/* ── IMAGE ─────────────────────────────────────────── */}
-      <div className="relative h-[130px] sm:h-[155px] overflow-hidden flex-shrink-0 bg-[#FDFCF8]">
+      <div className="relative aspect-square overflow-hidden flex-shrink-0 bg-gray-50">
         {imgError || !product.images[0] ? imgFallback : (
           <img
             src={getImageUrl(product.images[0])}
             alt={product.title}
-            className="w-full h-full object-contain group-hover:scale-[1.04] transition-transform duration-500 ease-out"
+            className="w-full h-full object-cover object-center group-hover:scale-[1.04] transition-transform duration-500 ease-out"
             loading="lazy"
             onError={() => setImgError(true)}
           />
@@ -249,67 +248,67 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
       </div>
 
       {/* ── CONTENT ───────────────────────────────────────── */}
-      <div className="flex flex-col flex-1 px-2.5 pt-2 pb-2.5">
+      <div className="flex flex-col flex-1 px-3 pt-2.5 pb-3">
 
         {/* Flag + catégorie */}
-        <div className="flex items-center gap-1 mb-1">
+        <div className="flex items-center gap-1 mb-1.5">
           <FlagImage code={product.originCountry.code} size="sm" />
-          <span className="text-[9px] text-gray-400 capitalize tracking-wide truncate">
+          <span className="text-[10px] text-gray-400 capitalize tracking-wide truncate font-medium">
             {product.category}
           </span>
         </div>
 
         {/* Titre */}
-        <h3 className="text-[11px] sm:text-xs font-semibold text-gray-900 leading-tight line-clamp-2 group-hover:text-orange-600 transition-colors">
+        <h3 className="text-xs sm:text-[13px] font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-orange-600 transition-colors mb-1">
           {product.title}
         </h3>
 
         {/* Prix + bouton panier */}
-        <div className="flex items-center justify-between gap-1 mt-auto pt-1.5">
+        <div className="flex items-end justify-between gap-1 mt-auto pt-1">
           <div className="min-w-0 flex-1 overflow-hidden">
             <div className="flex items-baseline gap-1 flex-wrap">
               <span className={cn(
-                "text-xs sm:text-sm font-extrabold leading-none whitespace-nowrap",
+                "text-sm font-extrabold leading-none whitespace-nowrap",
                 promoActive ? "text-orange-600" : "text-gray-900"
               )}>
                 {format(displayPrice, product.currency)}
               </span>
               {promoActive && (
-                <span className="text-[9px] text-gray-400 line-through leading-none">
+                <span className="text-[10px] text-gray-400 line-through leading-none">
                   {format(product.price, product.currency)}
                 </span>
               )}
             </div>
             {showConversion && (
-              <p className="text-[9px] text-gray-400 mt-0.5">≈&nbsp;{formatOriginal(displayPrice, product.currency)}</p>
+              <p className="text-[10px] text-gray-400 mt-0.5">≈&nbsp;{formatOriginal(displayPrice, product.currency)}</p>
             )}
             {bestTier && (
-              <div className="flex items-center gap-0.5 mt-0.5">
-                <span className="text-[8px] font-bold bg-indigo-50 text-indigo-500 px-1 py-px rounded leading-none">GROS</span>
-                <span className="text-[9px] text-indigo-500 leading-none whitespace-nowrap">
+              <div className="flex items-center gap-1 mt-0.5">
+                <span className="text-[9px] font-bold bg-indigo-50 text-indigo-500 px-1.5 py-px rounded-full leading-none">GROS</span>
+                <span className="text-[10px] text-indigo-500 leading-none whitespace-nowrap font-semibold">
                   {format(bestTier.price, product.currency)}
                 </span>
               </div>
             )}
           </div>
 
-          {/* Bouton panier — icône, toujours visible */}
+          {/* Bouton panier */}
           {product.isAvailable && product.stock > 0 ? (
             <button
               onClick={handleAddToCart}
               className={cn(
-                "flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-90",
+                "flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-90",
                 justAdded
                   ? "bg-green-500 text-white"
                   : inCart
                   ? "bg-orange-600 text-white"
-                  : "bg-orange-500 text-white shadow-[0_2px_8px_rgba(212,150,30,0.35)] hover:bg-orange-600"
+                  : "bg-orange-500 text-white shadow-[0_2px_10px_rgba(249,115,22,0.35)] hover:bg-orange-600"
               )}
             >
-              {justAdded ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-3.5 h-3.5" />}
+              {justAdded ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
             </button>
           ) : (
-            <span className="text-[9px] text-red-400 font-medium flex-shrink-0">Indispo.</span>
+            <span className="text-[10px] text-red-400 font-medium flex-shrink-0 pb-0.5">Indispo.</span>
           )}
         </div>
       </div>

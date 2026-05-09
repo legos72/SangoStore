@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
   Package, ShoppingBag, DollarSign, Star, Plus, Eye, Edit3,
-  Trash2, ToggleLeft, ToggleRight, Search, Filter, CheckCircle,
+  Trash2, ToggleLeft, ToggleRight, Search, CheckCircle,
   Clock, Truck, ArrowLeft, TrendingUp, ArrowUpRight, Bell,
   ChevronRight, AlertCircle, RefreshCw, BarChart3, Zap,
   MoreVertical, XCircle, MapPin, Home, Calendar, User,
@@ -12,12 +12,8 @@ import {
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { formatPrice, formatDate, ORDER_STATUS_LABELS } from "@/lib/utils";
-import { MOCK_ORDERS, MOCK_USERS } from "@/lib/data";
-
-const MY_ORDERS = MOCK_ORDERS;
-const VENDOR_ID = "u1";
 import { api, getUser, getImageUrl } from "@/lib/api";
-import type { VendorProduct, AuthUser } from "@/lib/api";
+import type { VendorProduct, VendorOrder, VendorStats, RevenuePoint, AuthUser } from "@/lib/api";
 import type { OrderStatus } from "@/lib/types";
 
 // ─── Demo product helpers (localStorage fallback when backend is offline) ─────
@@ -33,16 +29,6 @@ function getDemoProducts(): VendorProduct[] {
 
 type Section = "overview" | "products" | "orders";
 
-const REVENUE_MONTHS = [
-  { label: "Nov", value: 320 },
-  { label: "Déc", value: 580 },
-  { label: "Jan", value: 440 },
-  { label: "Fév", value: 720 },
-  { label: "Mar", value: 680 },
-  { label: "Avr", value: 490 },
-];
-const MAX_REVENUE = Math.max(...REVENUE_MONTHS.map(m => m.value));
-
 const ORDER_STEPS: { status: OrderStatus; label: string; emoji: string }[] = [
   { status: "paye",           label: "Payé",       emoji: "💳" },
   { status: "en_preparation", label: "Préparé",    emoji: "📦" },
@@ -57,8 +43,8 @@ const STATUS_IDX: Partial<Record<OrderStatus, number>> = {
 
 // ─── Mini timeline ────────────────────────────────────────────────────────────
 
-function MiniTimeline({ status }: { status: OrderStatus }) {
-  const cur = STATUS_IDX[status] ?? 0;
+function MiniTimeline({ status }: { status: string }) {
+  const cur = STATUS_IDX[status as OrderStatus] ?? 0;
   return (
     <div className="flex items-center w-full gap-0">
       {ORDER_STEPS.map(({ status: s, emoji }, i) => {
@@ -86,7 +72,7 @@ function MiniTimeline({ status }: { status: OrderStatus }) {
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 
-function StatusBadge({ status }: { status: OrderStatus }) {
+function StatusBadge({ status }: { status: string }) {
   const map: Partial<Record<OrderStatus, string>> = {
     pret_retrait:   "bg-green-100 text-green-700 border-green-200",
     expedie:        "bg-blue-100 text-blue-700 border-blue-200",
@@ -98,8 +84,8 @@ function StatusBadge({ status }: { status: OrderStatus }) {
     en_attente:     "bg-gray-100 text-gray-500 border-gray-100",
   };
   return (
-    <span className={cn("inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border", map[status] ?? "bg-gray-100 text-gray-600 border-gray-100")}>
-      {ORDER_STATUS_LABELS[status]}
+    <span className={cn("inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border", map[status as OrderStatus] ?? "bg-gray-100 text-gray-600 border-gray-100")}>
+      {ORDER_STATUS_LABELS[status as OrderStatus] ?? status}
     </span>
   );
 }
@@ -115,11 +101,14 @@ export default function VendeurDashboard() {
   const [orderFilter, setOrderFilter]     = useState<string>("all");
   const [products, setProducts]           = useState<VendorProduct[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
+  const [orders, setOrders]               = useState<VendorOrder[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+  const [vendorStats, setVendorStats]     = useState<VendorStats | null>(null);
+  const [revenueData, setRevenueData]     = useState<RevenuePoint[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [updatingOrder, setUpdatingOrder] = useState<string | null>(null);
   const [toast, setToast]                 = useState<{ msg: string; ok: boolean } | null>(null);
 
-  // Read auth from localStorage after hydration, redirect if absent
   useEffect(() => {
     const user = getUser();
     if (!user) {
@@ -134,36 +123,75 @@ export default function VendeurDashboard() {
     setTimeout(() => setToast(null), 3000);
   }, []);
 
-  // Load products: API first, then merge demo products from localStorage
   const loadProducts = useCallback(async () => {
     setLoadingProducts(true);
     try {
       const res = await api.vendor.products({ limit: "100" });
       const apiProducts: VendorProduct[] = res.data ?? [];
       const demo = getDemoProducts();
-      // Avoid duplicates: demo products not already in API response
       const apiIds = new Set(apiProducts.map(p => p.id));
       setProducts([...apiProducts, ...demo.filter(d => !apiIds.has(d.id))]);
     } catch {
-      // API unreachable — show only demo products
       setProducts(getDemoProducts());
     } finally {
       setLoadingProducts(false);
     }
   }, []);
 
-  useEffect(() => { loadProducts(); }, [loadProducts]);
+  const loadOrders = useCallback(async () => {
+    setLoadingOrders(true);
+    try {
+      const res = await api.vendor.orders({ limit: "100" });
+      setOrders(res.data ?? []);
+    } catch {
+      setOrders([]);
+    } finally {
+      setLoadingOrders(false);
+    }
+  }, []);
+
+  const loadStats = useCallback(async () => {
+    try {
+      const [statsRes, revenueRes] = await Promise.all([
+        api.vendor.stats(),
+        api.vendor.revenue(),
+      ]);
+      if (statsRes.data)   setVendorStats(statsRes.data);
+      if (revenueRes.data) setRevenueData(revenueRes.data);
+    } catch {
+      // stats unavailable — keep null, dashboard shows zeros
+    }
+  }, []);
+
+  useEffect(() => {
+    loadProducts();
+    loadOrders();
+    loadStats();
+  }, [loadProducts, loadOrders, loadStats]);
 
   const filteredProducts = products.filter(p =>
     !productSearch || p.title.toLowerCase().includes(productSearch.toLowerCase())
   );
 
-  const filteredOrders = MY_ORDERS.filter(o => {
+  const filteredOrders = orders.filter(o => {
     if (orderFilter === "pending") return !["recupere", "annule"].includes(o.status);
     if (orderFilter === "done")    return o.status === "recupere";
-    if (orderFilter === "escrow")  return o.paymentStatus === "bloque";
+    if (orderFilter === "escrow")  return o.payment_status === "bloque";
     return true;
   });
+
+  const totalRevenue   = vendorStats?.totalRevenue   ?? 0;
+  const escrowBlocked  = vendorStats?.revenueBlocked ?? 0;
+  const avgRating      = vendorStats?.avgRating      ?? 0;
+  const reviewCount    = vendorStats?.reviewCount    ?? 0;
+
+  const revenueChartData = revenueData.map(r => ({
+    label: r.label,
+    value: parseFloat(r.revenue) || 0,
+  }));
+  const maxRevenue = revenueChartData.length > 0
+    ? Math.max(...revenueChartData.map(r => r.value), 1)
+    : 1;
 
   async function handleToggle(id: string) {
     const p = products.find(pr => pr.id === id);
@@ -182,7 +210,6 @@ export default function VendeurDashboard() {
   async function handleDelete(id: string) {
     setConfirmDelete(null);
     setProducts(prev => prev.filter(p => p.id !== id));
-    // Remove from localStorage if it's a demo product
     if (id.startsWith("demo_")) {
       try {
         const updated = getDemoProducts().filter(p => p.id !== id);
@@ -204,6 +231,7 @@ export default function VendeurDashboard() {
     setUpdatingOrder(orderId);
     try {
       await api.vendor.updateOrderStatus(orderId, status);
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
       showToast(`Statut mis à jour : ${ORDER_STATUS_LABELS[status as OrderStatus] ?? status}`);
     } catch {
       showToast("Erreur lors de la mise à jour du statut", false);
@@ -211,13 +239,6 @@ export default function VendeurDashboard() {
       setUpdatingOrder(null);
     }
   }
-
-  // KPI
-  const totalRevenue = MY_ORDERS.reduce((s, o) =>
-    o.paymentStatus === "bloque" || o.paymentStatus === "libere"
-      ? s + o.totalAmount : s, 0);
-  const escrowBlocked = MY_ORDERS.filter(o => o.paymentStatus === "bloque")
-    .reduce((s, o) => s + o.totalAmount, 0);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -302,19 +323,21 @@ export default function VendeurDashboard() {
                     <p className="text-orange-100 text-sm">Vendeur · {currentUser?.email}</p>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="inline-flex items-center gap-1 bg-white/20 backdrop-blur text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/20">
-                          <CheckCircle className="w-3 h-3" /> Compte actif
-                        </span>
-                      <span className="inline-flex items-center gap-1 bg-white/20 backdrop-blur text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/20">
-                        <Star className="w-3 h-3 fill-white" /> 4.8 / 5
+                        <CheckCircle className="w-3 h-3" /> Compte actif
                       </span>
+                      {avgRating > 0 && (
+                        <span className="inline-flex items-center gap-1 bg-white/20 backdrop-blur text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/20">
+                          <Star className="w-3 h-3 fill-white" /> {avgRating.toFixed(1)} / 5
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4 text-center sm:text-left">
                   {[
                     { label: "Produits",   value: products.length },
-                    { label: "Commandes",  value: MY_ORDERS.length   },
-                    { label: "Avis",       value: 28                  },
+                    { label: "Commandes",  value: orders.length   },
+                    { label: "Avis",       value: reviewCount     },
                   ].map(({ label, value }) => (
                     <div key={label}>
                       <div className="text-2xl font-extrabold">{value}</div>
@@ -338,22 +361,22 @@ export default function VendeurDashboard() {
                 {
                   icon: Package,
                   label: "Commandes reçues",
-                  value: MY_ORDERS.length.toString(),
-                  sub: `${MY_ORDERS.filter(o => !["recupere","annule"].includes(o.status)).length} en cours`,
-                  color: "bg-orange-50", iconColor: "bg-orange-100 text-orange-600", trend: "+8 semaine",
+                  value: (vendorStats?.totalOrders ?? orders.length).toString(),
+                  sub: `${vendorStats?.pendingOrders ?? orders.filter(o => !["recupere","annule"].includes(o.status)).length} en cours`,
+                  color: "bg-orange-50", iconColor: "bg-orange-100 text-orange-600", trend: null,
                 },
                 {
                   icon: DollarSign,
                   label: "Revenus totaux",
-                  value: `${totalRevenue.toLocaleString("fr-FR")} XAF`,
-                  sub: `${escrowBlocked.toLocaleString("fr-FR")} bloqué`,
-                  color: "bg-green-50", iconColor: "bg-green-100 text-green-600", trend: "+18%",
+                  value: totalRevenue > 0 ? `${totalRevenue.toLocaleString("fr-FR")} XAF` : "—",
+                  sub: escrowBlocked > 0 ? `${escrowBlocked.toLocaleString("fr-FR")} bloqué` : "Aucun fonds bloqué",
+                  color: "bg-green-50", iconColor: "bg-green-100 text-green-600", trend: null,
                 },
                 {
                   icon: Star,
                   label: "Note moyenne",
-                  value: "4.8 / 5",
-                  sub: "28 avis clients",
+                  value: avgRating > 0 ? `${avgRating.toFixed(1)} / 5` : "—",
+                  sub: reviewCount > 0 ? `${reviewCount} avis clients` : "Aucun avis pour le moment",
                   color: "bg-purple-50", iconColor: "bg-purple-100 text-purple-600", trend: null,
                 },
               ].map(({ icon: Icon, label, value, sub, color, iconColor, trend }) => (
@@ -383,36 +406,43 @@ export default function VendeurDashboard() {
                 <h2 className="text-sm font-bold text-gray-900 flex items-center gap-2">
                   <BarChart3 className="w-4 h-4 text-orange-400" /> Revenus — 6 derniers mois
                 </h2>
-                <span className="text-xs text-gray-400">en €</span>
+                <span className="text-xs text-gray-400">en XAF</span>
               </div>
-              <div className="flex items-end gap-2 h-28">
-                {REVENUE_MONTHS.map(({ label, value }, i) => {
-                  const isLast = i === REVENUE_MONTHS.length - 1;
-                  return (
-                    <div key={label} className="flex-1 flex flex-col items-center gap-1.5">
-                      <div className="relative w-full group/bar cursor-pointer" style={{ height: "100px" }}>
-                        <div
-                          className={cn(
-                            "absolute bottom-0 w-full rounded-t-lg transition-all",
-                            isLast ? "bg-orange-500" : "bg-gray-200 group-hover/bar:bg-orange-400"
-                          )}
-                          style={{ height: `${(value / MAX_REVENUE) * 100}%` }}
-                        />
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 bg-gray-800 text-white text-[9px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 whitespace-nowrap pointer-events-none z-10">
-                          {value} €
+              {revenueChartData.length === 0 || revenueChartData.every(r => r.value === 0) ? (
+                <div className="h-28 flex flex-col items-center justify-center text-center">
+                  <BarChart3 className="w-8 h-8 text-gray-200 mb-2" />
+                  <p className="text-xs text-gray-400">Aucune donnée de revenus pour le moment</p>
+                </div>
+              ) : (
+                <div className="flex items-end gap-2 h-28">
+                  {revenueChartData.map(({ label, value }, i) => {
+                    const isLast = i === revenueChartData.length - 1;
+                    return (
+                      <div key={label} className="flex-1 flex flex-col items-center gap-1.5">
+                        <div className="relative w-full group/bar cursor-pointer" style={{ height: "100px" }}>
+                          <div
+                            className={cn(
+                              "absolute bottom-0 w-full rounded-t-lg transition-all",
+                              isLast ? "bg-orange-500" : "bg-gray-200 group-hover/bar:bg-orange-400"
+                            )}
+                            style={{ height: `${(value / maxRevenue) * 100}%` }}
+                          />
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 bg-gray-800 text-white text-[9px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 whitespace-nowrap pointer-events-none z-10">
+                            {value.toLocaleString("fr-FR")} XAF
+                          </div>
                         </div>
+                        <span className="text-[10px] text-gray-400 font-medium">{label}</span>
                       </div>
-                      <span className="text-[10px] text-gray-400 font-medium">{label}</span>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Pending orders + recent products */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-              {/* Urgent orders */}
+              {/* Recent orders */}
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
                   <h2 className="text-sm font-bold text-gray-900 flex items-center gap-2">
@@ -422,26 +452,34 @@ export default function VendeurDashboard() {
                     Toutes <ChevronRight className="w-3 h-3" />
                   </button>
                 </div>
-                <div className="divide-y divide-gray-50">
-                  {MY_ORDERS.slice(0, 3).map(order => (
-                    <div key={order.id} className="px-5 py-4">
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-gray-900">#{order.orderNumber}</span>
-                            <StatusBadge status={order.status} />
+                {orders.length === 0 ? (
+                  <div className="px-5 py-12 text-center">
+                    <Package className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                    <p className="text-sm font-semibold text-gray-400">Aucune commande pour le moment</p>
+                    <p className="text-xs text-gray-300 mt-1">Vos commandes apparaîtront ici</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-50">
+                    {orders.slice(0, 3).map(order => (
+                      <div key={order.id} className="px-5 py-4">
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-gray-900">#{order.order_number}</span>
+                              <StatusBadge status={order.status} />
+                            </div>
+                            <p className="text-[11px] text-gray-400 mt-0.5">{order.client_name} · {formatDate(order.created_at)}</p>
                           </div>
-                          <p className="text-[11px] text-gray-400 mt-0.5">{order.client.name} · {formatDate(order.createdAt)}</p>
+                          <div className="text-right flex-shrink-0">
+                            <div className="text-sm font-bold text-gray-900">{formatPrice(order.total_amount, order.currency)}</div>
+                            <div className="text-[10px] text-gray-400">{order.payment_status === "bloque" ? "🔒 Escrow" : "✅ Libéré"}</div>
+                          </div>
                         </div>
-                        <div className="text-right flex-shrink-0">
-                          <div className="text-sm font-bold text-gray-900">{formatPrice(order.totalAmount, order.items[0].product.currency)}</div>
-                          <div className="text-[10px] text-gray-400">{order.paymentStatus === "bloque" ? "🔒 Escrow" : "✅ Libéré"}</div>
-                        </div>
+                        <MiniTimeline status={order.status} />
                       </div>
-                      <MiniTimeline status={order.status} />
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Recent products */}
@@ -452,25 +490,36 @@ export default function VendeurDashboard() {
                     Gérer <ChevronRight className="w-3 h-3" />
                   </button>
                 </div>
-                <div className="divide-y divide-gray-50">
-                  {products.slice(0, 4).map(product => (
-                    <div key={product.id} className="flex items-center gap-3 px-5 py-3">
-                      <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
-                        {product.images[0] && <img src={getImageUrl(product.images[0])} alt="" className="w-full h-full object-cover" />}
+                {products.length === 0 ? (
+                  <div className="px-5 py-12 text-center">
+                    <ShoppingBag className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                    <p className="text-sm font-semibold text-gray-400">Ajoutez votre premier produit</p>
+                    <Link href="/dashboard/vendeur/nouveau-produit"
+                      className="inline-flex items-center gap-1.5 mt-3 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition-colors">
+                      <Plus className="w-3.5 h-3.5" /> Nouveau produit
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-50">
+                    {products.slice(0, 4).map(product => (
+                      <div key={product.id} className="flex items-center gap-3 px-5 py-3">
+                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+                          {product.images[0] && <img src={getImageUrl(product.images[0])} alt="" className="w-full h-full object-cover" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-gray-800 truncate">{product.title}</p>
+                          <p className="text-[10px] text-gray-400">{formatPrice(product.price, product.currency)} · {product.stock} en stock</p>
+                        </div>
+                        <span className={cn(
+                          "text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0",
+                          product.is_available ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+                        )}>
+                          {product.is_available ? "Actif" : "Inactif"}
+                        </span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-gray-800 truncate">{product.title}</p>
-                        <p className="text-[10px] text-gray-400">{formatPrice(product.price, product.currency)} · {product.stock} en stock</p>
-                      </div>
-                      <span className={cn(
-                        "text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0",
-                        product.is_available ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
-                      )}>
-                        {product.is_available ? "Actif" : "Inactif"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -622,7 +671,16 @@ export default function VendeurDashboard() {
                       <tr><td colSpan={7} className="px-5 py-12 text-center text-sm text-gray-400">Chargement…</td></tr>
                     )}
                     {!loadingProducts && filteredProducts.length === 0 && (
-                      <tr><td colSpan={7} className="px-5 py-12 text-center text-sm text-gray-400">Aucun produit trouvé.</td></tr>
+                      <tr>
+                        <td colSpan={7} className="px-5 py-12 text-center">
+                          <ShoppingBag className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                          <p className="text-sm font-semibold text-gray-400">Ajoutez votre premier produit</p>
+                          <Link href="/dashboard/vendeur/nouveau-produit"
+                            className="inline-flex items-center gap-1.5 mt-3 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition-colors">
+                            <Plus className="w-3.5 h-3.5" /> Nouveau produit
+                          </Link>
+                        </td>
+                      </tr>
                     )}
                   </tbody>
                 </table>
@@ -653,9 +711,9 @@ export default function VendeurDashboard() {
                       : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"
                   )}>
                     {label}
-                    {key === "escrow" && (
+                    {key === "escrow" && orders.filter(o => o.payment_status === "bloque").length > 0 && (
                       <span className="ml-1.5 bg-orange-200 text-orange-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-                        {MY_ORDERS.filter(o => o.paymentStatus === "bloque").length}
+                        {orders.filter(o => o.payment_status === "bloque").length}
                       </span>
                     )}
                   </button>
@@ -666,10 +724,16 @@ export default function VendeurDashboard() {
 
             {/* Order cards */}
             <div className="space-y-4">
-              {filteredOrders.map(order => {
-                const myItems = order.items.filter(i => i.product.seller.id === VENDOR_ID);
-                const myTotal = myItems.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
-                const isEscrow = order.paymentStatus === "bloque";
+              {loadingOrders && (
+                <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
+                  <RefreshCw className="w-8 h-8 text-gray-300 mx-auto mb-3 animate-spin" />
+                  <p className="text-sm text-gray-400">Chargement des commandes…</p>
+                </div>
+              )}
+
+              {!loadingOrders && filteredOrders.map(order => {
+                const myTotal    = order.items.reduce((s, i) => s + i.unit_price * i.quantity, 0);
+                const isEscrow   = order.payment_status === "bloque";
                 const isUpdating = updatingOrder === order.id;
 
                 return (
@@ -688,18 +752,18 @@ export default function VendeurDashboard() {
                         </div>
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-bold text-sm text-gray-900">#{order.orderNumber}</span>
+                            <span className="font-bold text-sm text-gray-900">#{order.order_number}</span>
                             <StatusBadge status={order.status} />
                           </div>
                           <div className="flex items-center gap-3 mt-1 text-[11px] text-gray-400">
-                            <span className="flex items-center gap-1"><User className="w-3 h-3" /> {order.client.name}</span>
-                            <span>{formatDate(order.createdAt)}</span>
+                            <span className="flex items-center gap-1"><User className="w-3 h-3" /> {order.client_name}</span>
+                            <span>{formatDate(order.created_at)}</span>
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 flex-shrink-0">
                         <div className="text-right">
-                          <div className="font-bold text-gray-900">{formatPrice(myTotal, myItems[0]?.product.currency)}</div>
+                          <div className="font-bold text-gray-900">{formatPrice(myTotal, order.currency)}</div>
                           <div className={cn("text-[10px] font-semibold mt-0.5",
                             isEscrow ? "text-orange-500" : "text-green-600")}>
                             {isEscrow ? "🔒 En escrow" : "✅ Libéré"}
@@ -712,16 +776,16 @@ export default function VendeurDashboard() {
                       </div>
                     </div>
 
-                    {/* Items (only mine) */}
+                    {/* Items */}
                     <div className="px-5 py-3 border-b border-gray-50 space-y-2">
-                      {myItems.map(item => (
-                        <div key={item.product.id} className="flex items-center gap-3">
+                      {order.items.map(item => (
+                        <div key={item.product_id} className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                            <img src={getImageUrl(item.product.images[0])} alt="" className="w-full h-full object-cover" />
+                            {item.image && <img src={getImageUrl(item.image)} alt="" className="w-full h-full object-cover" />}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold text-gray-800 truncate">{item.product.title}</p>
-                            <p className="text-[10px] text-gray-400">× {item.quantity} · {formatPrice(item.unitPrice, item.product.currency)}</p>
+                            <p className="text-xs font-semibold text-gray-800 truncate">{item.title}</p>
+                            <p className="text-[10px] text-gray-400">× {item.quantity} · {formatPrice(item.unit_price, item.currency)}</p>
                           </div>
                         </div>
                       ))}
@@ -735,11 +799,8 @@ export default function VendeurDashboard() {
                     {/* Logistics + actions */}
                     <div className="px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-gray-500">
-                        {order.transporter && (
-                          <span className="flex items-center gap-1"><Truck className="w-3 h-3 text-orange-400" /> {order.transporter.companyName}</span>
-                        )}
-                        {order.pickupPoint && (
-                          <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-blue-400" /> {order.pickupPoint.name}</span>
+                        {order.pickup_name && (
+                          <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-blue-400" /> {order.pickup_name}</span>
                         )}
                       </div>
 
@@ -778,10 +839,15 @@ export default function VendeurDashboard() {
                 );
               })}
 
-              {filteredOrders.length === 0 && (
+              {!loadingOrders && filteredOrders.length === 0 && (
                 <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
                   <Package className="w-12 h-12 text-gray-200 mx-auto mb-3" />
-                  <p className="text-sm text-gray-400">Aucune commande dans cette catégorie.</p>
+                  <p className="text-sm font-semibold text-gray-400">
+                    {orders.length === 0 ? "Aucune commande pour le moment" : "Aucune commande dans cette catégorie"}
+                  </p>
+                  {orders.length === 0 && (
+                    <p className="text-xs text-gray-300 mt-1">Vos commandes apparaîtront ici dès qu&apos;un client achète un de vos produits</p>
+                  )}
                 </div>
               )}
             </div>

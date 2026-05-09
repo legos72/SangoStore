@@ -119,7 +119,7 @@ productsRouter.post("/", authenticate, authorize("vendeur", "admin"), async (req
     description:     Joi.string().max(5000).optional(),
     price:           Joi.number().positive().required(),
     currency:        Joi.string().valid("XAF", "EUR", "USD").required(),
-    images:          Joi.array().items(Joi.string().uri()).default([]),
+    images:          Joi.array().items(Joi.string().min(1)).default([]),
     category:        Joi.string().required(),
     originCountry:   Joi.string().length(2).uppercase().required(),
     stock:           Joi.number().integer().min(0).required(),

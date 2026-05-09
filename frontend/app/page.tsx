@@ -1,10 +1,13 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Phone } from "lucide-react";
 import { HeroSection } from "@/components/home/HeroSection";
 import { StatsSection } from "@/components/home/StatsSection";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { HomeTransporters } from "@/components/home/HomeTransporters";
 import { COUNTRIES } from "@/lib/countries";
+
+const SUPPORT_PHONE    = "+221 78 686 39 69";
+const SUPPORT_WHATSAPP = "221786863969";
 
 const HOW_IT_WORKS = [
   { step: "01", icon: "📱", title: "Choisissez votre produit",   desc: "Parcourez nos produits envoyés par la diaspora depuis la France, le Sénégal, le Cameroun…" },
@@ -20,6 +23,69 @@ export default function HomePage() {
 
       {/* Produits avec filtres catégorie + pays */}
       <FeaturedProducts />
+
+      {/* ── Support client strip ────────────────────────────────────────── */}
+      <section className="px-4 sm:px-6 py-3" style={{ backgroundColor: "#F7F4EE" }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-white border border-orange-100/80 rounded-2xl px-4 sm:px-5 py-3
+                          shadow-[0_1px_8px_rgba(249,115,22,0.07)]
+                          flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-0">
+
+            {/* Left — icon + status + title */}
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="relative flex-shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center text-sm">
+                  🎧
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5 flex">
+                  <span className="animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full bg-green-400 opacity-60" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500 border-2 border-white" />
+                </span>
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-[9px] font-extrabold text-green-600 uppercase tracking-widest mb-px">
+                  Support en ligne
+                </p>
+                <p className="text-xs sm:text-[13px] font-semibold text-gray-800 leading-tight">
+                  Besoin d&apos;aide pour commander ?
+                  <span className="hidden sm:inline text-[11px] font-normal text-gray-400 ml-2">
+                    Notre équipe répond en quelques minutes — 7j/7
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            {/* Right — action buttons */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <a
+                href={`https://wa.me/${SUPPORT_WHATSAPP}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold
+                           transition-all hover:scale-[1.03] active:scale-[0.97] whitespace-nowrap"
+                style={{
+                  background: "#22c55e",
+                  color: "#fff",
+                  boxShadow: "0 2px 10px rgba(34,197,94,0.28)",
+                }}
+              >
+                <span className="text-sm leading-none">💬</span>
+                WhatsApp
+              </a>
+              <a
+                href={`tel:${SUPPORT_PHONE.replace(/\s/g, "")}`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-gray-600
+                           bg-gray-50 border border-gray-200 hover:border-orange-300 hover:text-orange-600
+                           transition-all whitespace-nowrap"
+              >
+                <Phone className="w-3 h-3 flex-shrink-0 text-orange-400" />
+                {SUPPORT_PHONE}
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ── Transporters ────────────────────────────────────────────────── */}
       <HomeTransporters />

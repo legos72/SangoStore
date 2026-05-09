@@ -1,12 +1,20 @@
 import nodemailer from "nodemailer";
 
+// Gmail App Passwords are displayed with spaces (e.g. "xxxx xxxx xxxx xxxx")
+// but must be passed without spaces to nodemailer.
+const smtpPass = (process.env.SMTP_PASS ?? "").replace(/\s+/g, "");
+
 const transporter = nodemailer.createTransport({
-  host:   process.env.SMTP_HOST  || "smtp.gmail.com",
-  port:   parseInt(process.env.SMTP_PORT || "587"),
-  secure: false,
+  host:       process.env.SMTP_HOST || "smtp.gmail.com",
+  port:       parseInt(process.env.SMTP_PORT || "587"),
+  secure:     false,   // STARTTLS on port 587
+  requireTLS: true,    // force STARTTLS upgrade — never fall back to plain text
   auth: {
     user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    pass: smtpPass,
+  },
+  tls: {
+    rejectUnauthorized: false, // avoid cert issues in some server environments
   },
 });
 
@@ -14,11 +22,16 @@ const FROM = `"SangoStore" <${process.env.SMTP_USER || "noreply@sangostore.com"}
 const FRONTEND = process.env.FRONTEND_URL || "http://localhost:3000";
 
 async function send(to: string, subject: string, html: string) {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) return;
+  if (!process.env.SMTP_USER || !smtpPass) {
+    console.warn("[Email] SMTP non configuré — email non envoyé à", to);
+    return;
+  }
   try {
-    await transporter.sendMail({ from: FROM, to, subject, html });
+    const info = await transporter.sendMail({ from: FROM, to, subject, html });
+    console.log(`[Email] Envoyé à ${to} — messageId: ${info.messageId}`);
   } catch (err) {
-    console.error("[Email] Échec d'envoi vers", to, err);
+    console.error("[Email] Échec d'envoi vers", to, (err as Error).message);
+    throw err; // re-throw so callers can log the failure explicitly
   }
 }
 

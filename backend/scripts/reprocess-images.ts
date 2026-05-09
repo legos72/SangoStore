@@ -15,7 +15,6 @@ import path from "path";
 
 const UPLOADS_DIR  = path.join(__dirname, "../uploads");
 const BACKUP_DIR   = path.join(UPLOADS_DIR, "originals");
-const PADDING_BG   = { r: 252, g: 249, b: 244, alpha: 1 } as const;
 const IMAGE_EXTS   = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
 
 async function reprocess(filePath: string, backupPath: string): Promise<void> {
@@ -32,8 +31,8 @@ async function reprocess(filePath: string, backupPath: string): Promise<void> {
   await sharp(buffer)
     .rotate()
     .resize(800, 800, {
-      fit: "contain",
-      background: PADDING_BG,
+      fit: "cover",
+      position: "attention",
       withoutEnlargement: false,
     })
     .sharpen({ sigma: 0.8 })
