@@ -11,6 +11,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { getImageUrl } from "@/lib/api";
 import { FlagImage } from "@/components/ui/FlagImage";
+import { track } from "@/lib/analytics";
 
 interface ProductCardProps {
   product: Product;
@@ -70,6 +71,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
     e.preventDefault(); e.stopPropagation();
     if (!product.isAvailable || product.stock === 0) return;
     addItem(product, 1);
+    track("add_to_cart", { product_id: product.id, product_name: product.title, category: product.category });
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 1800);
     toast.success(`${truncate(product.title, 28)} ajouté au panier`, {
@@ -194,27 +196,27 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
 
   /* ── GRID VARIANT ─────────────────────────────────────────────────────── */
   return (
-    <div className={cn(
-      "group relative flex flex-col rounded-xl overflow-hidden bg-white",
-      "border border-gray-100 hover:border-orange-200",
-      "shadow-[0_1px_3px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.10)]",
-      "hover:-translate-y-0.5 active:scale-[0.985] transition-all duration-200",
-      className
-    )}>
-
+    <Link
+      href={`/produits/${product.id}`}
+      className={cn(
+        "group relative flex flex-col rounded-2xl overflow-hidden bg-white",
+        "border border-gray-100/80 hover:border-orange-300/50",
+        "shadow-[0_1px_4px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.11)]",
+        "hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200",
+        className
+      )}
+    >
       {/* ── IMAGE ─────────────────────────────────────────── */}
-      <div className="relative h-[130px] sm:h-[155px] overflow-hidden flex-shrink-0 bg-white">
-        <Link href={`/produits/${product.id}`} className="absolute inset-0 flex items-center justify-center">
-          {imgError || !product.images[0] ? imgFallback : (
-            <img
-              src={getImageUrl(product.images[0])}
-              alt={product.title}
-              className="w-full h-full object-contain group-hover:scale-[1.04] transition-transform duration-500 ease-out"
-              loading="lazy"
-              onError={() => setImgError(true)}
-            />
-          )}
-        </Link>
+      <div className="relative h-[130px] sm:h-[155px] overflow-hidden flex-shrink-0 bg-[#FDFCF8]">
+        {imgError || !product.images[0] ? imgFallback : (
+          <img
+            src={getImageUrl(product.images[0])}
+            alt={product.title}
+            className="w-full h-full object-contain group-hover:scale-[1.04] transition-transform duration-500 ease-out"
+            loading="lazy"
+            onError={() => setImgError(true)}
+          />
+        )}
 
         {/* Promo badge */}
         {promoActive && (
@@ -223,17 +225,17 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
           </span>
         )}
 
-        {/* Wishlist — discret */}
+        {/* Wishlist */}
         <button
           onClick={toggleLike}
           className={cn(
-            "absolute top-1.5 right-1.5 z-10 w-6 h-6 rounded-full flex items-center justify-center",
-            "bg-white/80 backdrop-blur-sm shadow-sm transition-all active:scale-90",
-            liked ? "bg-red-50" : "hover:bg-white"
+            "absolute top-1.5 right-1.5 z-20 w-6 h-6 rounded-full flex items-center justify-center",
+            "bg-white/90 shadow-sm transition-all duration-150 active:scale-90",
+            liked ? "bg-red-50 opacity-100" : "opacity-0 group-hover:opacity-100"
           )}
           aria-label={liked ? "Retirer des favoris" : "Ajouter aux favoris"}
         >
-          <Heart className={cn("w-3 h-3 transition-colors", liked ? "fill-red-500 text-red-500" : "text-gray-400")} />
+          <Heart className={cn("w-3 h-3", liked ? "fill-red-500 text-red-500" : "text-gray-400")} />
         </button>
 
         {/* Unavailable overlay */}
@@ -247,7 +249,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
       </div>
 
       {/* ── CONTENT ───────────────────────────────────────── */}
-      <div className="flex flex-col flex-1 px-2 sm:px-3 pt-1.5 pb-2">
+      <div className="flex flex-col flex-1 px-2.5 pt-2 pb-2.5">
 
         {/* Flag + catégorie */}
         <div className="flex items-center gap-1 mb-1">
@@ -257,66 +259,60 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
           </span>
         </div>
 
-        {/* Titre — 2 lignes max, pas de min-height */}
-        <Link href={`/produits/${product.id}`}>
-          <h3 className="text-[11px] sm:text-xs font-semibold text-gray-900 leading-tight line-clamp-2 group-hover:text-orange-600 transition-colors">
-            {product.title}
-          </h3>
-        </Link>
+        {/* Titre */}
+        <h3 className="text-[11px] sm:text-xs font-semibold text-gray-900 leading-tight line-clamp-2 group-hover:text-orange-600 transition-colors">
+          {product.title}
+        </h3>
 
-        {/* Prix + bouton */}
+        {/* Prix + bouton panier */}
         <div className="flex items-center justify-between gap-1 mt-auto pt-1.5">
           <div className="min-w-0 flex-1 overflow-hidden">
-            <div className="flex items-baseline gap-1 overflow-hidden">
+            <div className="flex items-baseline gap-1 flex-wrap">
               <span className={cn(
-                "text-xs sm:text-sm font-bold leading-none whitespace-nowrap",
+                "text-xs sm:text-sm font-extrabold leading-none whitespace-nowrap",
                 promoActive ? "text-orange-600" : "text-gray-900"
               )}>
                 {format(displayPrice, product.currency)}
               </span>
               {promoActive && (
-                <span className="hidden sm:inline text-[9px] text-gray-400 line-through leading-none whitespace-nowrap">
+                <span className="text-[9px] text-gray-400 line-through leading-none">
                   {format(product.price, product.currency)}
                 </span>
               )}
             </div>
             {showConversion && (
-              <p className="text-[9px] text-gray-400 whitespace-nowrap mt-0.5">
-                ≈&nbsp;{formatOriginal(displayPrice, product.currency)}
-              </p>
+              <p className="text-[9px] text-gray-400 mt-0.5">≈&nbsp;{formatOriginal(displayPrice, product.currency)}</p>
             )}
-            {/* Badge GROS — subtil */}
             {bestTier && (
               <div className="flex items-center gap-0.5 mt-0.5">
-                <span className="text-[8px] font-bold bg-gray-100 text-gray-500 px-1 py-px rounded-sm leading-none tracking-wide">
-                  GROS
-                </span>
-                <span className="text-[9px] text-gray-500 leading-none whitespace-nowrap">
+                <span className="text-[8px] font-bold bg-indigo-50 text-indigo-500 px-1 py-px rounded leading-none">GROS</span>
+                <span className="text-[9px] text-indigo-500 leading-none whitespace-nowrap">
                   {format(bestTier.price, product.currency)}
                 </span>
               </div>
             )}
           </div>
 
+          {/* Bouton panier — icône, toujours visible */}
           {product.isAvailable && product.stock > 0 ? (
             <button
               onClick={handleAddToCart}
               className={cn(
-                "flex-shrink-0 flex items-center gap-0.5 px-2 py-1 rounded-lg text-[10px] font-bold transition-all active:scale-95",
+                "flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-90",
                 justAdded
                   ? "bg-green-500 text-white"
                   : inCart
                   ? "bg-orange-600 text-white"
-                  : "bg-orange-500 hover:bg-orange-600 text-white"
+                  : "bg-orange-500 text-white shadow-[0_2px_8px_rgba(212,150,30,0.35)] hover:bg-orange-600"
               )}
             >
-              {justAdded ? <><Check className="w-2.5 h-2.5" />OK</> : inCart ? "✓ Panier" : "Acheter"}
+              {justAdded ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-3.5 h-3.5" />}
             </button>
           ) : (
-            <span className="text-[9px] text-gray-400 flex-shrink-0">Indispo.</span>
+            <span className="text-[9px] text-red-400 font-medium flex-shrink-0">Indispo.</span>
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -6,6 +7,9 @@ import { CartProvider } from "@/contexts/CartContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { Toaster } from "react-hot-toast";
 import { I18nProvider } from "@/lib/i18n/context";
+import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
+
+const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID;
 
 export const metadata: Metadata = {
   title: {
@@ -29,7 +33,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
+      {/* Google Analytics 4 — active uniquement si NEXT_PUBLIC_GA4_ID est défini */}
+      {GA4_ID && (
+        <head>
+          <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`} strategy="afterInteractive" />
+          <Script id="ga4-init" strategy="afterInteractive">{`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA4_ID}', { send_page_view: false });
+          `}</Script>
+        </head>
+      )}
       <body>
+        <AnalyticsTracker />
         <Toaster
           position="top-right"
           toastOptions={{

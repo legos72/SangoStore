@@ -17,10 +17,11 @@ import { formatPrice, formatDate, ORDER_STATUS_LABELS } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import type { OrderStatus } from "@/lib/types";
 
-type Tab = "overview" | "users" | "products" | "orders" | "transporters" | "escrow";
+type Tab = "overview" | "users" | "products" | "orders" | "transporters" | "escrow" | "analytics";
 
 const NAV_ITEMS: { tab: Tab; icon: any; label: string; color: string }[] = [
   { tab: "overview",     icon: LayoutDashboard, label: "Vue d'ensemble",  color: "text-blue-400"   },
+  { tab: "analytics",    icon: BarChart3,       label: "Analytics",       color: "text-violet-400" },
   { tab: "users",        icon: Users,           label: "Utilisateurs",    color: "text-purple-400" },
   { tab: "products",     icon: ShoppingBag,     label: "Produits",        color: "text-amber-400"  },
   { tab: "orders",       icon: Package,         label: "Commandes",       color: "text-green-400"  },
@@ -117,6 +118,8 @@ export default function AdminDashboard() {
   const [ordersLoading, setOrdersLoading]       = useState(false);
   const [transporters, setTransporters]         = useState<any[]>([]);
   const [transportersLoading, setTransportersLoading] = useState(false);
+  const [analyticsStats, setAnalyticsStats]     = useState<any>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   // Modal state
   const [emailModal, setEmailModal]   = useState<{ user: any } | null>(null);
@@ -181,6 +184,19 @@ export default function AdminDashboard() {
       .then((r: any) => setOrders(r.data ?? []))
       .catch(() => setOrders([]))
       .finally(() => setOrdersLoading(false));
+  }, [activeTab]);
+
+  // Analytics
+  useEffect(() => {
+    if (activeTab !== "analytics") return;
+    setAnalyticsLoading(true);
+    fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"}/api/analytics/stats`, {
+      headers: { Authorization: `Bearer ${typeof window !== "undefined" ? localStorage.getItem("sango_token") : ""}` },
+    })
+      .then(r => r.json())
+      .then(r => setAnalyticsStats(r.data ?? null))
+      .catch(() => {})
+      .finally(() => setAnalyticsLoading(false));
   }, [activeTab]);
 
   // Transporters
@@ -500,9 +516,6 @@ export default function AdminDashboard() {
             <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">
               <Globe className="w-4 h-4 text-slate-500" /> Zones de livraison
             </button>
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">
-              <BarChart3 className="w-4 h-4 text-slate-500" /> Analytiques
-            </button>
           </div>
         </nav>
 
@@ -699,6 +712,159 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ══ ANALYTICS ══ */}
+          {activeTab === "analytics" && (
+            <div className="space-y-5">
+
+              {/* KPI row */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { label: "Visiteurs aujourd'hui", value: analyticsStats?.visitors_today,  gradient: "from-violet-500 to-purple-600", icon: Activity   },
+                  { label: "Cette semaine",          value: analyticsStats?.visitors_week,   gradient: "from-blue-500 to-indigo-600",  icon: TrendingUp  },
+                  { label: "Ce mois",                value: analyticsStats?.visitors_month,  gradient: "from-cyan-500 to-sky-600",     icon: Users       },
+                  { label: "Total visiteurs",        value: analyticsStats?.visitors_total,  gradient: "from-orange-500 to-amber-600", icon: Globe       },
+                ].map(({ label, value, gradient, icon: Icon }) => (
+                  <div key={label} className="relative overflow-hidden bg-slate-900 border border-white/5 rounded-2xl p-4">
+                    <div className={cn("absolute -top-6 -right-6 w-20 h-20 rounded-full bg-gradient-to-br opacity-15", gradient)} />
+                    <div className={cn("w-8 h-8 rounded-xl bg-gradient-to-br flex items-center justify-center mb-3 shadow-lg", gradient)}>
+                      <Icon className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="text-2xl font-extrabold text-white">
+                      {analyticsLoading ? "…" : (value ?? 0).toLocaleString("fr")}
+                    </div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">{label}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+                {/* Daily visitors chart */}
+                <div className="lg:col-span-2 bg-slate-900 border border-white/5 rounded-2xl p-5">
+                  <h2 className="text-sm font-bold text-white mb-1 flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-violet-400" /> Visiteurs — 30 derniers jours
+                  </h2>
+                  <p className="text-[11px] text-slate-500 mb-4">Visiteurs uniques par jour (session)</p>
+                  {analyticsLoading ? (
+                    <div className="h-28 flex items-center justify-center text-slate-600 text-sm">Chargement…</div>
+                  ) : !analyticsStats?.daily_visitors?.length ? (
+                    <div className="h-28 flex items-center justify-center text-slate-600 text-sm">Pas encore de données</div>
+                  ) : (() => {
+                    const data: { day: string; visitors: number }[] = analyticsStats.daily_visitors;
+                    const max = Math.max(...data.map(d => d.visitors), 1);
+                    return (
+                      <div className="flex items-end gap-1 h-28">
+                        {data.map((d, i) => (
+                          <div key={i} className="flex-1 flex flex-col items-center gap-0.5" title={`${d.day}: ${d.visitors}`}>
+                            <div
+                              className="w-full rounded-t bg-violet-500/60 hover:bg-violet-500 transition-colors"
+                              style={{ height: `${(d.visitors / max) * 100}%`, minHeight: 2 }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Device breakdown */}
+                <div className="bg-slate-900 border border-white/5 rounded-2xl p-5">
+                  <h2 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-cyan-400" /> Appareils
+                  </h2>
+                  {analyticsLoading ? (
+                    <div className="text-slate-600 text-sm">Chargement…</div>
+                  ) : !analyticsStats?.device_breakdown?.length ? (
+                    <div className="text-slate-600 text-sm">Pas encore de données</div>
+                  ) : (() => {
+                    const devices: { device: string; count: number }[] = analyticsStats.device_breakdown;
+                    const total = devices.reduce((s, d) => s + Number(d.count), 0) || 1;
+                    const icons: Record<string, string> = { mobile: "📱", tablet: "📟", desktop: "💻", unknown: "❓" };
+                    return (
+                      <div className="space-y-3">
+                        {devices.map(d => {
+                          const pct = Math.round((Number(d.count) / total) * 100);
+                          return (
+                            <div key={d.device}>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs text-slate-300 capitalize flex items-center gap-1.5">
+                                  {icons[d.device] ?? "❓"} {d.device}
+                                </span>
+                                <span className="text-xs font-bold text-white">{pct}%</span>
+                              </div>
+                              <div className="w-full bg-slate-800 rounded-full h-1.5">
+                                <div
+                                  className="h-1.5 rounded-full bg-gradient-to-r from-violet-500 to-cyan-500"
+                                  style={{ width: `${pct}%` }}
+                                />
+                              </div>
+                              <div className="text-[10px] text-slate-600 mt-0.5">{Number(d.count).toLocaleString("fr")} sessions</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+                {/* Top pages */}
+                <div className="bg-slate-900 border border-white/5 rounded-2xl overflow-hidden">
+                  <div className="px-5 py-4 border-b border-white/5">
+                    <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Eye className="w-4 h-4 text-blue-400" /> Pages les plus visitées
+                    </h2>
+                    <p className="text-[11px] text-slate-500 mt-0.5">30 derniers jours</p>
+                  </div>
+                  <div className="divide-y divide-white/3">
+                    {analyticsLoading ? (
+                      <div className="px-5 py-8 text-center text-slate-600 text-sm">Chargement…</div>
+                    ) : !analyticsStats?.top_pages?.length ? (
+                      <div className="px-5 py-8 text-center text-slate-600 text-sm">Pas encore de données</div>
+                    ) : analyticsStats.top_pages.map((p: any, i: number) => (
+                      <div key={p.path} className="flex items-center gap-3 px-5 py-3 hover:bg-white/2 transition-colors">
+                        <span className="text-[11px] font-bold text-slate-600 w-5 text-right">{i + 1}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs text-slate-200 font-medium truncate">{p.path}</div>
+                          <div className="text-[10px] text-slate-600 mt-0.5">{Number(p.unique_visitors).toLocaleString("fr")} visiteurs uniques</div>
+                        </div>
+                        <span className="text-xs font-bold text-violet-400 flex-shrink-0">{Number(p.views).toLocaleString("fr")} vues</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Top events */}
+                <div className="bg-slate-900 border border-white/5 rounded-2xl overflow-hidden">
+                  <div className="px-5 py-4 border-b border-white/5">
+                    <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-orange-400" /> Actions les plus fréquentes
+                    </h2>
+                    <p className="text-[11px] text-slate-500 mt-0.5">30 derniers jours</p>
+                  </div>
+                  <div className="divide-y divide-white/3">
+                    {analyticsLoading ? (
+                      <div className="px-5 py-8 text-center text-slate-600 text-sm">Chargement…</div>
+                    ) : !analyticsStats?.top_events?.length ? (
+                      <div className="px-5 py-8 text-center text-slate-600 text-sm">Pas encore de données</div>
+                    ) : analyticsStats.top_events.map((e: any, i: number) => (
+                      <div key={e.event_name} className="flex items-center gap-3 px-5 py-3 hover:bg-white/2 transition-colors">
+                        <span className="text-[11px] font-bold text-slate-600 w-5 text-right">{i + 1}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-mono text-slate-200 truncate">{e.event_name}</div>
+                        </div>
+                        <span className="text-xs font-bold text-orange-400 flex-shrink-0">{Number(e.count).toLocaleString("fr")} fois</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
               </div>
             </div>
           )}

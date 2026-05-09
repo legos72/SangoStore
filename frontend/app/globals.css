@@ -14,22 +14,68 @@
 
   * { box-sizing: border-box; }
 
-  html { scroll-behavior: smooth; }
-
-  body {
-    /* Ivoire chaud — plus premium que le gris froid */
-    background-color: #F7F4EE;
-    @apply text-gray-900 font-sans antialiased;
+  html {
+    scroll-behavior: smooth;
+    /* Momentum scrolling iOS */
+    -webkit-overflow-scrolling: touch;
   }
 
-  /* Scrollbar premium */
-  ::-webkit-scrollbar       { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: #EAE2D2; }
-  ::-webkit-scrollbar-thumb { background: #D4961E; border-radius: 9999px; }
-  ::-webkit-scrollbar-thumb:hover { background: #B87814; }
+  body {
+    background-color: #F7F4EE;
+    @apply text-gray-900 font-sans antialiased;
+    /* Prevent layout shift from scrollbar appearing */
+    overflow-y: scroll;
+    /* Better text rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
 
-  /* Headings — léger letter-spacing pour le côté luxe */
+  /* Prevent overscroll bounce on mobile (looks cheap) */
+  body { overscroll-behavior-y: none; }
+
+  /* Scrollbar premium — desktop only */
+  @media (min-width: 768px) {
+    ::-webkit-scrollbar       { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #EAE2D2; }
+    ::-webkit-scrollbar-thumb { background: #D4961E; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #B87814; }
+  }
+
+  /* Headings */
   h1, h2, h3 { letter-spacing: -0.02em; }
+
+  /* Remove tap highlight on mobile */
+  a, button { -webkit-tap-highlight-color: transparent; }
+
+  /* Better image rendering */
+  img { image-rendering: auto; }
+}
+
+/* ── Premium shimmer skeleton ─────────────────────────────────────────────── */
+.shimmer-bg {
+  background: linear-gradient(
+    90deg,
+    #f0ece4 0%,
+    #e6e0d6 40%,
+    #f0ece4 80%,
+    #f0ece4 100%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* ── Scroll-reveal: add class "reveal" to any section, JS-free via CSS ────── */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity .5s ease-out, transform .5s ease-out;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @layer components {
