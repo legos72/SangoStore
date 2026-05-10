@@ -30,7 +30,16 @@ const PORT = process.env.PORT || 4000;
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (curl, Postman, server-to-server SSR)
+      if (!origin) return callback(null, true);
+      // Support comma-separated list: FRONTEND_URL=https://sangostore.com,http://localhost:3000
+      const allowed = (process.env.FRONTEND_URL || "http://localhost:3000")
+        .split(",")
+        .map(s => s.trim());
+      if (allowed.includes(origin)) return callback(null, true);
+      callback(null, false);
+    },
     credentials: true,
   })
 );

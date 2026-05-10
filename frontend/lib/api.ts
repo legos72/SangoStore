@@ -11,6 +11,8 @@ const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 export function getImageUrl(path: string | null | undefined): string {
   if (!path) return "";
+  // blob: URLs are local browser previews — not valid remote URLs
+  if (path.startsWith("blob:")) return "";
   // Old images stored as http://localhost:4000/uploads/... → extract relative path
   if (path.includes("localhost") || path.includes("127.0.0.1")) {
     const match = path.match(/\/uploads\/.+/);

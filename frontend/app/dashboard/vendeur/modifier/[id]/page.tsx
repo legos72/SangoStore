@@ -355,7 +355,10 @@ export default function ModifierProduitPage() {
             if (form.images[i]?.startsWith("blob:")) URL.revokeObjectURL(form.images[i]);
             finalImages.push(url);
           } catch {
-            finalImages.push(form.images[i]);
+            // Only keep the existing URL if it's a real URL (not a local blob: preview)
+            if (form.images[i] && !form.images[i].startsWith("blob:")) {
+              finalImages.push(form.images[i]);
+            }
           }
         } else if (form.images[i] && !form.images[i].startsWith("blob:")) {
           finalImages.push(form.images[i]);
