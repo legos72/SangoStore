@@ -33,7 +33,7 @@ transportRouter.post("/bookings", authenticate, async (req: AuthRequest, res) =>
   }
 
   const trip = await queryOne<any>(
-    "SELECT t.*, tr.currency FROM trips t LEFT JOIN transporters tr ON tr.id = t.transporter_id WHERE t.id = $1 AND t.is_active = TRUE",
+    "SELECT * FROM trips WHERE id = $1 AND is_active = TRUE",
     [tripId]
   );
   if (!trip) throw new AppError("Trajet introuvable ou inactif", 404);
