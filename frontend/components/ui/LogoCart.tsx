@@ -4,10 +4,10 @@ interface LogoCartProps {
 }
 
 export function LogoCart({ className, size = 36 }: LogoCartProps) {
-  const id = "rca-clip";
+  const clip = "ss-cart";
   return (
     <svg
-      viewBox="0 0 48 46"
+      viewBox="0 0 56 48"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       width={size}
@@ -16,50 +16,58 @@ export function LogoCart({ className, size = 36 }: LogoCartProps) {
       aria-hidden
     >
       <defs>
-        <clipPath id={id}>
-          {/* Basket interior shape */}
-          <polygon points="11,11 41,11 39,31 13,31" />
+        {/* Cart interior clip */}
+        <clipPath id={clip}>
+          <polygon points="17,11 48,11 45,31 19,31" />
         </clipPath>
+        {/* Gold gradient for cart frame */}
+        <linearGradient id="ss-gold" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#E8B84B" />
+          <stop offset="100%" stopColor="#B8820A" />
+        </linearGradient>
       </defs>
 
-      {/* ── RCA flag stripes clipped to basket interior ── */}
-      {/* Blue */}
-      <rect x="8" y="11" width="36" height="5" fill="#003082" clipPath={`url(#${id})`} />
-      {/* White */}
-      <rect x="8" y="16" width="36" height="5" fill="#F5F5F5" clipPath={`url(#${id})`} />
-      {/* Green */}
-      <rect x="8" y="21" width="36" height="5" fill="#289728" clipPath={`url(#${id})`} />
-      {/* Yellow */}
-      <rect x="8" y="26" width="36" height="5" fill="#FFCD00" clipPath={`url(#${id})`} />
-      {/* Red vertical stripe (center) */}
-      <rect x="21" y="11" width="6" height="20" fill="#BC0026" clipPath={`url(#${id})`} />
+      {/* ── Speed / motion lines (left side, RCA flag colors) ── */}
+      <line x1="1"  y1="15" x2="13" y2="15" stroke="#BC0026" strokeWidth="2.2" strokeLinecap="round" />
+      <line x1="3"  y1="20" x2="13" y2="20" stroke="#FFCD00" strokeWidth="1.6" strokeLinecap="round" />
+      <line x1="5"  y1="25" x2="14" y2="25" stroke="#003082" strokeWidth="1.6" strokeLinecap="round" />
 
-      {/* Gold star (top-left of basket) */}
-      <text x="15.5" y="19" fontSize="7" fill="#FFCD00" textAnchor="middle" dominantBaseline="middle">
-        ★
-      </text>
+      {/* ── RCA flag fill inside cart body ── */}
+      <rect x="15" y="11" width="35" height="5"   fill="#003082"  clipPath={`url(#${clip})`} />
+      <rect x="15" y="16" width="35" height="5"   fill="#EFEFEF"  clipPath={`url(#${clip})`} />
+      <rect x="15" y="21" width="35" height="5"   fill="#289728"  clipPath={`url(#${clip})`} />
+      <rect x="15" y="26" width="35" height="5.5" fill="#FFCD00"  clipPath={`url(#${clip})`} />
+      {/* Red vertical stripe */}
+      <rect x="26" y="11" width="6"  height="20"  fill="#BC0026"  clipPath={`url(#${clip})`} />
 
-      {/* ── Cart frame in gold ── */}
-      {/* Handle + left side going into basket */}
+      {/* Gold star on blue band */}
+      <text
+        x="21" y="13.5"
+        fontSize="6.5" fill="#FFCD00"
+        textAnchor="middle" dominantBaseline="middle"
+      >★</text>
+
+      {/* ── Cart frame (gold gradient stroke) ── */}
+      {/* Handle */}
       <path
-        d="M2,4 L8,4 Q9.5,4 10,7 L13,31 L39,31 L43,11 L10,11"
-        stroke="#C8960C"
+        d="M9,5 L16,5 Q17.5,5 18,8.5 L19,31 L45,31 L49,11 L16,11"
+        stroke="url(#ss-gold)"
         strokeWidth="2.8"
         strokeLinecap="round"
         strokeLinejoin="round"
+        fill="none"
       />
-      {/* Basket top bar */}
-      <line x1="10" y1="11" x2="43" y2="11" stroke="#C8960C" strokeWidth="2.8" strokeLinecap="round" />
-      {/* Vertical bar dividers inside basket */}
-      <line x1="20" y1="11" x2="18.5" y2="31" stroke="#C8960C" strokeWidth="1.2" opacity="0.6" />
-      <line x1="28" y1="11" x2="27" y2="31" stroke="#C8960C" strokeWidth="1.2" opacity="0.6" />
-      <line x1="36" y1="11" x2="35.5" y2="31" stroke="#C8960C" strokeWidth="1.2" opacity="0.6" />
+      {/* Top bar */}
+      <line x1="16" y1="11" x2="49" y2="11"
+        stroke="url(#ss-gold)" strokeWidth="2.8" strokeLinecap="round" />
 
       {/* ── Wheels ── */}
-      <circle cx="19" cy="38" r="4" fill="#289728" stroke="#C8960C" strokeWidth="1.8" />
-      <circle cx="19" cy="38" r="1.2" fill="#C8960C" />
-      <circle cx="34" cy="38" r="4" fill="#289728" stroke="#C8960C" strokeWidth="1.8" />
-      <circle cx="34" cy="38" r="1.2" fill="#C8960C" />
+      {/* Left wheel */}
+      <circle cx="24" cy="39" r="4.2" fill="#289728" stroke="url(#ss-gold)" strokeWidth="2" />
+      <circle cx="24" cy="39" r="1.4" fill="#C8960C" />
+      {/* Right wheel */}
+      <circle cx="40" cy="39" r="4.2" fill="#289728" stroke="url(#ss-gold)" strokeWidth="2" />
+      <circle cx="40" cy="39" r="1.4" fill="#C8960C" />
     </svg>
   );
 }

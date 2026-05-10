@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Package, ArrowRight, Loader2, Clock, XCircle } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Loader2, Clock, XCircle } from "lucide-react";
 import { api, setToken, setUser } from "@/lib/api";
 
 export default function LoginPage() {
@@ -40,11 +40,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md mx-4">
         {/* Logo */}
         <div className="text-center mb-6 sm:mb-8">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <Package className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-          </div>
           <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900">Bon retour !</h1>
-          <p className="text-gray-500 text-sm mt-1">Connectez-vous à votre compte SangoMarket</p>
+          <p className="text-gray-500 text-sm mt-1">Connectez-vous à votre compte SangoStore</p>
         </div>
 
         <div className="card p-5 sm:p-8">

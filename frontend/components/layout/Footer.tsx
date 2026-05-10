@@ -70,12 +70,22 @@ export function Footer() {
 
           {/* Brand col */}
           <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
+            <Link href="/" className="flex items-center gap-2 mb-4 select-none">
               <LogoCart size={40} />
-              <div>
-                <span className="text-xl font-extrabold text-red-400">Sango</span>
-                <span className="text-xl font-extrabold text-orange-400">Store</span>
-              </div>
+              <span
+                className="leading-none tracking-tight text-[20px]"
+                style={{ fontFamily: "var(--font-poppins), sans-serif" }}
+              >
+                <span
+                  className="font-extrabold"
+                  style={{
+                    background: "linear-gradient(120deg, #f97316 0%, #f59e0b 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >Sango</span><span className="font-semibold text-slate-300">Store</span>
+              </span>
             </Link>
 
             <p className="text-sm text-gray-400 leading-relaxed max-w-[280px] mb-6">

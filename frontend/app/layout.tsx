@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Poppins } from "next/font/google";
 import "./globals.css";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800", "900"],
+  variable: "--font-poppins",
+  display: "swap",
+});
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartProvider } from "@/contexts/CartContext";
@@ -45,7 +53,7 @@ export default function RootLayout({
           `}</Script>
         </head>
       )}
-      <body>
+      <body className={poppins.variable}>
         <AnalyticsTracker />
         <Toaster
           position="top-right"

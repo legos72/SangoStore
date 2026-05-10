@@ -108,12 +108,22 @@ export function Navbar() {
         <div className="flex items-center justify-between h-14 sm:h-16 gap-3">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-1.5 flex-shrink-0">
-            <LogoCart size={34} />
-            <div>
-              <span className="text-base sm:text-lg font-extrabold text-red-600">Sango</span>
-              <span className="text-base sm:text-lg font-extrabold text-orange-500">Store</span>
-            </div>
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0 select-none">
+            <LogoCart size={36} />
+            <span
+              className="leading-none tracking-tight text-[18px] sm:text-[20px]"
+              style={{ fontFamily: "var(--font-poppins), sans-serif" }}
+            >
+              <span
+                className="font-extrabold"
+                style={{
+                  background: "linear-gradient(120deg, #f97316 0%, #f59e0b 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >Sango</span><span className="font-semibold text-slate-800">Store</span>
+            </span>
           </Link>
 
           {/* Desktop search bar — visible sm+ */}
