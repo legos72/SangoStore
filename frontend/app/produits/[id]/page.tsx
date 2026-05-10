@@ -511,7 +511,7 @@ export default function ProductDetailPage() {
               <img
                 src={getImageUrl(product.images[activeImage] || product.images[0])}
                 alt={product.title}
-                className="absolute inset-0 w-full h-full object-contain p-2"
+                className="absolute inset-0 w-full h-full object-contain p-5 sm:p-8"
                 onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
               />
             ) : (
@@ -537,7 +537,7 @@ export default function ProductDetailPage() {
                     activeImage === i ? "border-orange-500" : "border-gray-200 hover:border-gray-400"
                   )}
                 >
-                  <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: "center 15%" }} />
                 </button>
               ))}
             </div>

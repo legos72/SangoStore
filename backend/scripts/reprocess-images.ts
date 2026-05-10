@@ -31,8 +31,7 @@ async function reprocess(filePath: string, backupPath: string): Promise<void> {
   await sharp(buffer)
     .rotate()
     .resize(800, 800, {
-      fit: "cover",
-      position: "attention",
+      fit: "inside",
       withoutEnlargement: false,
     })
     .sharpen({ sigma: 0.8 })

@@ -41,13 +41,11 @@ async function processWithSharp(buffer: Buffer): Promise<string> {
     }
   } catch { /* keep oriented */ }
 
-  // Step 3 — smart-crop to fill an 800×800 square. "attention" detects the
-  // visually important area (face, product center) so portrait fashion photos
-  // stay well-framed instead of showing side whitespace.
+  // Step 3 — resize to fit inside 800×800 without ever cropping.
+  // The image keeps its natural aspect ratio; the card CSS handles display.
   await sharp(source)
     .resize(800, 800, {
-      fit: "cover",
-      position: "attention",
+      fit: "inside",
       withoutEnlargement: false,
     })
     .sharpen({ sigma: 0.8 })

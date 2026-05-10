@@ -96,10 +96,10 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
       )}>
         {/* Image — edge-to-edge, no padding */}
         <Link href={`/produits/${product.id}`}
-          className="relative w-28 h-28 sm:w-36 sm:h-36 flex-shrink-0 bg-gray-50 overflow-hidden">
+          className="relative w-28 h-28 sm:w-36 sm:h-36 flex-shrink-0 bg-[#F8F7F5] overflow-hidden">
           {imgError || !product.images[0] ? imgFallback : (
             <img src={getImageUrl(product.images[0])} alt={product.title}
-              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+              className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-500"
               loading="lazy" onError={() => setImgError(true)} />
           )}
           {promoActive && (
@@ -206,12 +206,12 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
       )}
     >
       {/* ── IMAGE ─────────────────────────────────────────── */}
-      <div className="relative aspect-square overflow-hidden flex-shrink-0 bg-gray-50">
+      <div className="relative aspect-square overflow-hidden flex-shrink-0 bg-[#F8F7F5]">
         {imgError || !product.images[0] ? imgFallback : (
           <img
             src={getImageUrl(product.images[0])}
             alt={product.title}
-            className="w-full h-full object-cover object-center group-hover:scale-[1.04] transition-transform duration-500 ease-out"
+            className="w-full h-full object-contain p-1.5 group-hover:scale-[1.03] transition-transform duration-500 ease-out"
             loading="lazy"
             onError={() => setImgError(true)}
           />
