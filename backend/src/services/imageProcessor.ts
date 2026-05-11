@@ -32,21 +32,20 @@ async function processWithSharp(buffer: Buffer): Promise<string> {
   let source = oriented;
   try {
     const { width: w0, height: h0 } = await sharp(oriented).metadata();
-    const trimmed = await sharp(oriented).trim({ threshold: 15 }).toBuffer();
+    const trimmed = await sharp(oriented).trim({ threshold: 30 }).toBuffer();
     const { width: w1, height: h1 } = await sharp(trimmed).metadata();
-    // Accept the trim only if it kept at least 35% of the original pixels
-    // (guards against trim going berserk on complex backgrounds)
-    if (((w1 ?? 1) * (h1 ?? 1)) / ((w0 ?? 1) * (h0 ?? 1)) >= 0.35) {
+    // Accept only if at least 30% of original area is kept
+    if (((w1 ?? 1) * (h1 ?? 1)) / ((w0 ?? 1) * (h0 ?? 1)) >= 0.30) {
       source = trimmed;
     }
   } catch { /* keep oriented */ }
 
-  // Step 3 — resize to fit inside 800×800 without ever cropping.
-  // The image keeps its natural aspect ratio; the card CSS handles display.
+  // Step 3 — pad to exactly 800×800 square with white background.
+  // The subject is never cropped; CSS object-cover fills the card cleanly.
   await sharp(source)
     .resize(800, 800, {
-      fit: "inside",
-      withoutEnlargement: false,
+      fit: "contain",
+      background: { r: 255, g: 255, b: 255, alpha: 1 },
     })
     .sharpen({ sigma: 0.8 })
     .webp({ quality: 85, effort: 4 })
