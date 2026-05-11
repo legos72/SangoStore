@@ -385,8 +385,7 @@ export default function NouveauProduitPage() {
         // 3. Create GP trip if vendor offers shipping
         if (form.offerShipping) {
           await api.trips.create({
-            departureCountry:  form.originCountry,
-            arrivalCountry:    "CF",
+            originCountry:     form.originCountry,
             departureDate:     form.tripDepartureDate,
             arrivalDate:       form.tripArrivalDate,
             pricePerKg:        parseFloat(form.tripPricePerKg),
