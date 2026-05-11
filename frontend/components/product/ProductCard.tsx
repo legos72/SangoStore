@@ -186,25 +186,25 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
                 <button
                   onClick={handleAddToCart}
                   className={cn(
-                    "w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-90 border",
+                    "w-7 h-7 rounded-full flex items-center justify-center transition-all duration-150 active:scale-90 border",
                     justAdded
-                      ? "bg-green-500 border-green-500 text-white"
+                      ? "bg-green-500 border-green-500 text-white shadow-sm shadow-green-200/50"
                       : inCart
                       ? "bg-orange-100 border-orange-200 text-orange-600"
-                      : "bg-white border-gray-200 text-gray-500 hover:border-orange-300 hover:text-orange-500"
+                      : "bg-white border-gray-200 text-gray-400 hover:border-orange-300 hover:text-orange-500 hover:bg-orange-50"
                   )}
                 >
-                  {justAdded ? <Check className="w-3.5 h-3.5" /> : <ShoppingCart className="w-3.5 h-3.5" />}
+                  {justAdded ? <Check className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
                 </button>
                 <button
                   onClick={handleBuyNow}
-                  className="h-8 px-3 rounded-xl flex items-center justify-center text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white transition-all active:scale-95 shadow-sm shadow-orange-200"
+                  className="h-7 px-3.5 rounded-full flex items-center justify-center text-[11px] font-bold bg-orange-500 hover:bg-orange-600 text-white transition-all duration-150 active:scale-[0.97] shadow-sm shadow-orange-200/50 tracking-wide"
                 >
                   Acheter
                 </button>
               </div>
             ) : (
-              <span className="text-[10px] font-medium text-gray-400 flex-shrink-0">Indispo.</span>
+              <span className="text-[10px] font-medium text-gray-300 flex-shrink-0">Indispo.</span>
             )}
           </div>
         </div>
@@ -323,37 +323,31 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
 
           {/* ── Boutons ── */}
           {product.isAvailable && product.stock > 0 ? (
-            <div className="flex gap-1.5 mt-2">
-              {/* Petit bouton panier */}
+            <div className="flex gap-1.5 mt-1.5">
               <button
                 onClick={handleAddToCart}
                 title={justAdded ? "Ajouté !" : inCart ? "Dans le panier" : "Ajouter au panier"}
                 className={cn(
-                  "flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-90 border",
+                  "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-150 active:scale-90 border",
                   justAdded
-                    ? "bg-green-500 border-green-500 text-white shadow-sm shadow-green-200"
+                    ? "bg-green-500 border-green-500 text-white shadow-sm shadow-green-200/50"
                     : inCart
                     ? "bg-orange-100 border-orange-200 text-orange-600"
-                    : "bg-white border-gray-200 text-gray-500 hover:border-orange-300 hover:text-orange-500"
+                    : "bg-white border-gray-200 text-gray-400 hover:border-orange-300 hover:text-orange-500 hover:bg-orange-50"
                 )}
               >
-                {justAdded
-                  ? <Check className="w-4 h-4" />
-                  : <ShoppingCart className="w-4 h-4" />
-                }
+                {justAdded ? <Check className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
               </button>
-
-              {/* Bouton Acheter */}
               <button
                 onClick={handleBuyNow}
-                className="flex-1 h-9 rounded-xl flex items-center justify-center text-xs font-bold bg-orange-500 hover:bg-orange-600 active:scale-95 text-white transition-all shadow-sm shadow-orange-200/50"
+                className="flex-1 h-7 rounded-full flex items-center justify-center text-[11px] font-bold bg-orange-500 hover:bg-orange-600 active:scale-[0.97] text-white transition-all duration-150 shadow-sm shadow-orange-200/50 tracking-wide"
               >
                 Acheter
               </button>
             </div>
           ) : (
-            <div className="mt-2 h-9 flex items-center justify-center rounded-xl bg-gray-50 border border-gray-100">
-              <span className="text-[10px] text-gray-400 font-medium">Indisponible</span>
+            <div className="mt-1.5 flex items-center justify-center">
+              <span className="text-[10px] text-gray-300 font-medium">Indisponible</span>
             </div>
           )}
         </div>
