@@ -146,7 +146,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
         {/* Content */}
         <div className="flex flex-col flex-1 min-w-0 px-3 py-2.5">
           <div className="flex items-center gap-1.5 mb-0.5">
-            <FlagImage code={product.originCountry.code} />
+            <FlagImage code={product.originCountry?.code ?? ""} />
             <span className="text-[10px] font-semibold text-gray-400 capitalize tracking-wide truncate">
               {product.category}
             </span>
@@ -281,7 +281,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
 
         {/* Flag + catégorie */}
         <div className="flex items-center gap-1 mb-1">
-          <FlagImage code={product.originCountry.code} size="sm" />
+          <FlagImage code={product.originCountry?.code ?? ""} size="sm" />
           <span className="text-[10px] text-gray-400 capitalize tracking-wide truncate font-medium">
             {product.category}
           </span>
