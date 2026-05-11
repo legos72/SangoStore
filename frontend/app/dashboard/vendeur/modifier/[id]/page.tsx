@@ -11,6 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { COUNTRIES } from "@/lib/countries";
 import { ImageUploader } from "@/components/ui/ImageUploader";
+import { uploadImage } from "@/lib/imageUtils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -201,6 +202,7 @@ export default function ModifierProduitPage() {
   const [notFound,   setNotFound]   = useState(false);
   const [form,       setForm]       = useState<FormState>(DEFAULT_FORM);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadMsg,  setUploadMsg]  = useState("");
   const [success,    setSuccess]    = useState(false);
   const [errors,     setErrors]     = useState<Partial<Record<keyof FormState | "images" | "general", string>>>({});
 
@@ -285,19 +287,6 @@ export default function ModifierProduitPage() {
     set("images", imgs);
   }
 
-  async function uploadFile(file: File): Promise<string> {
-    const token = typeof window !== "undefined" ? localStorage.getItem("sango_token") : null;
-    const fd = new FormData();
-    fd.append("image", file);
-    const res = await fetch(`${BASE}/api/uploads/image`, {
-      method: "POST",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-      body: fd,
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json?.message ?? `Erreur upload (${res.status})`);
-    return json.url as string;
-  }
 
   // ── Wholesale tier helpers ──────────────────────────────────────────────────
 
@@ -347,15 +336,20 @@ export default function ModifierProduitPage() {
     try {
       // Upload any new local File objects
       const finalImages: string[] = [];
+      const totalFiles = imageFiles.current.filter(Boolean).length;
+      let uploaded = 0;
       for (let i = 0; i < form.images.length; i++) {
         const file = imageFiles.current[i];
         if (file) {
+          setUploadMsg(`Optimisation image ${uploaded + 1}/${totalFiles}…`);
           try {
-            const url = await uploadFile(file);
+            const url = await uploadImage(file);
             if (form.images[i]?.startsWith("blob:")) URL.revokeObjectURL(form.images[i]);
             finalImages.push(url);
-          } catch {
-            // Only keep the existing URL if it's a real URL (not a local blob: preview)
+            uploaded++;
+          } catch (err: any) {
+            if (err?.isAuth) throw new Error("Session expirée — veuillez vous reconnecter");
+            // Keep the existing saved URL if this was a re-upload of an already-saved image
             if (form.images[i] && !form.images[i].startsWith("blob:")) {
               finalImages.push(form.images[i]);
             }
@@ -364,6 +358,7 @@ export default function ModifierProduitPage() {
           finalImages.push(form.images[i]);
         }
       }
+      setUploadMsg("");
 
       const { api } = await import("@/lib/api");
 
@@ -394,9 +389,15 @@ export default function ModifierProduitPage() {
       setSuccess(true);
       setTimeout(() => router.push("/dashboard/vendeur?section=products"), 1800);
     } catch (err: any) {
-      setErrors({ general: err?.message ?? "Erreur lors de la mise à jour" });
+      const msg: string = err?.message ?? "";
+      const isAuth = err?.isAuth || msg.toLowerCase().includes("session")
+        || msg.toLowerCase().includes("rôle") || msg.toLowerCase().includes("insuffisant");
+      setErrors({ general: isAuth
+        ? "Session expirée — reconnectez-vous en tant que vendeur."
+        : msg || "Erreur lors de la mise à jour" });
     } finally {
       setSubmitting(false);
+      setUploadMsg("");
     }
   }
 
@@ -888,7 +889,7 @@ export default function ModifierProduitPage() {
             className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-bold rounded-2xl text-sm shadow-lg shadow-orange-200 transition-all"
           >
             {submitting
-              ? <><Loader2 className="w-4 h-4 animate-spin" /> Enregistrement…</>
+              ? <><Loader2 className="w-4 h-4 animate-spin" /> {uploadMsg || "Enregistrement…"}</>
               : <><Save className="w-4 h-4" /> Enregistrer les modifications</>
             }
           </button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -11,6 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { COUNTRIES } from "@/lib/countries";
 import { ImageUploader } from "@/components/ui/ImageUploader";
+import { uploadImage } from "@/lib/imageUtils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -223,8 +224,14 @@ export default function NouveauProduitPage() {
 
   const [colorInput, setColorInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [uploadMsg,  setUploadMsg]  = useState("");
   const [success,    setSuccess]    = useState(false);
   const [errors,     setErrors]     = useState<Partial<Record<keyof FormState | "images", string>>>({});
+
+  useEffect(() => {
+    const token = localStorage.getItem("sango_token");
+    if (!token) router.replace("/connexion?redirect=/dashboard/vendeur/nouveau-produit");
+  }, [router]);
 
   // imageFiles[i] holds the actual File; form.images[i] holds the blob: preview URL
   const imageFiles = useRef<(File | null)[]>([null]);
@@ -261,20 +268,6 @@ export default function NouveauProduitPage() {
     set("images", imgs);
   }
 
-  // Upload a single File to the backend, return the permanent URL
-  async function uploadFile(file: File): Promise<string> {
-    const token = typeof window !== "undefined" ? localStorage.getItem("sango_token") : null;
-    const fd = new FormData();
-    fd.append("image", file);
-    const res = await fetch(`${BASE}/api/uploads/image`, {
-      method: "POST",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-      body: fd,
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json?.message ?? `Erreur upload (${res.status})`);
-    return json.url as string;
-  }
 
   // Colors
   function addColor() {
@@ -343,24 +336,33 @@ export default function NouveauProduitPage() {
     setSubmitting(true);
     setErrors({});
     try {
-      // 1. Upload local File objects → permanent URLs (best-effort, skip if backend unreachable)
+      // 1. Upload local File objects → permanent URLs
       const finalImages: string[] = [];
+      const totalFiles = imageFiles.current.filter(Boolean).length;
+      let uploaded = 0;
       for (let i = 0; i < form.images.length; i++) {
         const file = imageFiles.current[i];
         if (file) {
+          setUploadMsg(`Optimisation image ${uploaded + 1}/${totalFiles}…`);
           try {
-            const url = await uploadFile(file);
+            const url = await uploadImage(file);
             if (form.images[i]?.startsWith("blob:")) URL.revokeObjectURL(form.images[i]);
             finalImages.push(url);
-          } catch {
-            finalImages.push(form.images[i]); // keep blob URL if upload fails
+            uploaded++;
+          } catch (err: any) {
+            if (err?.isAuth) throw new Error("Session expirée — veuillez vous reconnecter");
+            // Upload failed for this image — skip it (don't save blob: URL to DB)
           }
-        } else if (form.images[i]) {
+        } else if (form.images[i] && !form.images[i].startsWith("blob:")) {
           finalImages.push(form.images[i]);
         }
       }
+      setUploadMsg("");
 
-      // 2. Create product — strip blob: URLs (not valid for the DB)
+      // 2. Block if all uploads failed (don't create a product with no images)
+      if (totalFiles > 0 && finalImages.length === 0) {
+        throw new Error("Impossible d'uploader les images. Vérifiez votre connexion et réessayez.");
+      }
       const safeImages = finalImages.filter(u => u && !u.startsWith("blob:"));
       const { api } = await import("@/lib/api");
 
@@ -418,13 +420,17 @@ export default function NouveauProduitPage() {
       setTimeout(() => router.push("/dashboard/vendeur"), 2200);
     } catch (err: any) {
       const msg: string = err?.message ?? "";
+      const isAuth = err?.isAuth || msg.includes("401") || msg.includes("403")
+        || msg.toLowerCase().includes("session") || msg.toLowerCase().includes("rôle")
+        || msg.toLowerCase().includes("autoris") || msg.toLowerCase().includes("insuffisant");
       setErrors({
-        images: msg.includes("401") || msg.toLowerCase().includes("autoris")
-          ? "Vous devez être connecté en tant que vendeur pour publier un produit."
+        images: isAuth
+          ? "Session expirée ou rôle insuffisant — reconnectez-vous en tant que vendeur."
           : msg || "Erreur lors de la création du produit",
       });
     } finally {
       setSubmitting(false);
+      setUploadMsg("");
     }
   }
 
@@ -1031,7 +1037,7 @@ export default function NouveauProduitPage() {
             className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-bold rounded-2xl text-sm shadow-lg shadow-orange-200 transition-all"
           >
             {submitting
-              ? <><Loader2 className="w-4 h-4 animate-spin" /> Création en cours…</>
+              ? <><Loader2 className="w-4 h-4 animate-spin" /> {uploadMsg || "Création en cours…"}</>
               : <><Package className="w-4 h-4" /> Publier le produit</>
             }
           </button>
