@@ -4,30 +4,44 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Loader2, CheckCircle, Truck } from "lucide-react";
 import { COUNTRIES } from "@/lib/countries";
+import { api } from "@/lib/api";
 
 export default function PublierTrajetPage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
-    companyName: "",
     description: "",
     originCountry: "",
     departureDate: "",
     arrivalDate: "",
+    depositDeadline: "",
     pricePerKg: "",
     currency: "EUR",
     availableCapacity: "",
-    phone: "",
-    whatsapp: "",
-    email: "",
   });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1400));
-    setLoading(false);
-    setSubmitted(true);
+    setError("");
+    try {
+      await api.trips.create({
+        originCountry:     form.originCountry,
+        departureDate:     form.departureDate,
+        arrivalDate:       form.arrivalDate || undefined,
+        pricePerKg:        parseFloat(form.pricePerKg),
+        currency:          form.currency as "XAF" | "EUR" | "USD",
+        availableCapacity: parseFloat(form.availableCapacity),
+        description:       form.description || undefined,
+        depositDeadline:   form.depositDeadline || undefined,
+      });
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(err.message ?? "Erreur lors de la publication");
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (submitted) {
@@ -39,14 +53,16 @@ export default function PublierTrajetPage() {
           </div>
           <h1 className="text-2xl font-extrabold text-gray-900 mb-3">Trajet publié !</h1>
           <p className="text-gray-500 mb-8">
-            Votre trajet a été soumis et sera visible après vérification (24–48h).
-            Vous recevrez une notification par email et WhatsApp.
+            Votre trajet est maintenant visible par la communauté.
           </p>
           <div className="flex flex-col gap-3">
             <Link href="/transporteurs" className="btn-primary w-full justify-center">
               Voir tous les trajets
             </Link>
-            <button onClick={() => setSubmitted(false)} className="btn-secondary w-full">
+            <button
+              onClick={() => { setSubmitted(false); setForm({ description: "", originCountry: "", departureDate: "", arrivalDate: "", depositDeadline: "", pricePerKg: "", currency: "EUR", availableCapacity: "" }); }}
+              className="btn-secondary w-full"
+            >
               Publier un autre trajet
             </button>
           </div>
@@ -74,43 +90,10 @@ export default function PublierTrajetPage() {
 
         <div className="card p-6 md:p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Company info */}
-            <div>
-              <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center font-bold">1</span>
-                Informations sur votre service
-              </h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Nom de la société / Votre nom *
-                  </label>
-                  <input
-                    required
-                    type="text"
-                    className="input"
-                    placeholder="ex: Serge Express, Alpha Logistics…"
-                    value={form.companyName}
-                    onChange={(e) => setForm({ ...form, companyName: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
-                  <textarea
-                    rows={3}
-                    className="input resize-none"
-                    placeholder="Décrivez votre service, vos spécialités, garanties…"
-                    value={form.description}
-                    onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  />
-                </div>
-              </div>
-            </div>
-
             {/* Trip details */}
             <div>
               <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center font-bold">2</span>
+                <span className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center font-bold">1</span>
                 Détails du trajet
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -159,6 +142,21 @@ export default function PublierTrajetPage() {
                   />
                 </div>
 
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    📦 Dernier délai de dépôt des colis
+                  </label>
+                  <input
+                    type="datetime-local"
+                    className="input"
+                    value={form.depositDeadline}
+                    onChange={(e) => setForm({ ...form, depositDeadline: e.target.value })}
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Date limite à laquelle les clients peuvent déposer leurs colis.
+                  </p>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Prix par kg *
@@ -200,53 +198,25 @@ export default function PublierTrajetPage() {
                     onChange={(e) => setForm({ ...form, availableCapacity: e.target.value })}
                   />
                 </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+                  <textarea
+                    rows={3}
+                    className="input resize-none"
+                    placeholder="Décrivez votre service, vos spécialités, garanties…"
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Contact */}
-            <div>
-              <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center font-bold">3</span>
-                Contact
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Téléphone *
-                  </label>
-                  <input
-                    required
-                    type="tel"
-                    className="input"
-                    placeholder="+33 6 12 34 56 78"
-                    value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    WhatsApp
-                  </label>
-                  <input
-                    type="tel"
-                    className="input"
-                    placeholder="+33 6 12 34 56 78"
-                    value={form.whatsapp}
-                    onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-                  <input
-                    type="email"
-                    className="input"
-                    placeholder="contact@votreservice.com"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  />
-                </div>
-              </div>
-            </div>
+            {error && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                {error}
+              </p>
+            )}
 
             <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-base">
               {loading ? (

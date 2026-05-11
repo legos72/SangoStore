@@ -573,6 +573,20 @@ export default function TransporteurDashboard() {
                     ))}
                   </div>
 
+                  {trip.deposit_deadline && (
+                    <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-1.5 mb-3">
+                      <span>📦</span>
+                      <span>Dépôt des colis jusqu'au{" "}
+                        <span className="font-bold">
+                          {new Date(trip.deposit_deadline).toLocaleDateString("fr-FR", {
+                            day: "numeric", month: "long",
+                            hour: "2-digit", minute: "2-digit",
+                          })}
+                        </span>
+                      </span>
+                    </div>
+                  )}
+
                   {trip.booked_kg > 0 && (
                     <div className="flex items-center gap-2 text-xs text-gray-500">
                       <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">

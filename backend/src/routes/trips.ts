@@ -51,6 +51,7 @@ tripsRouter.post("/", authenticate, authorize("transporteur", "admin"), async (r
     currency:          Joi.string().valid("XAF", "EUR", "USD").required(),
     availableCapacity: Joi.number().positive().required(),
     description:       Joi.string().max(2000).optional(),
+    depositDeadline:   Joi.date().iso().optional(),
   });
 
   const { error, value } = schema.validate(req.body);
@@ -64,13 +65,14 @@ tripsRouter.post("/", authenticate, authorize("transporteur", "admin"), async (r
 
   const [trip] = await query(
     `INSERT INTO trips
-       (transporter_id, origin_country, destination_city, departure_date, arrival_date, price_per_kg, currency, available_capacity, description)
-     VALUES ($1,$2,$3,$4,$5,$6,$7::currency,$8,$9)
+       (transporter_id, origin_country, destination_city, departure_date, arrival_date, price_per_kg, currency, available_capacity, description, deposit_deadline)
+     VALUES ($1,$2,$3,$4,$5,$6,$7::currency,$8,$9,$10)
      RETURNING *`,
     [
       transporter.id, value.originCountry, value.destinationCity,
       value.departureDate, value.arrivalDate, value.pricePerKg,
       value.currency, value.availableCapacity, value.description,
+      value.depositDeadline ?? null,
     ]
   );
 
@@ -84,9 +86,10 @@ tripsRouter.patch("/:id", authenticate, authorize("transporteur", "admin"), asyn
        price_per_kg = COALESCE($1, price_per_kg),
        available_capacity = COALESCE($2, available_capacity),
        departure_date = COALESCE($3, departure_date),
-       is_active = COALESCE($4, is_active)
-     WHERE id = $5 RETURNING *`,
-    [req.body.pricePerKg, req.body.availableCapacity, req.body.departureDate, req.body.isActive, req.params.id]
+       is_active = COALESCE($4, is_active),
+       deposit_deadline = COALESCE($5, deposit_deadline)
+     WHERE id = $6 RETURNING *`,
+    [req.body.pricePerKg, req.body.availableCapacity, req.body.departureDate, req.body.isActive, req.body.depositDeadline ?? null, req.params.id]
   );
   if (!trip) throw new AppError("Trajet introuvable", 404);
   res.json({ status: "success", data: trip });

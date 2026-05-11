@@ -287,7 +287,13 @@ export const api = {
     list: (params?: { country?: string; departureDate?: string }) =>
       apiFetch<any[]>(`/api/trips${qs(params as any)}`),
 
-    create: (data: any) =>
+    create: (data: {
+      originCountry: string; destinationCity?: string;
+      departureDate: string; arrivalDate?: string;
+      pricePerKg: number; currency: string;
+      availableCapacity: number; description?: string;
+      depositDeadline?: string;
+    }) =>
       apiFetch<any>("/api/trips", { method: "POST", body: JSON.stringify(data) }),
 
     patch: (id: string, data: any) =>

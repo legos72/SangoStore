@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Star, CheckCircle, Package, Calendar, ArrowRight } from "lucide-react";
+import { Star, CheckCircle, Package, Calendar, ArrowRight, Clock } from "lucide-react";
 import { FlagImage } from "@/components/ui/FlagImage";
 import { cn } from "@/lib/utils";
 
@@ -71,6 +71,21 @@ export function TransporterCard({ transporter: t }: TransporterCardProps) {
             <span className="text-gray-300 text-xs">·</span>
             <span className="text-[11px] text-gray-500">{t.next_trip.available_capacity} kg disponibles</span>
           </div>
+          {t.next_trip.deposit_deadline && (
+            <div className="mt-2 flex items-center gap-1 text-[11px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-2 py-1">
+              <Clock className="w-3 h-3 flex-shrink-0" />
+              <span>Dépôt des colis jusqu'au{" "}
+                <span className="font-bold">
+                  {new Date(t.next_trip.deposit_deadline).toLocaleDateString("fr-FR", {
+                    day: "numeric",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </span>
+            </div>
+          )}
         </div>
       )}
 
