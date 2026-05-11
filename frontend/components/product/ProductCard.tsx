@@ -198,7 +198,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
                 </button>
                 <button
                   onClick={handleBuyNow}
-                  className="h-7 px-3.5 rounded-full flex items-center justify-center text-[11px] font-bold bg-[#6B3D0E] hover:bg-[#4E2C08] text-white transition-all duration-150 active:scale-[0.97] shadow-sm shadow-[#6B3D0E]/30 tracking-wide"
+                  className="h-7 px-3.5 rounded-full flex items-center justify-center text-[11px] font-bold bg-orange-500 hover:bg-orange-600 text-white transition-all duration-150 active:scale-[0.97] shadow-sm shadow-orange-200/50 tracking-wide"
                 >
                   Acheter
                 </button>
@@ -340,7 +340,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
               </button>
               <button
                 onClick={handleBuyNow}
-                className="flex-1 h-7 rounded-full flex items-center justify-center text-[11px] font-bold bg-[#6B3D0E] hover:bg-[#4E2C08] active:scale-[0.97] text-white transition-all duration-150 shadow-sm shadow-[#6B3D0E]/30 tracking-wide"
+                className="flex-1 h-7 rounded-full flex items-center justify-center text-[11px] font-bold bg-orange-500 hover:bg-orange-600 active:scale-[0.97] text-white transition-all duration-150 shadow-sm shadow-orange-200/50 tracking-wide"
               >
                 Acheter
               </button>
