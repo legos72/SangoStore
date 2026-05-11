@@ -262,7 +262,7 @@ function TripCard({ trip: t }: { trip: any }) {
         <div className="mt-3">
           <Link
             href={`/transporteurs/${t.transporter_id}?action=reserve`}
-            className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-[#6B3D0E] hover:bg-[#4E2C08] text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-[#6B3D0E]/30"
+            className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-orange-200"
           >
             <Package className="w-3.5 h-3.5" />
             Réserver sur ce trajet

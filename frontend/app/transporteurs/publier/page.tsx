@@ -218,7 +218,7 @@ export default function PublierTrajetPage() {
               </p>
             )}
 
-            <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#6B3D0E] hover:bg-[#4E2C08] text-white font-bold text-base transition-all duration-200 shadow-sm shadow-[#6B3D0E]/30 disabled:opacity-50 disabled:cursor-not-allowed">
+            <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-base">
               {loading ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Publication en cours…</>
               ) : (
