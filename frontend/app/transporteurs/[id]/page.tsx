@@ -172,7 +172,7 @@ function BookingForm({ trip, onClose, onSuccess }: BookingFormProps) {
                 value={form.recipientAddress} onChange={e => set("recipientAddress", e.target.value)} />
             </div>
           </div>
-          <button type="button" onClick={() => setStep(2)} className="btn-primary w-full">
+          <button type="button" onClick={() => setStep(2)} className="inline-flex items-center justify-center gap-2 w-full px-5 py-2.5 rounded-xl bg-[#6B3D0E] hover:bg-[#4E2C08] text-white font-bold text-sm transition-all duration-200 shadow-sm shadow-[#6B3D0E]/30">
             Continuer →
           </button>
         </div>
@@ -228,7 +228,7 @@ function BookingForm({ trip, onClose, onSuccess }: BookingFormProps) {
             <button type="button" onClick={() => setStep(1)} className="btn-secondary flex-1">
               ← Retour
             </button>
-            <button type="submit" disabled={submitting} className="btn-primary flex-1">
+            <button type="submit" disabled={submitting} className="inline-flex items-center justify-center gap-2 flex-1 px-5 py-2.5 rounded-xl bg-[#6B3D0E] hover:bg-[#4E2C08] text-white font-bold text-sm transition-all duration-200 shadow-sm shadow-[#6B3D0E]/30 disabled:opacity-50 disabled:cursor-not-allowed">
               {submitting ? <><Loader2 className="w-4 h-4 animate-spin" />Envoi...</> : "Confirmer la réservation"}
             </button>
           </div>
@@ -448,7 +448,7 @@ export default function TransporterDetailPage() {
                         "w-full py-2 rounded-xl text-sm font-bold transition-all",
                         selectedTrip?.id === trip.id
                           ? "bg-gray-200 text-gray-700"
-                          : "bg-orange-500 hover:bg-orange-600 text-white"
+                          : "bg-[#6B3D0E] hover:bg-[#4E2C08] text-white"
                       )}
                     >
                       {selectedTrip?.id === trip.id ? "Annuler" : "Réserver ce trajet →"}

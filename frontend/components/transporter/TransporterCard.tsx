@@ -137,7 +137,7 @@ export function TransporterCard({ transporter: t }: TransporterCardProps) {
         </Link>
         <Link
           href={`${href}?action=reserve`}
-          className="flex-[2] flex items-center justify-center gap-1.5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-orange-200"
+          className="flex-[2] flex items-center justify-center gap-1.5 py-2.5 bg-[#6B3D0E] hover:bg-[#4E2C08] text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-[#6B3D0E]/30"
         >
           <Package className="w-3.5 h-3.5" />
           Réserver des kg
