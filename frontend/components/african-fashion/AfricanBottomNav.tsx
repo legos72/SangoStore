@@ -23,7 +23,7 @@ export function AfricanBottomNav() {
       className="fixed bottom-0 left-0 right-0 z-50 sm:hidden border-t"
       style={{ background: "#FDFCF8", borderColor: "#E2D9C8" }}
     >
-      <div className="flex items-center justify-around px-1 py-1">
+      <div className="flex items-center justify-around px-1 py-1" style={{ paddingBottom: "env(safe-area-inset-bottom, 4px)" }}>
         {TABS.map(({ href, label, icon: Icon, cart }) => {
           const hrefBase = href.split("#")[0];
           const active   = pathname === hrefBase || (hrefBase !== "/mode-africaine" && pathname.startsWith(hrefBase));
