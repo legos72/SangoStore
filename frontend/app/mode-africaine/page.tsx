@@ -43,7 +43,7 @@ const HERO_SLIDES = [
 const CATEGORIES = [
   { slug: "homme",      label: "Homme",              tags: ["homme"],                               grad: "from-slate-800   to-slate-600",   emoji: "👔", img: "/categories/homme.png" },
   { slug: "femme",      label: "Femme",               tags: ["femme"],                               grad: "from-rose-900    to-rose-700",    emoji: "👗", img: "/categories/femme.png" },
-  { slug: "tissu",      label: "Tissus & Couture",    tags: ["tissu","wax","bazin"],                  grad: "from-amber-900   to-amber-600",   emoji: "🧵", img: null },
+  { slug: "tissu",      label: "Tissus & Couture",    tags: ["tissu","wax","bazin"],                  grad: "from-amber-900   to-amber-600",   emoji: "🧵", img: "/categories/tissu.png" },
   { slug: "mariage",    label: "Mariage & Cérémonie", tags: ["mariage"],                             grad: "from-purple-900  to-purple-700",  emoji: "💍", img: null },
   { slug: "enfant",     label: "Enfants",             tags: ["enfant"],                              grad: "from-emerald-900 to-emerald-700", emoji: "🧒", img: "/categories/enfant.png" },
   { slug: "accessoire", label: "Accessoires",         tags: ["accessoire","sac","bijou","chaussure"], grad: "from-orange-900  to-orange-600",  emoji: "👜", img: "/categories/accessoire.png" },
