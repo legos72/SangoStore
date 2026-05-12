@@ -41,7 +41,7 @@ const HERO_SLIDES = [
 ];
 
 const CATEGORIES = [
-  { slug: "homme",      label: "Homme",              tags: ["homme"],                               grad: "from-slate-800   to-slate-600",   emoji: "👔", img: null },
+  { slug: "homme",      label: "Homme",              tags: ["homme"],                               grad: "from-slate-800   to-slate-600",   emoji: "👔", img: "/categories/homme.png" },
   { slug: "femme",      label: "Femme",               tags: ["femme"],                               grad: "from-rose-900    to-rose-700",    emoji: "👗", img: null },
   { slug: "tissu",      label: "Tissus & Couture",    tags: ["tissu","wax","bazin"],                  grad: "from-amber-900   to-amber-600",   emoji: "🧵", img: null },
   { slug: "mariage",    label: "Mariage & Cérémonie", tags: ["mariage"],                             grad: "from-purple-900  to-purple-700",  emoji: "💍", img: null },
