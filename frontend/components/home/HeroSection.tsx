@@ -6,9 +6,10 @@ import { ArrowRight, ShoppingBag, ChevronLeft, ChevronRight } from "lucide-react
 import { cn } from "@/lib/utils";
 
 const SLIDES = [
-  { src: "/images/v2.png",   alt: "Mode africaine – Style & Qualité" },
-  { src: "/images/v4.png",   alt: "Produits africains de qualité" },
-  { src: "/images/Art1.png", alt: "Artisanat africain" },
+  { src: "/images/v2.png",   alt: "Mode africaine – Style & Qualité"    },
+  { src: "/images/v4.png",   alt: "Produits africains de qualité"        },
+  { src: "/images/Art1.png", alt: "Artisanat africain"                   },
+  { src: "/images/liv.png",  alt: "Livraison internationale vers Bangui" },
 ];
 
 export function HeroSection() {
@@ -27,7 +28,7 @@ export function HeroSection() {
   return (
     <section
       className="relative w-full overflow-hidden"
-      style={{ background: "#09090B" }}
+      style={{ background: "#09090B", minHeight: "clamp(400px, 52vw, 580px)" }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
