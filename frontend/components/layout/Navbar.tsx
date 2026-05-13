@@ -93,15 +93,29 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md border-b" style={{ backgroundColor: "rgba(253,252,248,0.97)", borderColor: "#E2D9C8" }}>
-      {/* Top banner */}
-      <div className="hidden sm:block text-white text-xs py-1.5 text-center" style={{ background: "linear-gradient(90deg, #0A1120 0%, #1a1206 50%, #0A1120 100%)" }}>
-        <span className="inline-flex items-center gap-1.5 text-orange-300">
-          <Globe className="w-3 h-3" />
-          <span className="text-white/70">Diaspora → Bangui</span>
-          <span className="text-orange-400/60 mx-1">·</span>
-          Paiement sécurisé Orange Money &amp; Cash
-          <span className="text-orange-400/60 mx-1">·</span>
-          <span className="text-white/70">Escrow garanti</span>
+      {/* Top bar — dark green */}
+      <div className="hidden sm:flex items-center justify-between text-white text-xs py-1.5 px-4 sm:px-6 lg:px-8" style={{ background: "#1B3A2D" }}>
+        <span className="inline-flex items-center gap-1.5 text-green-200/80">
+          <Globe className="w-3 h-3 text-green-400" />
+          🚀 Livraison rapide et sécurisée vers Bangui · Escrow garanti · Paiement Orange Money &amp; Cash
+        </span>
+        <span className="inline-flex items-center gap-2 flex-shrink-0">
+          <a
+            href="tel:+221786863969"
+            className="flex items-center gap-1 text-white/75 hover:text-white transition-colors"
+          >
+            📞 +221 78 686 39 69
+          </a>
+          <span className="text-white/25">|</span>
+          <a
+            href="https://wa.me/221786863969"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold transition-all hover:opacity-90"
+            style={{ background: "#22c55e", color: "#fff" }}
+          >
+            💬 WhatsApp
+          </a>
         </span>
       </div>
 
