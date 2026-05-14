@@ -63,7 +63,7 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
     >
       {/* Photo plein-cadre */}
       <img
-        src="/baniereModeAfricain/bannier1.png"
+        src="/baniereModeAfricain/bannier11.png"
         alt="Mode Africaine — Mariage & Cérémonie"
         className="absolute inset-0 w-full h-full object-cover object-center"
         loading="eager"
