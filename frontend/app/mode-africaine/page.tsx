@@ -11,31 +11,44 @@ import { cn } from "@/lib/utils";
 
 const HERO_SLIDES = [
   {
-    badge: "COLLECTION AFRICAINE ✦",
-    line1: "L'élégance africaine,",
-    line2: "notre fierté",
-    sub:   "Découvrez nos vêtements, tissus et accessoires africains de qualité supérieure.",
-    cta:   "Découvrir la collection",
-    bg:    "linear-gradient(135deg, #0F0A02 0%, #1E1206 50%, #0A0604 100%)",
-    deco:  "👗",
+    badge:   "COLLECTION AFRICAINE ✦",
+    line1:   "L'élégance africaine,",
+    line2:   "notre fierté",
+    sub:     "Découvrez nos vêtements, tissus et accessoires africains de qualité supérieure.",
+    cta:     "Découvrir la collection",
+    img:     "/baniereModeAfricain/FemBan.png",
+    bg:      "#020f06",
+    overlay: "linear-gradient(100deg, rgba(2,15,6,0.97) 0%, rgba(2,15,6,0.88) 30%, rgba(2,15,6,0.55) 55%, rgba(2,15,6,0.15) 75%, transparent 100%)",
   },
   {
-    badge: "TISSUS & WAX AUTHENTIQUES ✦",
-    line1: "Wax & Bazin,",
-    line2: "couleurs d'Afrique",
-    sub:   "Les plus beaux tissus africains directement sélectionnés pour vous.",
-    cta:   "Voir les tissus",
-    bg:    "linear-gradient(135deg, #100408 0%, #1E0810 50%, #0A0204 100%)",
-    deco:  "🧵",
+    badge:   "MARIAGE & CÉRÉMONIE ✦",
+    line1:   "Sublimez votre",
+    line2:   "grand jour",
+    sub:     "Collections spéciales pour mariages et cérémonies africaines.",
+    cta:     "Voir la collection mariage",
+    img:     "/baniereModeAfricain/coupletBan.png",
+    bg:      "#12040a",
+    overlay: "linear-gradient(100deg, rgba(18,4,10,0.97) 0%, rgba(18,4,10,0.88) 30%, rgba(18,4,10,0.55) 55%, rgba(18,4,10,0.15) 75%, transparent 100%)",
   },
   {
-    badge: "MARIAGE & CÉRÉMONIE ✦",
-    line1: "Sublimez votre",
-    line2: "grand jour",
-    sub:   "Collections spéciales pour mariages et cérémonies africaines.",
-    cta:   "Voir la collection",
-    bg:    "linear-gradient(135deg, #06080F 0%, #0A1020 50%, #060408 100%)",
-    deco:  "💍",
+    badge:   "MARIAGE & FAMILLE ✦",
+    line1:   "La famille,",
+    line2:   "fierté africaine",
+    sub:     "Tenues coordonnées pour cérémonies et mariages africains.",
+    cta:     "Voir la collection",
+    img:     "/baniereModeAfricain/famBan.png",
+    bg:      "#06021a",
+    overlay: "linear-gradient(100deg, rgba(6,2,26,0.97) 0%, rgba(6,2,26,0.88) 30%, rgba(6,2,26,0.55) 55%, rgba(6,2,26,0.15) 75%, transparent 100%)",
+  },
+  {
+    badge:   "MODE HOMME PREMIUM ✦",
+    line1:   "Le style africain",
+    line2:   "au masculin",
+    sub:     "Tenues africaines brodées pour homme — élégance et tradition.",
+    cta:     "Voir la collection homme",
+    img:     "/baniereModeAfricain/HomBan.png",
+    bg:      "#110800",
+    overlay: "linear-gradient(100deg, rgba(17,8,0,0.97) 0%, rgba(17,8,0,0.88) 30%, rgba(17,8,0,0.55) 55%, rgba(17,8,0,0.15) 75%, transparent 100%)",
   },
 ];
 
@@ -106,14 +119,33 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
       className="relative overflow-hidden w-full"
       style={{ minHeight: "clamp(260px, 48vw, 420px)" }}
     >
-      {/* Backgrounds */}
+      {/* Background images — full cover per slide */}
       {HERO_SLIDES.map((slide, i) => (
-        <div
-          key={i}
-          className="absolute inset-0 transition-opacity duration-700"
-          style={{ background: slide.bg, opacity: i === current ? 1 : 0 }}
+        <img
+          key={slide.img}
+          src={slide.img}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700"
+          style={{ opacity: i === current ? 1 : 0 }}
+          loading={i === 0 ? "eager" : "lazy"}
         />
       ))}
+
+      {/* Desktop: per-slide left→right overlay matching image colors */}
+      {HERO_SLIDES.map((slide, i) => (
+        <div
+          key={`ov-${i}`}
+          className="absolute inset-0 hidden sm:block transition-opacity duration-700 pointer-events-none"
+          style={{ background: slide.overlay, opacity: i === current ? 1 : 0 }}
+        />
+      ))}
+
+      {/* Mobile: uniform dark overlay for text readability */}
+      <div
+        className="absolute inset-0 sm:hidden pointer-events-none"
+        style={{ background: "rgba(0,0,0,0.65)" }}
+      />
 
       {/* Motif or subtil */}
       <div
