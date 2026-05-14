@@ -72,8 +72,8 @@ const HERO_SLIDES = [
     line2:   "au masculin",
     sub:     "Tenues africaines brodées pour homme — élégance et tradition.",
     cta:     "Voir la collection homme",
-    bg:      "/baniereModeAfricain/bannier11.png",
-    overlay: "linear-gradient(to right, rgba(12,2,6,0.90) 0%, rgba(12,2,6,0.75) 25%, rgba(12,2,6,0.35) 48%, rgba(12,2,6,0.06) 65%, transparent 80%)",
+    bg:      "/baniereModeAfricain/boubanniere44.png",
+    overlay: "linear-gradient(to right, rgba(18,14,8,0.90) 0%, rgba(18,14,8,0.75) 25%, rgba(18,14,8,0.35) 48%, rgba(18,14,8,0.06) 65%, transparent 80%)",
   },
   {
     badge:   "MODE FEMME AFRICAINE ✦",
