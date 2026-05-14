@@ -75,6 +75,15 @@ const HERO_SLIDES = [
     bg:      "/baniereModeAfricain/bannier11.png",
     overlay: "linear-gradient(to right, rgba(12,2,6,0.90) 0%, rgba(12,2,6,0.75) 25%, rgba(12,2,6,0.35) 48%, rgba(12,2,6,0.06) 65%, transparent 80%)",
   },
+  {
+    badge:   "MODE FEMME AFRICAINE ✦",
+    line1:   "Élégance féminine,",
+    line2:   "style africain",
+    sub:     "Boubous, robes et tenues africaines pour femmes — soyeux et modernes.",
+    cta:     "Voir la collection femme",
+    bg:      "/baniereModeAfricain/filBanniere3.png",
+    overlay: "linear-gradient(to right, rgba(2,15,6,0.92) 0%, rgba(2,15,6,0.78) 25%, rgba(2,15,6,0.38) 48%, rgba(2,15,6,0.06) 65%, transparent 80%)",
+  },
 ];
 
 // ─── Mini cadre bannière ──────────────────────────────────────────────────────
