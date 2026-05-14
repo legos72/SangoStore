@@ -305,23 +305,16 @@ export function Navbar() {
 
         {/* ── Liens navigation desktop ───────────────────────────────── */}
         <div className="hidden lg:flex items-center gap-0.5 border-t border-gray-100/80 h-10">
-          {NAV_LINKS.map(({ href, label, african, special }) => (
+          {NAV_LINKS.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
               className={cn(
                 "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
-                special
-                  ? "font-semibold hover:bg-green-50"
-                  : african
-                  ? pathname.startsWith("/mode-africaine")
-                    ? "text-amber-600 font-bold bg-amber-50"
-                    : "text-amber-700 font-semibold hover:bg-amber-50"
-                  : pathname === href || (href !== "/" && pathname.startsWith(href))
+                pathname === href || (href !== "/" && pathname.startsWith(href))
                   ? "bg-gray-100 text-gray-900 font-semibold"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               )}
-              style={special ? { color: "#1B3A2D" } : {}}
             >
               {label}
             </Link>
