@@ -129,15 +129,6 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
         style={{ background: "radial-gradient(ellipse at 22% 90%, rgba(212,150,30,0.10) 0%, transparent 50%)" }}
       />
 
-      {/* Motif géométrique or */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: "repeating-linear-gradient(45deg,#D4961E 0,#D4961E 1px,transparent 0,transparent 50%)",
-          backgroundSize: "18px 18px",
-          opacity: 0.035,
-        }}
-      />
 
       {/* Contenu — texte gauche + mini cadre droit */}
       <div className="relative z-10 h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sm:gap-8">
