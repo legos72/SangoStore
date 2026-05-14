@@ -11,44 +11,40 @@ import { cn } from "@/lib/utils";
 
 const HERO_SLIDES = [
   {
-    badge:   "COLLECTION AFRICAINE ✦",
-    line1:   "L'élégance africaine,",
-    line2:   "notre fierté",
-    sub:     "Découvrez nos vêtements, tissus et accessoires africains de qualité supérieure.",
-    cta:     "Découvrir la collection",
-    img:     "/baniereModeAfricain/FemBan.png",
-    bg:      "#020f06",
-    overlay: "linear-gradient(100deg, rgba(2,15,6,0.97) 0%, rgba(2,15,6,0.88) 30%, rgba(2,15,6,0.55) 55%, rgba(2,15,6,0.15) 75%, transparent 100%)",
+    badge: "COLLECTION AFRICAINE ✦",
+    line1: "L'élégance africaine,",
+    line2: "notre fierté",
+    sub:   "Découvrez nos vêtements, tissus et accessoires africains de qualité supérieure.",
+    cta:   "Découvrir la collection",
+    img:   "/baniereModeAfricain/FemBan.png",
+    bg:    "#020f06",
   },
   {
-    badge:   "MARIAGE & CÉRÉMONIE ✦",
-    line1:   "Sublimez votre",
-    line2:   "grand jour",
-    sub:     "Collections spéciales pour mariages et cérémonies africaines.",
-    cta:     "Voir la collection mariage",
-    img:     "/baniereModeAfricain/coupletBan.png",
-    bg:      "#12040a",
-    overlay: "linear-gradient(100deg, rgba(18,4,10,0.97) 0%, rgba(18,4,10,0.88) 30%, rgba(18,4,10,0.55) 55%, rgba(18,4,10,0.15) 75%, transparent 100%)",
+    badge: "MARIAGE & CÉRÉMONIE ✦",
+    line1: "Sublimez votre",
+    line2: "grand jour",
+    sub:   "Collections spéciales pour mariages et cérémonies africaines.",
+    cta:   "Voir la collection mariage",
+    img:   "/baniereModeAfricain/coupletBan.png",
+    bg:    "#12040a",
   },
   {
-    badge:   "MARIAGE & FAMILLE ✦",
-    line1:   "La famille,",
-    line2:   "fierté africaine",
-    sub:     "Tenues coordonnées pour cérémonies et mariages africains.",
-    cta:     "Voir la collection",
-    img:     "/baniereModeAfricain/famBan.png",
-    bg:      "#06021a",
-    overlay: "linear-gradient(100deg, rgba(6,2,26,0.97) 0%, rgba(6,2,26,0.88) 30%, rgba(6,2,26,0.55) 55%, rgba(6,2,26,0.15) 75%, transparent 100%)",
+    badge: "MARIAGE & FAMILLE ✦",
+    line1: "La famille,",
+    line2: "fierté africaine",
+    sub:   "Tenues coordonnées pour cérémonies et mariages africains.",
+    cta:   "Voir la collection",
+    img:   "/baniereModeAfricain/famBan.png",
+    bg:    "#06021a",
   },
   {
-    badge:   "MODE HOMME PREMIUM ✦",
-    line1:   "Le style africain",
-    line2:   "au masculin",
-    sub:     "Tenues africaines brodées pour homme — élégance et tradition.",
-    cta:     "Voir la collection homme",
-    img:     "/baniereModeAfricain/HomBan.png",
-    bg:      "#110800",
-    overlay: "linear-gradient(100deg, rgba(17,8,0,0.97) 0%, rgba(17,8,0,0.88) 30%, rgba(17,8,0,0.55) 55%, rgba(17,8,0,0.15) 75%, transparent 100%)",
+    badge: "MODE HOMME PREMIUM ✦",
+    line1: "Le style africain",
+    line2: "au masculin",
+    sub:   "Tenues africaines brodées pour homme — élégance et tradition.",
+    cta:   "Voir la collection homme",
+    img:   "/baniereModeAfricain/HomBan.png",
+    bg:    "#110800",
   },
 ];
 
@@ -114,40 +110,26 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
   const s = HERO_SLIDES[current];
 
   return (
-    /* Hauteur fluide : 260px mobile → 420px desktop */
     <div
       className="relative overflow-hidden w-full"
-      style={{ minHeight: "clamp(260px, 48vw, 420px)" }}
+      style={{ height: "clamp(260px, 48vw, 420px)" }}
     >
-      {/* Background images — full cover per slide */}
-      {HERO_SLIDES.map((slide, i) => (
-        <img
-          key={slide.img}
-          src={slide.img}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700"
-          style={{ opacity: i === current ? 1 : 0 }}
-          loading={i === 0 ? "eager" : "lazy"}
-        />
-      ))}
-
-      {/* Desktop: per-slide left→right overlay matching image colors */}
+      {/* Fond uni par slide — couleur dominante de l'image */}
       {HERO_SLIDES.map((slide, i) => (
         <div
-          key={`ov-${i}`}
-          className="absolute inset-0 hidden sm:block transition-opacity duration-700 pointer-events-none"
-          style={{ background: slide.overlay, opacity: i === current ? 1 : 0 }}
+          key={i}
+          className="absolute inset-0 transition-opacity duration-700"
+          style={{ backgroundColor: slide.bg, opacity: i === current ? 1 : 0 }}
         />
       ))}
 
-      {/* Mobile: uniform dark overlay for text readability */}
+      {/* Lueur or subtile au centre-bas */}
       <div
-        className="absolute inset-0 sm:hidden pointer-events-none"
-        style={{ background: "rgba(0,0,0,0.65)" }}
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: "radial-gradient(ellipse at 55% 100%, rgba(212,150,30,0.07) 0%, transparent 65%)" }}
       />
 
-      {/* Motif or subtil */}
+      {/* Motif géométrique or */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -157,12 +139,30 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
         }}
       />
 
-      {/* Contenu */}
-      <div className="relative z-10 h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 flex items-center gap-4 sm:gap-8 lg:gap-12">
+      {/* Mobile : image fantôme côté droit + gradient pour lisibilité */}
+      <div className="sm:hidden absolute inset-y-0 right-0 w-3/5 pointer-events-none">
+        {HERO_SLIDES.map((slide, i) => (
+          <img
+            key={slide.img}
+            src={slide.img}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 w-full h-full object-contain object-right-bottom transition-opacity duration-700"
+            style={{ opacity: i === current ? 0.38 : 0 }}
+            loading={i === 0 ? "eager" : "lazy"}
+          />
+        ))}
+      </div>
+      <div
+        className="sm:hidden absolute inset-0 pointer-events-none"
+        style={{ background: "linear-gradient(to right, rgba(0,0,0,0.92) 28%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.08) 100%)" }}
+      />
+
+      {/* Contenu — 3 colonnes : texte | image centrale | mini cadre */}
+      <div className="relative z-10 h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-4 sm:gap-6 lg:gap-10">
 
         {/* Texte */}
-        <div className="flex-1 min-w-0">
-          {/* Badge */}
+        <div className="flex-1 min-w-0 py-8 sm:py-10 lg:py-14">
           <span
             className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-extrabold tracking-widest uppercase px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full mb-3 sm:mb-4 max-w-full truncate"
             style={{ background: "rgba(212,150,30,0.15)", border: "1px solid rgba(212,150,30,0.35)", color: "#D4961E" }}
@@ -170,18 +170,15 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
             {s.badge}
           </span>
 
-          {/* Titre — plus petit sur mobile */}
           <h1 className="text-[22px] xs:text-[26px] sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight mb-2 sm:mb-3">
             {s.line1}<br />
             <span style={{ color: "#D4961E" }}>{s.line2}</span>
           </h1>
 
-          {/* Sous-titre — masqué sur très petits écrans */}
           <p className="hidden xs:block text-white/65 text-xs sm:text-sm lg:text-base max-w-sm sm:max-w-md mb-5 sm:mb-7 leading-relaxed">
             {s.sub}
           </p>
 
-          {/* CTA */}
           <button
             onClick={onCta}
             className="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm text-white transition-all active:scale-95 hover:brightness-110 touch-manipulation"
@@ -191,9 +188,30 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
           </button>
         </div>
 
-        {/* Mini slider bannière — visible à partir de sm */}
+        {/* Image centrale — mannequin entier, non coupé (sm+) */}
         <div
-          className="hidden sm:block relative w-36 md:w-48 lg:w-60 flex-shrink-0 rounded-2xl overflow-hidden select-none flex-shrink-0"
+          className="hidden sm:block relative flex-shrink-0 self-stretch"
+          style={{ width: "clamp(130px, 18vw, 230px)" }}
+        >
+          {HERO_SLIDES.map((slide, i) => (
+            <img
+              key={slide.img}
+              src={slide.img}
+              alt={slide.badge}
+              className="absolute inset-0 w-full h-full transition-opacity duration-700"
+              style={{ objectFit: "contain", objectPosition: "bottom center", opacity: i === current ? 1 : 0 }}
+              loading={i === 0 ? "eager" : "lazy"}
+            />
+          ))}
+          <div
+            className="absolute inset-x-0 bottom-0 h-8 pointer-events-none z-10"
+            style={{ background: "linear-gradient(to top, rgba(0,0,0,0.28), transparent)" }}
+          />
+        </div>
+
+        {/* Mini slider bannière */}
+        <div
+          className="hidden sm:block relative w-32 md:w-44 lg:w-56 flex-shrink-0 rounded-2xl overflow-hidden select-none"
           style={{
             aspectRatio: "3/4",
             border: "1px solid rgba(212,150,30,0.28)",
@@ -210,12 +228,10 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
               loading={i === 0 ? "eager" : "lazy"}
             />
           ))}
-          {/* Vignette bas */}
           <div
             className="absolute inset-x-0 bottom-0 h-12 pointer-events-none"
             style={{ background: "linear-gradient(to top, rgba(0,0,0,0.35), transparent)" }}
           />
-          {/* Dots mini */}
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
             {BANNER_IMAGES.map((_, i) => (
               <button
