@@ -36,6 +36,39 @@ const SORT_OPTIONS = [
   { value: "price_desc", label: "Prix ↓" },
 ];
 
+// ─── Slides texte ────────────────────────────────────────────────────────────
+
+const HERO_SLIDES = [
+  {
+    badge: "COLLECTION AFRICAINE ✦",
+    line1: "L'élégance africaine,",
+    line2: "notre fierté",
+    sub:   "Découvrez nos vêtements, tissus et accessoires africains de qualité supérieure.",
+    cta:   "Découvrir la collection",
+  },
+  {
+    badge: "MARIAGE & CÉRÉMONIE ✦",
+    line1: "Sublimez votre",
+    line2: "grand jour",
+    sub:   "Collections spéciales pour mariages et cérémonies africaines.",
+    cta:   "Voir la collection mariage",
+  },
+  {
+    badge: "TISSUS & WAX AUTHENTIQUES ✦",
+    line1: "Wax & Bazin,",
+    line2: "couleurs d'Afrique",
+    sub:   "Les plus beaux tissus africains directement sélectionnés pour vous.",
+    cta:   "Voir les tissus",
+  },
+  {
+    badge: "MODE HOMME PREMIUM ✦",
+    line1: "Le style africain",
+    line2: "au masculin",
+    sub:   "Tenues africaines brodées pour homme — élégance et tradition.",
+    cta:   "Voir la collection homme",
+  },
+];
+
 // ─── Mini cadre bannière ──────────────────────────────────────────────────────
 
 const BANNER_IMAGES = [
@@ -48,13 +81,28 @@ const BANNER_IMAGES = [
 // ─── Hero Banner ─────────────────────────────────────────────────────────────
 
 function HeroSlider({ onCta }: { onCta: () => void }) {
+  const [current,   setCurrent]   = useState(0);
   const [bannerIdx, setBannerIdx] = useState(0);
+  const timer       = useRef<ReturnType<typeof setInterval>>();
   const bannerTimer = useRef<ReturnType<typeof setInterval>>();
+
+  function go(i: number) {
+    clearInterval(timer.current);
+    setCurrent(i);
+    timer.current = setInterval(() => setCurrent(c => (c + 1) % HERO_SLIDES.length), 4500);
+  }
+
+  useEffect(() => {
+    timer.current = setInterval(() => setCurrent(c => (c + 1) % HERO_SLIDES.length), 4500);
+    return () => clearInterval(timer.current);
+  }, []);
 
   useEffect(() => {
     bannerTimer.current = setInterval(() => setBannerIdx(i => (i + 1) % BANNER_IMAGES.length), 3200);
     return () => clearInterval(bannerTimer.current);
   }, []);
+
+  const s = HERO_SLIDES[current];
 
   return (
     <div
@@ -94,22 +142,22 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
       {/* Contenu — texte gauche + mini cadre droit */}
       <div className="relative z-10 h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sm:gap-8">
 
-        {/* Texte */}
+        {/* Texte slider */}
         <div className="max-w-[260px] xs:max-w-xs sm:max-w-sm lg:max-w-md py-8 sm:py-10">
           <span
             className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-extrabold tracking-widest uppercase px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full mb-3 sm:mb-4"
             style={{ background: "rgba(212,150,30,0.15)", border: "1px solid rgba(212,150,30,0.35)", color: "#D4961E" }}
           >
-            MARIAGE & CÉRÉMONIE ✦
+            {s.badge}
           </span>
 
           <h1 className="text-[22px] xs:text-[26px] sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight mb-2 sm:mb-3">
-            Sublimez votre<br />
-            <span style={{ color: "#D4961E" }}>grand jour</span>
+            {s.line1}<br />
+            <span style={{ color: "#D4961E" }}>{s.line2}</span>
           </h1>
 
           <p className="hidden xs:block text-white/65 text-xs sm:text-sm lg:text-base mb-5 sm:mb-7 leading-relaxed">
-            Collections spéciales pour mariages et cérémonies africaines.
+            {s.sub}
           </p>
 
           <button
@@ -117,7 +165,7 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
             className="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm text-white transition-all active:scale-95 hover:brightness-110 touch-manipulation"
             style={{ background: "#D4961E", boxShadow: "0 4px 18px rgba(212,150,30,0.45)" }}
           >
-            Voir la collection <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            {s.cta} <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         </div>
 
@@ -160,6 +208,22 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Dots slider texte */}
+      <div className="absolute bottom-3 sm:bottom-4 left-4 sm:left-6 lg:left-8 flex items-center gap-2 z-10">
+        {HERO_SLIDES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => go(i)}
+            className="rounded-full transition-all duration-300 touch-manipulation"
+            style={{
+              width:      i === current ? 20 : 7,
+              height:     7,
+              background: i === current ? "#D4961E" : "rgba(255,255,255,0.35)",
+            }}
+          />
+        ))}
       </div>
     </div>
   );
