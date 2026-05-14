@@ -198,7 +198,8 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
                 </button>
                 <button
                   onClick={handleBuyNow}
-                  className="h-7 px-3.5 rounded-full flex items-center justify-center text-[11px] font-bold bg-orange-500 hover:bg-orange-600 text-white transition-all duration-150 active:scale-[0.97] shadow-sm shadow-orange-200/50 tracking-wide"
+                  className="h-7 px-3.5 rounded-full flex items-center justify-center text-[11px] font-bold text-[#1a0f00] transition-all duration-150 active:scale-[0.97] tracking-wide"
+                  style={{ background: "linear-gradient(135deg, #F59E0B 0%, #D4961E 100%)", boxShadow: "0 2px 8px rgba(212,150,30,0.35)" }}
                 >
                   Acheter
                 </button>
@@ -217,8 +218,8 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
     <div
       className={cn(
         "group relative flex flex-col rounded-2xl overflow-hidden bg-white",
-        "border border-gray-100 shadow-[0_1px_8px_rgba(0,0,0,0.06)]",
-        "hover:shadow-[0_6px_24px_rgba(0,0,0,0.1)] hover:border-orange-200/60",
+        "shadow-[0_1px_8px_rgba(0,0,0,0.06)]",
+        "hover:shadow-[0_6px_24px_rgba(0,0,0,0.1)]",
         "hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200",
         className
       )}
@@ -340,7 +341,8 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
               </button>
               <button
                 onClick={handleBuyNow}
-                className="flex-1 h-7 rounded-full flex items-center justify-center text-[11px] font-bold bg-orange-500 hover:bg-orange-600 active:scale-[0.97] text-white transition-all duration-150 shadow-sm shadow-orange-200/50 tracking-wide"
+                className="flex-1 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-[#1a0f00] transition-all duration-150 active:scale-[0.97] tracking-wide"
+                style={{ background: "linear-gradient(135deg, #F59E0B 0%, #D4961E 100%)", boxShadow: "0 2px 8px rgba(212,150,30,0.35)" }}
               >
                 Acheter
               </button>

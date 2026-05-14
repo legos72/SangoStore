@@ -188,3 +188,12 @@
     border-radius: 9999px;
   }
 }
+
+@keyframes fade-slide {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.animate-fade-slide {
+  animation: fade-slide 0.55s ease-out both;
+}

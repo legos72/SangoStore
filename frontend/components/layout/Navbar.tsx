@@ -136,18 +136,10 @@ export function Navbar() {
           <Link href="/" className="flex items-center gap-2 flex-shrink-0 select-none">
             <LogoCart size={34} />
             <span
-              className="leading-none tracking-tight text-[18px] sm:text-[20px]"
-              style={{ fontFamily: "var(--font-poppins), sans-serif" }}
+              className="leading-none tracking-tight text-[19px] sm:text-[21px]"
+              style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
             >
-              <span
-                className="font-extrabold"
-                style={{
-                  background: "linear-gradient(120deg, #f97316 0%, #f59e0b 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >Sango</span><span className="font-semibold text-slate-800">Store</span>
+              <span className="font-black italic" style={{ color: "#D4A520" }}>Sango</span><span className="font-bold" style={{ color: "#1B3A2D" }}>Store</span>
             </span>
           </Link>
 

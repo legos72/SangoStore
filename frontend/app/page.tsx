@@ -1,18 +1,18 @@
 import Link from "next/link";
-import { ArrowRight, Phone } from "lucide-react";
+import { ArrowRight, Phone, Shirt, Smartphone, Sparkles, Home, UtensilsCrossed, Dumbbell } from "lucide-react";
 import { HeroSection } from "@/components/home/HeroSection";
-import { StatsSection } from "@/components/home/StatsSection";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { HomeTransporters } from "@/components/home/HomeTransporters";
+import { CountryScroll } from "@/components/home/CountryScroll";
 import { COUNTRIES } from "@/lib/countries";
 
 const MAIN_CATEGORIES = [
-  { slug: "mode",         href: "/mode-africaine",             label: "Mode Africaine",     count: "12 990", img: "/categories/femme.png",      emoji: "👗", bg: "#FEF3E2" },
-  { slug: "electronique", href: "/produits?category=electronique", label: "Électronique",   count: "8 750",  img: null,                         emoji: "📱", bg: "#EFF6FF" },
-  { slug: "beaute",       href: "/produits?category=beaute",   label: "Beauté & Soins",     count: "6 240",  img: null,                         emoji: "💄", bg: "#FDF2F8" },
-  { slug: "maison",       href: "/produits?category=maison",   label: "Maison & Décoration",count: "4 810",  img: "/categories/Marier.png",     emoji: "🏠", bg: "#F0FDF4" },
-  { slug: "alimentation", href: "/produits?category=alimentation", label: "Alimentation",  count: "7 100",  img: null,                         emoji: "🥗", bg: "#FFFBEB" },
-  { slug: "sport",        href: "/produits?category=sport",    label: "Sport & Loisirs",    count: "3 860",  img: null,                         emoji: "⚽", bg: "#F5F3FF" },
+  { slug: "mode",         href: "/mode-africaine",                 label: "Mode Africaine",      shortLabel: "Mode",        count: "12 990", img: "/categories/homme.png",      grad: "from-amber-900   to-amber-700",   Icon: Shirt,           iconColor: "#F59E0B" },
+  { slug: "electronique", href: "/produits?category=electronique", label: "Électronique",        shortLabel: "Électro",     count: "8 750",  img: "/categoriHome/electro.png",   grad: "from-blue-900    to-blue-700",    Icon: Smartphone,      iconColor: "#60A5FA" },
+  { slug: "beaute",       href: "/produits?category=beaute",       label: "Beauté & Soins",      shortLabel: "Beauté",      count: "6 240",  img: "/categoriHome/Soin1.png",    grad: "from-rose-900    to-rose-700",    Icon: Sparkles,        iconColor: "#F472B6" },
+  { slug: "maison",       href: "/produits?category=maison",       label: "Maison & Décoration", shortLabel: "Maison",      count: "4 810",  img: "/categoriHome/lit.png",      grad: "from-emerald-900 to-emerald-700", Icon: Home,            iconColor: "#34D399" },
+  { slug: "alimentation", href: "/produits?category=alimentation", label: "Alimentation",        shortLabel: "Aliment.",    count: "7 100",  img: "/categoriHome/alim.png",     grad: "from-orange-900  to-orange-700",  Icon: UtensilsCrossed, iconColor: "#FB923C" },
+  { slug: "sport",        href: "/produits?category=sport",        label: "Sport & Loisirs",     shortLabel: "Sport",       count: "3 860",  img: "/categoriHome/alte.png",     grad: "from-violet-900  to-violet-700",  Icon: Dumbbell,        iconColor: "#A78BFA" },
 ];
 
 const SUPPORT_PHONE    = "+221 78 686 39 69";
@@ -31,53 +31,112 @@ export default function HomePage() {
       <HeroSection />
 
       {/* ── Catégories populaires ───────────────────────────────────────── */}
-      <section className="py-8 sm:py-12 bg-white">
+      <section className="py-6 sm:py-10 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-6 sm:mb-8">
+
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "#1B3A2D" }}>
+              <p className="text-[10px] font-extrabold uppercase tracking-widest mb-0.5" style={{ color: "#F59E0B" }}>
                 Catégories populaires
               </p>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Découvrez nos catégories</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight">Découvrez nos catégories</h2>
             </div>
             <Link
               href="/produits"
-              className="flex items-center gap-1 text-sm font-semibold hover:underline"
+              className="flex items-center gap-1 text-xs sm:text-sm font-semibold transition-colors hover:opacity-80"
               style={{ color: "#1B3A2D" }}
             >
-              Voir toutes les catégories <ArrowRight className="w-4 h-4" />
+              Voir tout <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-4">
-            {MAIN_CATEGORIES.map(({ slug, href, label, count, img, emoji, bg }) => (
+          {/* Grid */}
+          <div
+            className="flex gap-2 sm:gap-3 overflow-x-auto pb-1"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {MAIN_CATEGORIES.map(({ slug, href, label, shortLabel, count, img, grad, Icon, iconColor }) => (
               <Link
                 key={slug}
                 href={href}
-                className="group flex flex-col items-center gap-2 p-3 sm:p-4 rounded-2xl hover:bg-gray-50 transition-all"
+                className="group flex flex-col rounded-xl sm:rounded-2xl overflow-hidden border-2 border-transparent flex-shrink-0
+                           hover:border-amber-300 hover:shadow-[0_4px_18px_rgba(212,150,30,0.25)]
+                           transition-all duration-200 shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+                style={{ width: "clamp(90px, 15vw, 160px)" }}
               >
-                <div
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden relative flex-shrink-0 flex items-center justify-center"
-                  style={{ background: bg }}
-                >
+                {/* Image */}
+                <div className={`aspect-square w-full relative overflow-hidden bg-gradient-to-br ${grad}`}>
                   {img ? (
                     <img
                       src={img}
                       alt={label}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
-                    <span className="text-2xl sm:text-3xl">{emoji}</span>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-white/40" />
+                    </div>
                   )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 </div>
-                <div className="text-center">
-                  <div className="text-xs sm:text-sm font-semibold text-gray-900 group-hover:text-green-800 transition-colors leading-tight">
-                    {label}
+
+                {/* Badge centré — marge négative pour chevaucher l'image */}
+                <div className="flex justify-center -mt-3.5 relative z-10">
+                  <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center
+                                  shadow-[0_2px_8px_rgba(0,0,0,0.22)] border-2 border-white">
+                    <Icon className="w-3.5 h-3.5" style={{ color: iconColor }} />
                   </div>
-                  <div className="text-[10px] sm:text-xs text-gray-400 mt-0.5">{count} produits</div>
+                </div>
+
+                {/* Label strip */}
+                <div className="px-1 pt-1 pb-1.5 text-center bg-white group-hover:bg-amber-50 transition-colors">
+                  <p className="text-[10px] sm:text-[11px] font-bold leading-tight line-clamp-1 text-gray-800 group-hover:text-amber-700 transition-colors">
+                    <span className="sm:hidden">{shortLabel}</span>
+                    <span className="hidden sm:inline">{label}</span>
+                  </p>
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pays d'origine ─────────────────────────────────────────────── */}
+      <section className="py-3 sm:py-4 bg-white border-t border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
+            <span className="flex-shrink-0 flex items-center gap-1.5">
+              <span className="w-[3px] h-3.5 rounded-full bg-amber-400 flex-shrink-0" />
+              <span className="text-[9px] font-extrabold uppercase tracking-widest text-gray-400 whitespace-nowrap">
+                Pays d&apos;origine
+              </span>
+            </span>
+            <div
+              className="flex items-center gap-1.5 overflow-x-auto flex-1"
+              style={{ scrollbarWidth: "none" }}
+            >
+              <Link
+                href="/produits"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap flex-shrink-0
+                           bg-gray-800 text-white transition-all"
+              >
+                <span className="text-sm leading-none">🌍</span>
+                Tous les pays
+              </Link>
+              {COUNTRIES.map(country => (
+                <Link
+                  key={country.code}
+                  href={`/produits?country=${country.code}`}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap flex-shrink-0
+                             bg-white border border-gray-200 text-gray-600
+                             hover:border-amber-300 hover:text-amber-700 hover:bg-amber-50 transition-all"
+                >
+                  <span className="text-sm leading-none">{country.flag}</span>
+                  {country.name}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -152,32 +211,7 @@ export default function HomePage() {
       <HomeTransporters />
 
       {/* ── Browse by country (après Transporteurs) ─────────────────────── */}
-      <section className="py-8 sm:py-14 text-white" style={{ background: "linear-gradient(160deg, #0F1928 0%, #0A1120 60%, #1a1206 100%)" }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-5 sm:mb-8">
-            <p className="text-orange-400 text-xs font-bold uppercase tracking-widest mb-2">Origine</p>
-            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Acheter par pays d'origine</h2>
-            <p className="text-gray-400 mt-1 text-xs sm:text-sm">Découvrez les produits envoyés depuis chaque pays</p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
-            {COUNTRIES.filter(c => c.code !== "CF").map((country) => (
-              <Link
-                key={country.code}
-                href={`/produits?country=${country.code}`}
-                className="group bg-white/5 border border-white/8 hover:bg-orange-500/12 hover:border-orange-500/35 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center gap-2 sm:gap-3 transition-all"
-              >
-                <span className="text-2xl sm:text-3xl">{country.flag}</span>
-                <div className="min-w-0">
-                  <div className="font-semibold text-white text-xs sm:text-sm truncate">{country.name}</div>
-                  <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5 group-hover:text-orange-400 transition-colors flex items-center gap-1">
-                    Voir <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CountryScroll />
 
       {/* ── How it works ─────────────────────────────────────────────────── */}
       <section className="py-8 sm:py-14" style={{ backgroundColor: "#F7F4EE" }}>
@@ -211,48 +245,40 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Escrow trust */}
-      <section className="py-8 sm:py-14 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto">
-            <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 rounded-3xl p-8">
-              <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="text-5xl flex-shrink-0">🔒</div>
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-2">Votre argent est toujours protégé</h2>
-                  <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                    Notre système d'<strong>escrow</strong> bloque votre paiement jusqu'à ce que vous récupériez votre colis.
-                    Si la livraison échoue, vous êtes remboursé automatiquement.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="badge-green py-1 px-3 text-xs">✓ Paiement bloqué en escrow</span>
-                    <span className="badge-green py-1 px-3 text-xs">✓ Libération à la récupération</span>
-                    <span className="badge-green py-1 px-3 text-xs">✓ Remboursement garanti</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <StatsSection />
 
       {/* CTA banner */}
-      <section className="py-10 sm:py-14 bg-orange-500">
+      <section
+        className="py-10 sm:py-14"
+        style={{ background: "linear-gradient(135deg, #1B3A2D 0%, #0D2318 50%, #0D1F10 100%)" }}
+      >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* Accent doré au-dessus du titre */}
+          <p className="text-[11px] font-extrabold uppercase tracking-widest mb-3" style={{ color: "#F59E0B" }}>
+            ✦ Bangui Market ✦
+          </p>
           <h2 className="text-2xl font-extrabold text-white mb-3">
             Prêt à recevoir vos produits à Bangui ?
           </h2>
-          <p className="text-orange-100 mb-7 max-w-lg mx-auto text-sm">
+          <p className="text-white/55 mb-8 max-w-lg mx-auto text-sm">
             Créez votre compte gratuitement et commandez dès aujourd'hui.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <Link href="/auth/register" className="bg-white text-orange-600 hover:bg-orange-50 font-semibold px-7 py-3 rounded-xl transition-colors text-sm">
+            <Link
+              href="/auth/register"
+              className="font-bold px-7 py-3 rounded-xl transition-all text-sm hover:brightness-110 active:scale-95"
+              style={{
+                background: "linear-gradient(135deg, #F59E0B 0%, #D4961E 100%)",
+                color: "#1a0f00",
+                boxShadow: "0 4px 18px rgba(212,150,30,0.4)",
+              }}
+            >
               Créer mon compte
             </Link>
-            <Link href="/produits" className="border-2 border-white/40 text-white hover:bg-white/10 font-semibold px-7 py-3 rounded-xl transition-colors text-sm">
+            <Link
+              href="/produits"
+              className="font-semibold px-7 py-3 rounded-xl transition-all text-sm text-white hover:bg-white/10 active:scale-95"
+              style={{ border: "1.5px solid rgba(255,255,255,0.25)" }}
+            >
               Parcourir les produits
             </Link>
           </div>

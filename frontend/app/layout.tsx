@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Poppins } from "next/font/google";
+import { Poppins, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "600", "700", "800", "900"],
   variable: "--font-poppins",
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["700", "800", "900"],
+  variable: "--font-playfair",
   display: "swap",
 });
 import { Navbar } from "@/components/layout/Navbar";
@@ -53,7 +60,7 @@ export default function RootLayout({
           `}</Script>
         </head>
       )}
-      <body className={poppins.variable}>
+      <body className={`${poppins.variable} ${playfair.variable}`}>
         <AnalyticsTracker />
         <Toaster
           position="top-right"

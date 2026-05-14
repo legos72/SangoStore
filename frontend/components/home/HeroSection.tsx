@@ -1,177 +1,194 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import Image from "next/image";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ShieldCheck, Truck, CheckCircle, Package, BadgeCheck, ChevronLeft, ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ChevronRight } from "lucide-react";
 
-const SLIDES = [
-  { src: "/images/v2.png",   alt: "Bangui Market – La diaspora au service des familles"              },
-  { src: "/images/v4.png",   alt: "Bangui Market – Vendez vos produits depuis l'étranger"            },
-  { src: "/images/Art1.png", alt: "Bangui Market – Des milliers de produits à portée de main"        },
-  { src: "/images/liv.png",  alt: "Bangui Market – Livraison internationale vers Bangui"             },
+const HERO_SLIDES = [
+  {
+    badge:   "DIASPORA & BANGUI ✦",
+    line1:   "La diaspora connectée",
+    line2:   "à Bangui",
+    sub:     "Achetez partout dans le monde et faites livrer vos produits en Centrafrique en toute sécurité.",
+    cta:     "Explorer les produits",
+    href:    "/produits",
+    bg:      "/BaniereHome/livrer.png",
+    overlay: "linear-gradient(to right, rgba(4,30,12,0.88) 0%, rgba(4,30,12,0.72) 28%, rgba(4,30,12,0.30) 52%, rgba(4,30,12,0.05) 70%, transparent 85%)",
+  },
+  {
+    badge:   "TRANSPORTEURS & KILOS ✦",
+    line1:   "Réservez vos kilos",
+    line2:   "où que vous soyez",
+    sub:     "Les transporteurs publient leurs voyages et les clients réservent leurs kilos facilement depuis la plateforme.",
+    cta:     "Voir les transporteurs",
+    href:    "/transporteurs",
+    bg:      "/baniereModeAfricain/famBan.png",
+    overlay: "linear-gradient(to right, rgba(4,12,24,0.92) 0%, rgba(4,12,24,0.75) 25%, rgba(4,12,24,0.35) 48%, rgba(4,12,24,0.06) 65%, transparent 80%)",
+  },
+  {
+    badge:   "LIVRAISON SÉCURISÉE ✦",
+    line1:   "Vos colis voyagent",
+    line2:   "en toute confiance",
+    sub:     "Paiement sécurisé, transporteurs vérifiés et suivi colis en temps réel.",
+    cta:     "Suivre mon colis",
+    href:    "/suivi",
+    bg:      "/images/liv.png",
+    overlay: "linear-gradient(to right, rgba(6,14,8,0.92) 0%, rgba(6,14,8,0.75) 25%, rgba(6,14,8,0.35) 48%, rgba(6,14,8,0.06) 65%, transparent 80%)",
+  },
+  {
+    badge:   "LIVRAISON MONDIALE ✦",
+    line1:   "Achetez partout,",
+    line2:   "livré à Bangui",
+    sub:     "Mode, électronique, colis, équipements et bien plus encore disponibles sur SangoStore.",
+    cta:     "Découvrir les catégories",
+    href:    "/produits",
+    bg:      "/baniereModeAfricain/bannier11.png",
+    overlay: "linear-gradient(to right, rgba(18,8,4,0.92) 0%, rgba(18,8,4,0.75) 25%, rgba(18,8,4,0.35) 48%, rgba(18,8,4,0.06) 65%, transparent 80%)",
+  },
+  {
+    badge:   "ENVOI DE COLIS ✦",
+    line1:   "Une nouvelle façon",
+    line2:   "d'envoyer des colis",
+    sub:     "Consultez les voyages disponibles, choisissez votre destination et réservez vos kilos directement en ligne.",
+    cta:     "Réserver maintenant",
+    href:    "/transporteurs",
+    bg:      "/baniereModeAfricain/HomBan.png",
+    overlay: "linear-gradient(to right, rgba(8,12,20,0.92) 0%, rgba(8,12,20,0.75) 25%, rgba(8,12,20,0.35) 48%, rgba(8,12,20,0.06) 65%, transparent 80%)",
+  },
+  {
+    badge:   "PLATEFORME COMPLÈTE ✦",
+    line1:   "Marketplace & transport",
+    line2:   "sur une seule plateforme",
+    sub:     "Acheteurs, vendeurs et voyageurs connectés dans un écosystème moderne et sécurisé.",
+    cta:     "Commencer",
+    href:    "/auth/register",
+    bg:      "/images/Art1.png",
+    overlay: "linear-gradient(to right, rgba(8,16,10,0.92) 0%, rgba(8,16,10,0.75) 25%, rgba(8,16,10,0.35) 48%, rgba(8,16,10,0.06) 65%, transparent 80%)",
+  },
 ];
 
-const TRUST_ITEMS = [
-  { icon: ShieldCheck, label: "Paiement sécurisé",  sub: "Transactions 100% protégées",    color: "text-green-400"  },
-  { icon: Package,     label: "Livraison suivie",    sub: "Dans tous les pays d'Afrique",   color: "text-blue-400"   },
-  { icon: CheckCircle, label: "Escrow garanti",      sub: "Votre argent est protégé",       color: "text-yellow-400" },
-  { icon: Truck,       label: "Support 24/7",        sub: "WhatsApp & Email",               color: "text-orange-400" },
-  { icon: BadgeCheck,  label: "Vendeurs certifiés",  sub: "Vérifiés et approuvés",          color: "text-purple-400" },
+const HERO_BG_IMAGES = [
+  { src: "/BaniereHome/livrer.png",    pos: "center center" },
+  { src: "/BaniereHome/dirose1.png",   pos: "center 15%" },
+  { src: "/BaniereHome/arti.png",      pos: "center center" },
+  { src: "/BaniereHome/transport.png", pos: "center center" },
+];
+
+const BANNER_IMAGES = [
+  "/baniereModeAfricain/bannier11.png",
+  "/baniereModeAfricain/coupletBan.png",
+  "/baniereModeAfricain/FemBan.png",
+  "/baniereModeAfricain/HomBan.png",
 ];
 
 export function HeroSection() {
-  const [current, setCurrent] = useState(0);
-  const [paused,  setPaused]  = useState(false);
+  const [current,   setCurrent]   = useState(0);
+  const [bgIdx,     setBgIdx]     = useState(0);
+  const [bannerIdx, setBannerIdx] = useState(0);
+  const timer       = useRef<ReturnType<typeof setInterval>>();
+  const bgTimer     = useRef<ReturnType<typeof setInterval>>();
+  const bannerTimer = useRef<ReturnType<typeof setInterval>>();
 
-  const next = useCallback(() => setCurrent(c => (c + 1) % SLIDES.length), []);
-  const prev = useCallback(() => setCurrent(c => (c - 1 + SLIDES.length) % SLIDES.length), []);
+  function go(i: number) {
+    clearInterval(timer.current);
+    setCurrent(i);
+    timer.current = setInterval(() => setCurrent(c => (c + 1) % HERO_SLIDES.length), 4500);
+  }
 
   useEffect(() => {
-    if (paused) return;
-    const id = setInterval(next, 5000);
-    return () => clearInterval(id);
-  }, [next, paused]);
+    timer.current = setInterval(() => setCurrent(c => (c + 1) % HERO_SLIDES.length), 4500);
+    return () => clearInterval(timer.current);
+  }, []);
+
+  useEffect(() => {
+    bgTimer.current = setInterval(() => setBgIdx(i => (i + 1) % HERO_BG_IMAGES.length), 6000);
+    return () => clearInterval(bgTimer.current);
+  }, []);
+
+  useEffect(() => {
+    bannerTimer.current = setInterval(() => setBannerIdx(i => (i + 1) % BANNER_IMAGES.length), 3200);
+    return () => clearInterval(bannerTimer.current);
+  }, []);
+
+  const s = HERO_SLIDES[current];
 
   return (
-    <section style={{ background: "#0D1F10" }}>
+    <div
+      className="relative overflow-hidden w-full"
+      style={{ height: "clamp(260px, 50vw, 460px)" }}
+    >
+      {/* Fonds rotatifs */}
+      {HERO_BG_IMAGES.map((bg, i) => (
+        <img
+          key={bg.src}
+          src={bg.src}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+          style={{ opacity: i === bgIdx ? 1 : 0, objectPosition: bg.pos }}
+          loading={i === 0 ? "eager" : "lazy"}
+        />
+      ))}
 
-      {/* ── Contenu principal ──────────────────────────────────────────── */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-8 lg:gap-16 py-10 sm:py-12 lg:py-16">
+      {/* Overlay fixe */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: "linear-gradient(to right, rgba(4,30,12,0.88) 0%, rgba(4,30,12,0.72) 28%, rgba(4,30,12,0.30) 52%, rgba(4,30,12,0.05) 70%, transparent 85%)" }}
+      />
 
-          {/* Texte gauche */}
-          <div className="flex-1 min-w-0">
+      {/* Lueur or subtile */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: "radial-gradient(ellipse at 22% 90%, rgba(212,150,30,0.10) 0%, transparent 50%)" }}
+      />
 
-            {/* Badge */}
-            <span
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest mb-5"
-              style={{ background: "rgba(212,165,30,0.15)", border: "1px solid rgba(212,165,30,0.32)", color: "#D4A520" }}
-            >
-              La diaspora au service des familles
-            </span>
+      {/* Contenu — texte gauche + mini cadre droit */}
+      <div className="relative z-10 h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sm:gap-8">
 
-            {/* Titre */}
-            <h1 className="text-[28px] xs:text-[32px] sm:text-4xl lg:text-5xl xl:text-[54px] font-black text-white leading-[1.1] tracking-tight mb-4">
-              Envoyez le meilleur<br />
-              à vos proches<br />
-              <span style={{ color: "#F59E0B" }}>en Afrique.</span>
-            </h1>
-
-            {/* Sous-titre */}
-            <p className="text-white/55 text-sm sm:text-base max-w-sm mb-8 leading-relaxed">
-              Marketplace premium dédiée à la diaspora africaine. Achetez en toute confiance et faites-vous livrer rapidement.
-            </p>
-
-            {/* Boutons CTA */}
-            <div className="flex flex-wrap items-center gap-3">
-              <Link
-                href="/produits"
-                className="inline-flex items-center gap-2 px-5 sm:px-7 py-2.5 sm:py-3 rounded-xl font-bold text-sm transition-all hover:brightness-110 active:scale-95"
-                style={{ background: "#F59E0B", color: "#111827", boxShadow: "0 4px 20px rgba(245,158,11,0.4)" }}
-              >
-                Explorer les produits →
-              </Link>
-              <Link
-                href="/auth/register"
-                className="inline-flex items-center gap-2 px-5 sm:px-7 py-2.5 sm:py-3 rounded-xl font-bold text-sm text-white transition-all hover:bg-white/10 active:scale-95"
-                style={{ border: "1.5px solid rgba(255,255,255,0.25)" }}
-              >
-                Devenir vendeur
-              </Link>
-            </div>
-          </div>
-
-          {/* Carrousel images — visible md+ */}
-          <div
-            className="hidden md:block relative flex-shrink-0 rounded-2xl overflow-hidden"
-            style={{ width: "clamp(280px, 40%, 500px)", aspectRatio: "4/3" }}
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
+        {/* Texte slider */}
+        <div className="max-w-[260px] xs:max-w-xs sm:max-w-sm lg:max-w-md py-8 sm:py-10">
+          <span
+            className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-extrabold tracking-widest uppercase px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full mb-3 sm:mb-4"
+            style={{ background: "rgba(212,150,30,0.15)", border: "1px solid rgba(212,150,30,0.35)", color: "#D4961E" }}
           >
-            {SLIDES.map(({ src, alt }, i) => (
-              <div
-                key={src}
-                className={cn(
-                  "absolute inset-0 transition-opacity duration-1000",
-                  i === current ? "opacity-100" : "opacity-0"
-                )}
-              >
-                <Image
-                  src={src}
-                  alt={alt}
-                  fill
-                  sizes="500px"
-                  className="object-cover object-center"
-                  priority={i === 0}
-                />
-              </div>
-            ))}
+            {s.badge}
+          </span>
 
-            {/* Vignette intérieure */}
-            <div
-              className="absolute inset-0 pointer-events-none rounded-2xl"
-              style={{ boxShadow: "inset 0 0 60px rgba(0,0,0,0.2)" }}
-            />
+          <h1 className="text-[22px] xs:text-[26px] sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight mb-2 sm:mb-3">
+            {s.line1}<br />
+            <span style={{ color: "#D4961E" }}>{s.line2}</span>
+          </h1>
 
-            {/* Flèches */}
-            {SLIDES.length > 1 && (
-              <>
-                <button
-                  onClick={prev}
-                  aria-label="Slide précédente"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-all"
-                >
-                  <ChevronLeft className="w-4 h-4 text-white" />
-                </button>
-                <button
-                  onClick={next}
-                  aria-label="Slide suivante"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-all"
-                >
-                  <ChevronRight className="w-4 h-4 text-white" />
-                </button>
-              </>
-            )}
+          <p className="hidden xs:block text-white/65 text-xs sm:text-sm lg:text-base mb-5 sm:mb-7 leading-relaxed">
+            {s.sub}
+          </p>
 
-            {/* Dots */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
-              {SLIDES.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrent(i)}
-                  aria-label={`Slide ${i + 1}`}
-                  className={cn(
-                    "rounded-full transition-all duration-300",
-                    i === current ? "w-5 h-1.5 bg-amber-400" : "w-1.5 h-1.5 bg-white/50 hover:bg-white/80"
-                  )}
-                />
-              ))}
-            </div>
-          </div>
+          <Link
+            href={s.href}
+            className="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm text-white transition-all active:scale-95 hover:brightness-110 touch-manipulation"
+            style={{ background: "#D4961E", boxShadow: "0 4px 18px rgba(212,150,30,0.45)" }}
+          >
+            {s.cta} <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          </Link>
         </div>
+
       </div>
 
-      {/* ── Barre de confiance ─────────────────────────────────────────── */}
-      <div className="border-t border-white/8" style={{ background: "rgba(0,0,0,0.22)" }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div
-            className="flex items-center gap-5 sm:gap-8 overflow-x-auto"
-            style={{ scrollbarWidth: "none" }}
-          >
-            {TRUST_ITEMS.map(({ icon: Icon, label, sub, color }) => (
-              <div key={label} className="flex items-center gap-2 flex-shrink-0">
-                <Icon className={cn("w-4 h-4 flex-shrink-0", color)} />
-                <div>
-                  <div className="text-white text-xs font-semibold whitespace-nowrap">{label}</div>
-                  <div className="text-white/45 text-[10px] whitespace-nowrap hidden sm:block">{sub}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* Dots slider texte */}
+      <div className="absolute bottom-3 sm:bottom-4 left-4 sm:left-6 lg:left-8 flex items-center gap-2 z-10">
+        {HERO_SLIDES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => go(i)}
+            className="rounded-full transition-all duration-300 touch-manipulation"
+            style={{
+              width:      i === current ? 20 : 7,
+              height:     7,
+              background: i === current ? "#D4961E" : "rgba(255,255,255,0.35)",
+            }}
+          />
+        ))}
       </div>
-    </section>
+    </div>
   );
 }
