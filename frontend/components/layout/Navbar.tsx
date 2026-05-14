@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   ShoppingBag, Truck, Menu, X, Search, MapPin, Globe,
   Package, ShoppingCart, User, LogOut, ChevronDown,
-  LayoutDashboard, Shield, Store, Shirt,
+  Shield, Store, Shirt,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LogoCart } from "@/components/ui/LogoCart";
@@ -23,25 +23,35 @@ interface StoredUser {
 }
 
 const ROLE_DASHBOARD: Record<string, { href: string; label: string; icon: React.ElementType; color: string }> = {
-  vendeur:      { href: "/dashboard/vendeur",      label: "Espace vendeur",      icon: Store,           color: "text-orange-600 bg-orange-50 hover:bg-orange-100" },
-  admin:        { href: "/dashboard/admin",         label: "Dashboard Admin",     icon: Shield,          color: "text-purple-600 bg-purple-50 hover:bg-purple-100" },
-  transporteur: { href: "/dashboard/transporteur",  label: "Espace transporteur", icon: Truck,           color: "text-blue-600 bg-blue-50 hover:bg-blue-100"       },
+  vendeur:      { href: "/dashboard/vendeur",      label: "Espace vendeur",      icon: Store,  color: "text-orange-600 bg-orange-50 hover:bg-orange-100" },
+  admin:        { href: "/dashboard/admin",         label: "Dashboard Admin",     icon: Shield, color: "text-purple-600 bg-purple-50 hover:bg-purple-100" },
+  transporteur: { href: "/dashboard/transporteur",  label: "Espace transporteur", icon: Truck,  color: "text-blue-600 bg-blue-50 hover:bg-blue-100"       },
 };
 
-export function Navbar() {
-  const [mobileOpen, setMobileOpen]     = useState(false);
-  const [searchOpen, setSearchOpen]     = useState(false);
-  const [searchQuery, setSearchQuery]   = useState("");
-  const [currentUser, setCurrentUser]   = useState<StoredUser | null>(null);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const userMenuRef                     = useRef<HTMLDivElement>(null);
-  const pathname                        = usePathname();
-  const router                          = useRouter();
-  const { locale }                      = useI18n();
-  const { totalItems }                  = useCart();
-  const nav                             = translations.nav;
+const SEARCH_CATEGORIES = [
+  { value: "",             label: "Toutes les catégories" },
+  { value: "mode",         label: "Mode Africaine"        },
+  { value: "electronique", label: "Électronique"          },
+  { value: "beaute",       label: "Beauté & Soins"        },
+  { value: "maison",       label: "Maison & Déco"         },
+  { value: "alimentation", label: "Alimentation"          },
+  { value: "sport",        label: "Sport & Loisirs"       },
+];
 
-  // Read auth state from localStorage on mount
+export function Navbar() {
+  const [mobileOpen,      setMobileOpen]      = useState(false);
+  const [searchOpen,      setSearchOpen]      = useState(false);
+  const [searchQuery,     setSearchQuery]     = useState("");
+  const [searchCategory,  setSearchCategory]  = useState("");
+  const [currentUser,     setCurrentUser]     = useState<StoredUser | null>(null);
+  const [userMenuOpen,    setUserMenuOpen]    = useState(false);
+  const userMenuRef                           = useRef<HTMLDivElement>(null);
+  const pathname                              = usePathname();
+  const router                                = useRouter();
+  const { locale }                            = useI18n();
+  const { totalItems }                        = useCart();
+  const nav                                   = translations.nav;
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem("sango_user");
@@ -49,7 +59,6 @@ export function Navbar() {
     } catch {}
   }, []);
 
-  // Close user menu on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
@@ -61,18 +70,19 @@ export function Navbar() {
   }, []);
 
   const NAV_LINKS = [
-    { href: "/produits",          label: t(nav.products, locale),   icon: ShoppingBag, african: false },
-    { href: "/mode-africaine",    label: "Mode Africaine",          icon: Shirt,       african: true  },
-    { href: "/transporteurs",     label: "Envoyer un colis",        icon: Truck,       african: false },
-    { href: "/suivi",             label: "Suivre mon colis",        icon: Package,     african: false },
-    { href: "/retrait",           label: "Points relais",           icon: MapPin,      african: false },
-    { href: "/comment-ca-marche", label: t(nav.howItWorks, locale), icon: Package,     african: false },
+    { href: "/produits",       label: "Produits",        icon: ShoppingBag, african: false, special: false },
+    { href: "/mode-africaine", label: "Mode Africaine",  icon: Shirt,       african: true,  special: false },
+    { href: "/transporteurs",  label: "Diaspora",        icon: Globe,       african: false, special: false },
+    { href: "/suivi",          label: "Suivi colis",     icon: Package,     african: false, special: false },
+    { href: "/auth/register",  label: "Devenir vendeur", icon: Store,       african: false, special: true  },
   ];
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/produits?search=${encodeURIComponent(searchQuery.trim())}`);
+      const params = new URLSearchParams({ search: searchQuery.trim() });
+      if (searchCategory) params.set("category", searchCategory);
+      router.push(`/produits?${params.toString()}`);
       setSearchOpen(false);
     }
   }
@@ -85,32 +95,46 @@ export function Navbar() {
     router.push("/");
   }
 
-  const initials = currentUser?.name
+  const initials      = currentUser?.name
     ? currentUser.name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()
     : "?";
-
   const dashboardInfo = currentUser ? ROLE_DASHBOARD[currentUser.role] ?? null : null;
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md border-b" style={{ backgroundColor: "rgba(253,252,248,0.97)", borderColor: "#E2D9C8" }}>
-      {/* Top banner */}
-      <div className="hidden sm:block text-white text-xs py-1.5 text-center" style={{ background: "linear-gradient(90deg, #0A1120 0%, #1a1206 50%, #0A1120 100%)" }}>
-        <span className="inline-flex items-center gap-1.5 text-orange-300">
-          <Globe className="w-3 h-3" />
-          <span className="text-white/70">Diaspora → Bangui</span>
-          <span className="text-orange-400/60 mx-1">·</span>
-          Paiement sécurisé Orange Money &amp; Cash
-          <span className="text-orange-400/60 mx-1">·</span>
-          <span className="text-white/70">Escrow garanti</span>
-        </span>
+    <header className="sticky top-0 z-50 bg-white shadow-sm" style={{ borderBottom: "1px solid #E5E7EB" }}>
+
+      {/* ── Barre verte supérieure ─────────────────────────────────────── */}
+      <div className="hidden sm:block text-xs py-2" style={{ background: "#1B3A2D" }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+          <span className="flex items-center gap-1.5 text-white/80">
+            <Truck className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
+            Livraison rapide et sécurisée dans tous les pays d&apos;Afrique
+          </span>
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <span className="text-white/55">Besoin d&apos;aide ?</span>
+            <a href="tel:+221786863969" className="text-white font-medium hover:text-green-300 transition-colors">
+              +221 78 686 39 69
+            </a>
+            <a
+              href="https://wa.me/221786863969"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 bg-green-500 hover:bg-green-400 text-white px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-colors"
+            >
+              💬 WhatsApp
+            </a>
+          </div>
+        </div>
       </div>
 
       <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14 sm:h-16 gap-3">
+
+        {/* ── Ligne principale : Logo + Recherche + Icônes ───────────── */}
+        <div className="flex items-center h-14 sm:h-16 gap-3 sm:gap-4">
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0 select-none">
-            <LogoCart size={36} />
+            <LogoCart size={34} />
             <span
               className="leading-none tracking-tight text-[18px] sm:text-[20px]"
               style={{ fontFamily: "var(--font-poppins), sans-serif" }}
@@ -127,46 +151,42 @@ export function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop search bar — visible sm+ */}
-          <form onSubmit={handleSearch} className="hidden sm:flex flex-1 max-w-xs mx-3 lg:max-w-sm">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          {/* Barre de recherche desktop avec dropdown catégories */}
+          <form onSubmit={handleSearch} className="hidden sm:flex flex-1 max-w-md lg:max-w-lg mx-2">
+            <div
+              className="flex w-full rounded-xl overflow-hidden border border-gray-200 hover:border-gray-300 bg-white transition-all"
+              style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
+            >
+              <select
+                value={searchCategory}
+                onChange={e => setSearchCategory(e.target.value)}
+                className="border-r border-gray-200 bg-gray-50/80 px-2 lg:px-3 text-xs text-gray-600 focus:outline-none cursor-pointer min-w-[110px] lg:min-w-[145px] appearance-none"
+              >
+                {SEARCH_CATEGORIES.map(({ value, label }) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder={t(nav.search, locale)}
-                className="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 bg-gray-50/80 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 transition-colors"
+                placeholder="Rechercher un produit, une marque..."
+                className="flex-1 px-3 py-2 text-sm focus:outline-none bg-white min-w-0"
               />
+              <button
+                type="submit"
+                className="px-3 sm:px-4 text-white flex items-center flex-shrink-0 transition-opacity hover:opacity-90"
+                style={{ background: "#1B3A2D" }}
+              >
+                <Search className="w-4 h-4" />
+              </button>
             </div>
           </form>
 
-          {/* Desktop nav links */}
-          <div className="hidden lg:flex items-center gap-0.5 flex-shrink-0">
-            {NAV_LINKS.map(({ href, label, african }) => (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  "px-2 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
-                  african
-                    ? pathname.startsWith("/mode-africaine")
-                      ? "text-[#D4961E] font-bold bg-orange-50"
-                      : "text-[#B87814] font-semibold hover:bg-orange-50 hover:text-[#D4961E]"
-                    : pathname === href
-                    ? "bg-orange-50 text-orange-600"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                )}
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
+          {/* Actions droite */}
+          <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0 ml-auto sm:ml-0">
 
-          {/* Right actions */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-
-            {/* Search icon — mobile only */}
+            {/* Icône recherche — mobile uniquement */}
             <button
               className="sm:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100"
               onClick={() => setSearchOpen(!searchOpen)}
@@ -175,51 +195,40 @@ export function Navbar() {
               <Search className="w-4 h-4" />
             </button>
 
-            {/* Cart */}
-            <Link
-              href="/panier"
-              className="relative p-2 rounded-lg text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition-colors"
-              aria-label="Mon panier"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-orange-500 text-white text-[10px] font-extrabold rounded-full flex items-center justify-center px-1 leading-none">
-                  {totalItems > 99 ? "99+" : totalItems}
-                </span>
-              )}
-            </Link>
-
-            {/* Currency + Language — xl+ */}
+            {/* Currency + Language */}
             <div className="hidden xl:flex items-center gap-1">
               <CurrencySwitcher />
               <LanguageSwitcher />
             </div>
 
-            {/* Auth — user menu if logged in, buttons if not */}
+            {/* Compte */}
             {currentUser ? (
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
                 >
-                  <div className="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0">
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
+                    style={{ background: "#1B3A2D" }}
+                  >
                     {initials}
                   </div>
-                  <span className="hidden sm:block text-sm font-medium text-gray-700 max-w-[80px] truncate">
-                    {currentUser.name.split(" ")[0]}
-                  </span>
+                  <div className="hidden sm:block text-left">
+                    <div className="text-[10px] text-gray-400 leading-none">Compte</div>
+                    <div className="text-xs font-semibold text-gray-800 max-w-[70px] truncate leading-tight mt-0.5">
+                      {currentUser.name.split(" ")[0]}
+                    </div>
+                  </div>
                   <ChevronDown className={cn("w-3.5 h-3.5 text-gray-400 hidden sm:block transition-transform duration-200", userMenuOpen && "rotate-180")} />
                 </button>
 
                 {userMenuOpen && (
                   <div className="absolute right-0 top-full mt-1.5 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl py-1.5 z-50 animate-fade-in">
-                    {/* User info */}
                     <div className="px-4 py-2.5 border-b border-gray-50">
                       <p className="text-sm font-semibold text-gray-900 truncate">{currentUser.name}</p>
                       <p className="text-xs text-gray-400 capitalize">{currentUser.role}</p>
                     </div>
-
-                    {/* Dashboard link — pro roles only */}
                     {dashboardInfo && (
                       <Link
                         href={dashboardInfo.href}
@@ -230,8 +239,6 @@ export function Navbar() {
                         {dashboardInfo.label}
                       </Link>
                     )}
-
-                    {/* Client-only links */}
                     {currentUser.role === "client" && (
                       <Link
                         href="/commandes"
@@ -242,7 +249,6 @@ export function Navbar() {
                         Mes commandes
                       </Link>
                     )}
-
                     <Link
                       href="/compte"
                       onClick={() => setUserMenuOpen(false)}
@@ -251,7 +257,6 @@ export function Navbar() {
                       <User className="w-4 h-4 text-gray-400" />
                       Mon compte
                     </Link>
-
                     <div className="border-t border-gray-100 mt-1 pt-1">
                       <button
                         onClick={handleLogout}
@@ -267,13 +272,35 @@ export function Navbar() {
             ) : (
               <Link
                 href="/auth/login"
-                className="btn-primary text-sm py-2 px-4 whitespace-nowrap"
+                className="hidden sm:flex flex-col items-center px-2 py-1 hover:bg-gray-50 rounded-lg transition-colors"
               >
-                {t(nav.login, locale)}
+                <User className="w-5 h-5 text-gray-600 mb-0.5" />
+                <span className="text-[10px] text-gray-400 leading-none">Compte</span>
+                <span className="text-xs font-semibold text-gray-800 leading-none mt-0.5">Se connecter</span>
               </Link>
             )}
 
-            {/* Hamburger — mobile/tablet */}
+            {/* Panier */}
+            <Link
+              href="/panier"
+              className="relative flex flex-col items-center px-2 py-1 hover:bg-gray-50 rounded-lg transition-colors"
+              aria-label="Mon panier"
+            >
+              <div className="relative">
+                <ShoppingCart className="w-5 h-5 text-gray-600" />
+                {totalItems > 0 && (
+                  <span
+                    className="absolute -top-1.5 -right-1.5 min-w-[16px] h-[16px] text-white text-[9px] font-extrabold rounded-full flex items-center justify-center px-0.5"
+                    style={{ background: "#1B3A2D" }}
+                  >
+                    {totalItems > 99 ? "99+" : totalItems}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-gray-400 leading-none mt-0.5 hidden sm:block">Panier</span>
+            </Link>
+
+            {/* Hamburger mobile */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100"
@@ -284,14 +311,42 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* ── Mobile quick-access strip (lg:hidden) ─────────────────── */}
-        <div className="lg:hidden border-t border-gray-100/80 -mx-4 sm:-mx-6 px-3 py-2 flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+        {/* ── Liens navigation desktop ───────────────────────────────── */}
+        <div className="hidden lg:flex items-center gap-0.5 border-t border-gray-100/80 h-10">
+          {NAV_LINKS.map(({ href, label, african, special }) => (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
+                special
+                  ? "ml-auto font-semibold hover:bg-green-50"
+                  : african
+                  ? pathname.startsWith("/mode-africaine")
+                    ? "text-amber-600 font-bold bg-amber-50"
+                    : "text-amber-700 font-semibold hover:bg-amber-50"
+                  : pathname === href || (href !== "/" && pathname.startsWith(href))
+                  ? "bg-gray-100 text-gray-900 font-semibold"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              )}
+              style={special ? { color: "#1B3A2D" } : {}}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
+
+        {/* ── Mobile quick-access ────────────────────────────────────── */}
+        <div
+          className="lg:hidden border-t border-gray-100/80 -mx-4 sm:-mx-6 px-3 py-2 flex items-center gap-2 overflow-x-auto"
+          style={{ scrollbarWidth: "none" }}
+        >
           {[
-            { href: "/produits",       label: "Produits",         icon: ShoppingBag, active: "bg-orange-500 text-white border-orange-500",     idle: "bg-white text-gray-700 border-gray-200 hover:border-orange-400 hover:text-orange-600" },
-            { href: "/mode-africaine", label: "Mode Africaine",   icon: Shirt,       active: "text-white border-transparent",                  idle: "text-[#B87814] border-[#E8C97A] bg-[#FEFCF0] hover:bg-orange-50",                   gold: true },
-            { href: "/transporteurs",  label: "Envoyer un colis", icon: Truck,       active: "bg-blue-600 text-white border-blue-600",          idle: "bg-white text-gray-700 border-gray-200 hover:border-blue-400 hover:text-blue-600" },
-            { href: "/suivi",          label: "Suivre mon colis", icon: Package,     active: "bg-green-600 text-white border-green-600",        idle: "bg-white text-gray-700 border-gray-200 hover:border-green-400 hover:text-green-600" },
-          ].map(({ href, label, icon: Icon, active, idle, gold }) => {
+            { href: "/produits",       label: "Produits",       icon: ShoppingBag },
+            { href: "/mode-africaine", label: "Mode Africaine", icon: Shirt,      gold: true },
+            { href: "/transporteurs",  label: "Diaspora",       icon: Globe },
+            { href: "/suivi",          label: "Suivi colis",    icon: Package },
+          ].map(({ href, label, icon: Icon, gold }) => {
             const isActive = pathname.startsWith(href);
             return (
               <Link
@@ -299,9 +354,19 @@ export function Navbar() {
                 href={href}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all shadow-sm",
-                  isActive ? active : idle
+                  isActive
+                    ? gold ? "text-white border-transparent" : "text-white border-transparent"
+                    : gold
+                    ? "text-amber-700 border-amber-200 bg-amber-50 hover:bg-amber-100"
+                    : "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
                 )}
-                style={isActive && gold ? { background: "#D4961E", boxShadow: "0 2px 8px rgba(212,150,30,0.35)" } : {}}
+                style={
+                  isActive
+                    ? gold
+                      ? { background: "#D4961E" }
+                      : { background: "#1B3A2D" }
+                    : {}
+                }
               >
                 <Icon className="w-3.5 h-3.5 flex-shrink-0" />
                 {label}
@@ -310,19 +375,21 @@ export function Navbar() {
           })}
         </div>
 
-        {/* Mobile search bar */}
+        {/* Mobile search */}
         {searchOpen && (
           <form onSubmit={handleSearch} className="sm:hidden pb-3 animate-fade-in">
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <div className="flex rounded-xl overflow-hidden border border-gray-200">
               <input
                 autoFocus
                 type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder={t(nav.search, locale)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
+                placeholder="Rechercher un produit, une marque..."
+                className="flex-1 pl-4 pr-2 py-2.5 text-sm focus:outline-none bg-gray-50"
               />
+              <button type="submit" className="px-4 text-white flex-shrink-0" style={{ background: "#1B3A2D" }}>
+                <Search className="w-4 h-4" />
+              </button>
             </div>
           </form>
         )}
@@ -337,24 +404,21 @@ export function Navbar() {
                 onClick={() => setMobileOpen(false)}
                 className={cn(
                   "flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors",
-                  pathname === href ? "bg-orange-50 text-orange-600" : "text-gray-700 hover:bg-gray-50"
+                  pathname === href ? "text-white" : "text-gray-700 hover:bg-gray-50"
                 )}
+                style={pathname === href ? { background: "#1B3A2D" } : {}}
               >
                 <Icon className="w-4 h-4 flex-shrink-0" />
                 {label}
               </Link>
             ))}
-
-            {/* Language + Currency in mobile menu */}
             <div className="flex items-center gap-2 px-3 py-2">
               <CurrencySwitcher />
               <LanguageSwitcher />
             </div>
-
             <div className="pt-3 border-t border-gray-100 space-y-2">
               {currentUser ? (
                 <>
-                  {/* Dashboard button — pro roles */}
                   {dashboardInfo && (
                     <Link
                       href={dashboardInfo.href}

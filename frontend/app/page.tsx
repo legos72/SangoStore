@@ -6,6 +6,15 @@ import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { HomeTransporters } from "@/components/home/HomeTransporters";
 import { COUNTRIES } from "@/lib/countries";
 
+const MAIN_CATEGORIES = [
+  { slug: "mode",         href: "/mode-africaine",             label: "Mode Africaine",     count: "12 990", img: "/categories/femme.png",      emoji: "👗", bg: "#FEF3E2" },
+  { slug: "electronique", href: "/produits?category=electronique", label: "Électronique",   count: "8 750",  img: null,                         emoji: "📱", bg: "#EFF6FF" },
+  { slug: "beaute",       href: "/produits?category=beaute",   label: "Beauté & Soins",     count: "6 240",  img: null,                         emoji: "💄", bg: "#FDF2F8" },
+  { slug: "maison",       href: "/produits?category=maison",   label: "Maison & Décoration",count: "4 810",  img: "/categories/Marier.png",     emoji: "🏠", bg: "#F0FDF4" },
+  { slug: "alimentation", href: "/produits?category=alimentation", label: "Alimentation",  count: "7 100",  img: null,                         emoji: "🥗", bg: "#FFFBEB" },
+  { slug: "sport",        href: "/produits?category=sport",    label: "Sport & Loisirs",    count: "3 860",  img: null,                         emoji: "⚽", bg: "#F5F3FF" },
+];
+
 const SUPPORT_PHONE    = "+221 78 686 39 69";
 const SUPPORT_WHATSAPP = "221786863969";
 
@@ -21,7 +30,59 @@ export default function HomePage() {
     <>
       <HeroSection />
 
-      {/* Produits avec filtres catégorie + pays */}
+      {/* ── Catégories populaires ───────────────────────────────────────── */}
+      <section className="py-8 sm:py-12 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-6 sm:mb-8">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "#1B3A2D" }}>
+                Catégories populaires
+              </p>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Découvrez nos catégories</h2>
+            </div>
+            <Link
+              href="/produits"
+              className="flex items-center gap-1 text-sm font-semibold hover:underline"
+              style={{ color: "#1B3A2D" }}
+            >
+              Voir toutes les catégories <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-4">
+            {MAIN_CATEGORIES.map(({ slug, href, label, count, img, emoji, bg }) => (
+              <Link
+                key={slug}
+                href={href}
+                className="group flex flex-col items-center gap-2 p-3 sm:p-4 rounded-2xl hover:bg-gray-50 transition-all"
+              >
+                <div
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden relative flex-shrink-0 flex items-center justify-center"
+                  style={{ background: bg }}
+                >
+                  {img ? (
+                    <img
+                      src={img}
+                      alt={label}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <span className="text-2xl sm:text-3xl">{emoji}</span>
+                  )}
+                </div>
+                <div className="text-center">
+                  <div className="text-xs sm:text-sm font-semibold text-gray-900 group-hover:text-green-800 transition-colors leading-tight">
+                    {label}
+                  </div>
+                  <div className="text-[10px] sm:text-xs text-gray-400 mt-0.5">{count} produits</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Produits tendance ──────────────────────────────────────────── */}
       <FeaturedProducts />
 
       {/* ── Support client strip ────────────────────────────────────────── */}
