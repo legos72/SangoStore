@@ -266,11 +266,10 @@ export function Navbar() {
             ) : (
               <Link
                 href="/auth/login"
-                className="hidden sm:flex flex-col items-center px-2 py-1 hover:bg-gray-50 rounded-lg transition-colors"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm font-semibold text-gray-700"
               >
-                <User className="w-5 h-5 text-gray-600 mb-0.5" />
-                <span className="text-[10px] text-gray-400 leading-none">Compte</span>
-                <span className="text-xs font-semibold text-gray-800 leading-none mt-0.5">Se connecter</span>
+                <User className="w-4 h-4 text-gray-500" />
+                Se connecter
               </Link>
             )}
 
