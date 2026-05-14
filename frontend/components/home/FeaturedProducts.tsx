@@ -115,10 +115,7 @@ export function FeaturedProducts() {
         {/* Header */}
         <div className="flex items-end justify-between mb-3 sm:mb-6">
           <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-widest mb-1" style={{ color: "#D4961E" }}>
-              ✦ Produits tendance
-            </p>
-            <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">Les produits les plus populaires</h2>
+            <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">{t(h.featured, locale)}</h2>
             <p className="text-gray-400 text-xs sm:text-sm mt-0.5">
               {t(h.featuredSub, locale)}
               {hasFilters && !loading && !error && (

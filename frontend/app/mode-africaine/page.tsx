@@ -143,20 +143,16 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
           </button>
         </div>
 
-        {/* Photo modèle — visible à partir de sm */}
+        {/* Illustration droite — visible à partir de sm */}
         <div
-          className="hidden sm:block w-36 md:w-48 lg:w-60 flex-shrink-0 rounded-2xl overflow-hidden"
+          className="hidden sm:flex w-36 md:w-48 lg:w-60 flex-shrink-0 rounded-2xl items-center justify-center select-none"
           style={{
             aspectRatio: "3/4",
-            border: "1px solid rgba(212,150,30,0.25)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            background: "rgba(212,150,30,0.07)",
+            border: "1px solid rgba(212,150,30,0.15)",
           }}
         >
-          <img
-            src="/categories/petBan1.png"
-            alt="Mode africaine"
-            className="w-full h-full object-cover object-top"
-          />
+          <span className="text-6xl lg:text-8xl">{s.deco}</span>
         </div>
       </div>
 

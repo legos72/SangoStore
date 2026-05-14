@@ -11,7 +11,6 @@ const poppins = Poppins({
 });
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { GlobalBottomNav } from "@/components/layout/GlobalBottomNav";
 import { CartProvider } from "@/contexts/CartContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { Toaster } from "react-hot-toast";
@@ -73,9 +72,8 @@ export default function RootLayout({
           <CurrencyProvider>
             <CartProvider>
               <Navbar />
-              <main className="min-h-screen pb-16 sm:pb-0">{children}</main>
+              <main className="min-h-screen">{children}</main>
               <Footer />
-              <GlobalBottomNav />
             </CartProvider>
           </CurrencyProvider>
         </I18nProvider>

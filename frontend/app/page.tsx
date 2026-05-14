@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Phone } from "lucide-react";
 import { HeroSection } from "@/components/home/HeroSection";
-import { TrustBar } from "@/components/home/TrustBar";
-import { CategoriesSection } from "@/components/home/CategoriesSection";
 import { StatsSection } from "@/components/home/StatsSection";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { HomeTransporters } from "@/components/home/HomeTransporters";
@@ -22,8 +20,6 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <TrustBar />
-      <CategoriesSection />
 
       {/* Produits avec filtres catégorie + pays */}
       <FeaturedProducts />
