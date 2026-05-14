@@ -72,9 +72,9 @@ export function Navbar() {
   const NAV_LINKS = [
     { href: "/produits",       label: "Produits",        icon: ShoppingBag, african: false, special: false },
     { href: "/mode-africaine", label: "Mode Africaine",  icon: Shirt,       african: true,  special: false },
-    { href: "/transporteurs",  label: "Diaspora",        icon: Globe,       african: false, special: false },
+    { href: "/transporteurs",  label: "Envoi de colis",  icon: Truck,       african: false, special: false },
     { href: "/suivi",          label: "Suivi colis",     icon: Package,     african: false, special: false },
-    { href: "/auth/register",  label: "Devenir vendeur", icon: Store,       african: false, special: true  },
+    { href: "/auth/register",  label: "Devenir vendeur", icon: Store,       african: false, special: false },
   ];
 
   function handleSearch(e: React.FormEvent) {
@@ -320,7 +320,7 @@ export function Navbar() {
               className={cn(
                 "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
                 special
-                  ? "ml-auto font-semibold hover:bg-green-50"
+                  ? "font-semibold hover:bg-green-50"
                   : african
                   ? pathname.startsWith("/mode-africaine")
                     ? "text-amber-600 font-bold bg-amber-50"
