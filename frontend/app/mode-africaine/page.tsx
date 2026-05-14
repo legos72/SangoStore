@@ -65,11 +65,22 @@ const SORT_OPTIONS = [
   { value: "price_desc", label: "Prix ↓" },
 ];
 
+// ─── Images mini-cadre bannière ───────────────────────────────────────────────
+
+const BANNER_IMAGES = [
+  "/categories/petBan1.png",
+  "/categories/ManFemPet.png",
+  "/categories/sacPetc.png",
+  "/categories/sacPetCad.png",
+];
+
 // ─── Hero Slider ──────────────────────────────────────────────────────────────
 
 function HeroSlider({ onCta }: { onCta: () => void }) {
-  const [current, setCurrent] = useState(0);
-  const timer = useRef<ReturnType<typeof setInterval>>();
+  const [current,   setCurrent]   = useState(0);
+  const [bannerIdx, setBannerIdx] = useState(0);
+  const timer       = useRef<ReturnType<typeof setInterval>>();
+  const bannerTimer = useRef<ReturnType<typeof setInterval>>();
 
   function go(i: number) {
     clearInterval(timer.current);
@@ -80,6 +91,11 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
   useEffect(() => {
     timer.current = setInterval(() => setCurrent(c => (c + 1) % HERO_SLIDES.length), 4500);
     return () => clearInterval(timer.current);
+  }, []);
+
+  useEffect(() => {
+    bannerTimer.current = setInterval(() => setBannerIdx(i => (i + 1) % BANNER_IMAGES.length), 3200);
+    return () => clearInterval(bannerTimer.current);
   }, []);
 
   const s = HERO_SLIDES[current];
@@ -143,16 +159,45 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
           </button>
         </div>
 
-        {/* Illustration droite — visible à partir de sm */}
+        {/* Mini slider bannière — visible à partir de sm */}
         <div
-          className="hidden sm:flex w-36 md:w-48 lg:w-60 flex-shrink-0 rounded-2xl items-center justify-center select-none"
+          className="hidden sm:block relative w-36 md:w-48 lg:w-60 flex-shrink-0 rounded-2xl overflow-hidden select-none flex-shrink-0"
           style={{
             aspectRatio: "3/4",
-            background: "rgba(212,150,30,0.07)",
-            border: "1px solid rgba(212,150,30,0.15)",
+            border: "1px solid rgba(212,150,30,0.28)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04)",
           }}
         >
-          <span className="text-6xl lg:text-8xl">{s.deco}</span>
+          {BANNER_IMAGES.map((src, i) => (
+            <img
+              key={src}
+              src={src}
+              alt="Mode africaine"
+              className="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700"
+              style={{ opacity: i === bannerIdx ? 1 : 0 }}
+              loading={i === 0 ? "eager" : "lazy"}
+            />
+          ))}
+          {/* Vignette bas */}
+          <div
+            className="absolute inset-x-0 bottom-0 h-12 pointer-events-none"
+            style={{ background: "linear-gradient(to top, rgba(0,0,0,0.35), transparent)" }}
+          />
+          {/* Dots mini */}
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+            {BANNER_IMAGES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setBannerIdx(i)}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  width:      i === bannerIdx ? 14 : 5,
+                  height:     5,
+                  background: i === bannerIdx ? "#D4961E" : "rgba(255,255,255,0.55)",
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
