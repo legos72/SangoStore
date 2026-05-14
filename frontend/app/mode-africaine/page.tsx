@@ -9,44 +9,6 @@ import { cn } from "@/lib/utils";
 
 // ─── Données statiques ────────────────────────────────────────────────────────
 
-const HERO_SLIDES = [
-  {
-    badge: "COLLECTION AFRICAINE ✦",
-    line1: "L'élégance africaine,",
-    line2: "notre fierté",
-    sub:   "Découvrez nos vêtements, tissus et accessoires africains de qualité supérieure.",
-    cta:   "Découvrir la collection",
-    img:   "/baniereModeAfricain/FemBan.png",
-    bg:    "#020f06",
-  },
-  {
-    badge: "MARIAGE & CÉRÉMONIE ✦",
-    line1: "Sublimez votre",
-    line2: "grand jour",
-    sub:   "Collections spéciales pour mariages et cérémonies africaines.",
-    cta:   "Voir la collection mariage",
-    img:   "/baniereModeAfricain/coupletBan.png",
-    bg:    "#12040a",
-  },
-  {
-    badge: "MARIAGE & FAMILLE ✦",
-    line1: "La famille,",
-    line2: "fierté africaine",
-    sub:   "Tenues coordonnées pour cérémonies et mariages africains.",
-    cta:   "Voir la collection",
-    img:   "/baniereModeAfricain/famBan.png",
-    bg:    "#06021a",
-  },
-  {
-    badge: "MODE HOMME PREMIUM ✦",
-    line1: "Le style africain",
-    line2: "au masculin",
-    sub:   "Tenues africaines brodées pour homme — élégance et tradition.",
-    cta:   "Voir la collection homme",
-    img:   "/baniereModeAfricain/HomBan.png",
-    bg:    "#110800",
-  },
-];
 
 const CATEGORIES = [
   { slug: "homme",      label: "Homme",           shortLabel: "Homme",     tags: ["homme"],                               grad: "from-slate-800   to-slate-600",   emoji: "👔", img: "/categories/homme.png" },
@@ -74,59 +36,32 @@ const SORT_OPTIONS = [
   { value: "price_desc", label: "Prix ↓" },
 ];
 
-// ─── Images mini-cadre bannière ───────────────────────────────────────────────
-
-const BANNER_IMAGES = [
-  "/categories/petBan1.png",
-  "/categories/ManFemPet.png",
-  "/categories/sacPetc.png",
-  "/categories/sacPetCad.png",
-];
-
-// ─── Hero Slider ──────────────────────────────────────────────────────────────
+// ─── Hero Banner ─────────────────────────────────────────────────────────────
 
 function HeroSlider({ onCta }: { onCta: () => void }) {
-  const [current,   setCurrent]   = useState(0);
-  const [bannerIdx, setBannerIdx] = useState(0);
-  const timer       = useRef<ReturnType<typeof setInterval>>();
-  const bannerTimer = useRef<ReturnType<typeof setInterval>>();
-
-  function go(i: number) {
-    clearInterval(timer.current);
-    setCurrent(i);
-    timer.current = setInterval(() => setCurrent(c => (c + 1) % HERO_SLIDES.length), 4500);
-  }
-
-  useEffect(() => {
-    timer.current = setInterval(() => setCurrent(c => (c + 1) % HERO_SLIDES.length), 4500);
-    return () => clearInterval(timer.current);
-  }, []);
-
-  useEffect(() => {
-    bannerTimer.current = setInterval(() => setBannerIdx(i => (i + 1) % BANNER_IMAGES.length), 3200);
-    return () => clearInterval(bannerTimer.current);
-  }, []);
-
-  const s = HERO_SLIDES[current];
-
   return (
     <div
       className="relative overflow-hidden w-full"
-      style={{ height: "clamp(260px, 48vw, 420px)" }}
+      style={{ height: "clamp(260px, 50vw, 460px)" }}
     >
-      {/* Fond uni par slide — couleur dominante de l'image */}
-      {HERO_SLIDES.map((slide, i) => (
-        <div
-          key={i}
-          className="absolute inset-0 transition-opacity duration-700"
-          style={{ backgroundColor: slide.bg, opacity: i === current ? 1 : 0 }}
-        />
-      ))}
+      {/* Photo plein-cadre */}
+      <img
+        src="/baniereModeAfricain/bannier1.png"
+        alt="Mode Africaine — Mariage & Cérémonie"
+        className="absolute inset-0 w-full h-full object-cover object-center"
+        loading="eager"
+      />
 
-      {/* Lueur or subtile au centre-bas */}
+      {/* Overlay gauche — espace de lecture pour le texte */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at 55% 100%, rgba(212,150,30,0.07) 0%, transparent 65%)" }}
+        style={{ background: "linear-gradient(to right, rgba(12,2,6,0.92) 0%, rgba(12,2,6,0.78) 25%, rgba(12,2,6,0.38) 48%, rgba(12,2,6,0.08) 65%, transparent 80%)" }}
+      />
+
+      {/* Lueur or subtile — bas gauche */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: "radial-gradient(ellipse at 22% 90%, rgba(212,150,30,0.10) 0%, transparent 50%)" }}
       />
 
       {/* Motif géométrique or */}
@@ -135,48 +70,28 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
         style={{
           backgroundImage: "repeating-linear-gradient(45deg,#D4961E 0,#D4961E 1px,transparent 0,transparent 50%)",
           backgroundSize: "18px 18px",
-          opacity: 0.04,
+          opacity: 0.035,
         }}
       />
 
-      {/* Mobile : image fantôme côté droit + gradient pour lisibilité */}
-      <div className="sm:hidden absolute inset-y-0 right-0 w-3/5 pointer-events-none">
-        {HERO_SLIDES.map((slide, i) => (
-          <img
-            key={slide.img}
-            src={slide.img}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 w-full h-full object-contain object-right-bottom transition-opacity duration-700"
-            style={{ opacity: i === current ? 0.38 : 0 }}
-            loading={i === 0 ? "eager" : "lazy"}
-          />
-        ))}
-      </div>
-      <div
-        className="sm:hidden absolute inset-0 pointer-events-none"
-        style={{ background: "linear-gradient(to right, rgba(0,0,0,0.92) 28%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.08) 100%)" }}
-      />
+      {/* Contenu texte — aligné à gauche */}
+      <div className="relative z-10 h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
+        <div className="max-w-[260px] xs:max-w-xs sm:max-w-sm lg:max-w-md py-8 sm:py-10">
 
-      {/* Contenu — 3 colonnes : texte | image centrale | mini cadre */}
-      <div className="relative z-10 h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-4 sm:gap-6 lg:gap-10">
-
-        {/* Texte */}
-        <div className="flex-1 min-w-0 py-8 sm:py-10 lg:py-14">
           <span
-            className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-extrabold tracking-widest uppercase px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full mb-3 sm:mb-4 max-w-full truncate"
+            className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-extrabold tracking-widest uppercase px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full mb-3 sm:mb-4"
             style={{ background: "rgba(212,150,30,0.15)", border: "1px solid rgba(212,150,30,0.35)", color: "#D4961E" }}
           >
-            {s.badge}
+            MARIAGE & CÉRÉMONIE ✦
           </span>
 
           <h1 className="text-[22px] xs:text-[26px] sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight mb-2 sm:mb-3">
-            {s.line1}<br />
-            <span style={{ color: "#D4961E" }}>{s.line2}</span>
+            Sublimez votre<br />
+            <span style={{ color: "#D4961E" }}>grand jour</span>
           </h1>
 
-          <p className="hidden xs:block text-white/65 text-xs sm:text-sm lg:text-base max-w-sm sm:max-w-md mb-5 sm:mb-7 leading-relaxed">
-            {s.sub}
+          <p className="hidden xs:block text-white/65 text-xs sm:text-sm lg:text-base mb-5 sm:mb-7 leading-relaxed">
+            Collections spéciales pour mariages et cérémonies africaines.
           </p>
 
           <button
@@ -184,85 +99,9 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
             className="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm text-white transition-all active:scale-95 hover:brightness-110 touch-manipulation"
             style={{ background: "#D4961E", boxShadow: "0 4px 18px rgba(212,150,30,0.45)" }}
           >
-            {s.cta} <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            Voir la collection <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         </div>
-
-        {/* Image centrale — mannequin entier, non coupé (sm+) */}
-        <div
-          className="hidden sm:block relative flex-shrink-0 self-stretch"
-          style={{ width: "clamp(130px, 18vw, 230px)" }}
-        >
-          {HERO_SLIDES.map((slide, i) => (
-            <img
-              key={slide.img}
-              src={slide.img}
-              alt={slide.badge}
-              className="absolute inset-0 w-full h-full transition-opacity duration-700"
-              style={{ objectFit: "contain", objectPosition: "bottom center", opacity: i === current ? 1 : 0 }}
-              loading={i === 0 ? "eager" : "lazy"}
-            />
-          ))}
-          <div
-            className="absolute inset-x-0 bottom-0 h-8 pointer-events-none z-10"
-            style={{ background: "linear-gradient(to top, rgba(0,0,0,0.28), transparent)" }}
-          />
-        </div>
-
-        {/* Mini slider bannière */}
-        <div
-          className="hidden sm:block relative w-32 md:w-44 lg:w-56 flex-shrink-0 rounded-2xl overflow-hidden select-none"
-          style={{
-            aspectRatio: "3/4",
-            border: "1px solid rgba(212,150,30,0.28)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04)",
-          }}
-        >
-          {BANNER_IMAGES.map((src, i) => (
-            <img
-              key={src}
-              src={src}
-              alt="Mode africaine"
-              className="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700"
-              style={{ opacity: i === bannerIdx ? 1 : 0 }}
-              loading={i === 0 ? "eager" : "lazy"}
-            />
-          ))}
-          <div
-            className="absolute inset-x-0 bottom-0 h-12 pointer-events-none"
-            style={{ background: "linear-gradient(to top, rgba(0,0,0,0.35), transparent)" }}
-          />
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
-            {BANNER_IMAGES.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setBannerIdx(i)}
-                className="rounded-full transition-all duration-300"
-                style={{
-                  width:      i === bannerIdx ? 14 : 5,
-                  height:     5,
-                  background: i === bannerIdx ? "#D4961E" : "rgba(255,255,255,0.55)",
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Dots */}
-      <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
-        {HERO_SLIDES.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => go(i)}
-            className="rounded-full transition-all duration-300 touch-manipulation"
-            style={{
-              width:      i === current ? 20 : 7,
-              height:     7,
-              background: i === current ? "#D4961E" : "rgba(255,255,255,0.35)",
-            }}
-          />
-        ))}
       </div>
     </div>
   );
