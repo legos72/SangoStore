@@ -276,7 +276,7 @@ export function Navbar() {
             {/* Panier */}
             <Link
               href="/panier"
-              className="relative flex flex-col items-center px-2 py-1 hover:bg-gray-50 rounded-lg transition-colors"
+              className="relative flex items-center px-2 py-2 hover:bg-gray-50 rounded-lg transition-colors"
               aria-label="Mon panier"
             >
               <div className="relative">
@@ -290,7 +290,6 @@ export function Navbar() {
                   </span>
                 )}
               </div>
-              <span className="text-[10px] text-gray-400 leading-none mt-0.5 hidden sm:block">Panier</span>
             </Link>
 
             {/* Hamburger mobile */}
