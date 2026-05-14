@@ -40,32 +40,40 @@ const SORT_OPTIONS = [
 
 const HERO_SLIDES = [
   {
-    badge: "COLLECTION AFRICAINE ✦",
-    line1: "L'élégance africaine,",
-    line2: "notre fierté",
-    sub:   "Découvrez nos vêtements, tissus et accessoires africains de qualité supérieure.",
-    cta:   "Découvrir la collection",
+    badge:   "COLLECTION AFRICAINE ✦",
+    line1:   "L'élégance africaine,",
+    line2:   "notre fierté",
+    sub:     "Découvrez nos vêtements, tissus et accessoires africains de qualité supérieure.",
+    cta:     "Découvrir la collection",
+    bg:      "/baniereModeAfricain/bannier11.png",
+    overlay: "linear-gradient(to right, rgba(12,2,6,0.90) 0%, rgba(12,2,6,0.75) 25%, rgba(12,2,6,0.35) 48%, rgba(12,2,6,0.06) 65%, transparent 80%)",
   },
   {
-    badge: "MARIAGE & CÉRÉMONIE ✦",
-    line1: "Sublimez votre",
-    line2: "grand jour",
-    sub:   "Collections spéciales pour mariages et cérémonies africaines.",
-    cta:   "Voir la collection mariage",
+    badge:   "MARIAGE & CÉRÉMONIE ✦",
+    line1:   "Sublimez votre",
+    line2:   "grand jour",
+    sub:     "Collections spéciales pour mariages et cérémonies africaines.",
+    cta:     "Voir la collection mariage",
+    bg:      "/baniereModeAfricain/bannier11.png",
+    overlay: "linear-gradient(to right, rgba(12,2,6,0.90) 0%, rgba(12,2,6,0.75) 25%, rgba(12,2,6,0.35) 48%, rgba(12,2,6,0.06) 65%, transparent 80%)",
   },
   {
-    badge: "TISSUS & WAX AUTHENTIQUES ✦",
-    line1: "Wax & Bazin,",
-    line2: "couleurs d'Afrique",
-    sub:   "Les plus beaux tissus africains directement sélectionnés pour vous.",
-    cta:   "Voir les tissus",
+    badge:   "TISSUS & WAX AUTHENTIQUES ✦",
+    line1:   "Wax & Bazin,",
+    line2:   "couleurs d'Afrique",
+    sub:     "Les plus beaux tissus africains directement sélectionnés pour vous.",
+    cta:     "Voir les tissus",
+    bg:      "/baniereModeAfricain/bannier2Pane.png",
+    overlay: "linear-gradient(to right, rgba(4,8,20,0.92) 0%, rgba(4,8,20,0.78) 25%, rgba(4,8,20,0.38) 48%, rgba(4,8,20,0.06) 65%, transparent 80%)",
   },
   {
-    badge: "MODE HOMME PREMIUM ✦",
-    line1: "Le style africain",
-    line2: "au masculin",
-    sub:   "Tenues africaines brodées pour homme — élégance et tradition.",
-    cta:   "Voir la collection homme",
+    badge:   "MODE HOMME PREMIUM ✦",
+    line1:   "Le style africain",
+    line2:   "au masculin",
+    sub:     "Tenues africaines brodées pour homme — élégance et tradition.",
+    cta:     "Voir la collection homme",
+    bg:      "/baniereModeAfricain/bannier11.png",
+    overlay: "linear-gradient(to right, rgba(12,2,6,0.90) 0%, rgba(12,2,6,0.75) 25%, rgba(12,2,6,0.35) 48%, rgba(12,2,6,0.06) 65%, transparent 80%)",
   },
 ];
 
@@ -109,19 +117,27 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
       className="relative overflow-hidden w-full"
       style={{ height: "clamp(260px, 50vw, 460px)" }}
     >
-      {/* Photo plein-cadre */}
-      <img
-        src="/baniereModeAfricain/bannier11.png"
-        alt="Mode Africaine — Mariage & Cérémonie"
-        className="absolute inset-0 w-full h-full object-cover object-center"
-        loading="eager"
-      />
+      {/* Backgrounds par slide */}
+      {HERO_SLIDES.map((slide, i) => (
+        <img
+          key={`bg-${i}`}
+          src={slide.bg}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700"
+          style={{ opacity: i === current ? 1 : 0 }}
+          loading={i === 0 ? "eager" : "lazy"}
+        />
+      ))}
 
-      {/* Overlay gauche — espace de lecture pour le texte */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: "linear-gradient(to right, rgba(12,2,6,0.92) 0%, rgba(12,2,6,0.78) 25%, rgba(12,2,6,0.38) 48%, rgba(12,2,6,0.08) 65%, transparent 80%)" }}
-      />
+      {/* Overlay gauche par slide */}
+      {HERO_SLIDES.map((slide, i) => (
+        <div
+          key={`ov-${i}`}
+          className="absolute inset-0 pointer-events-none transition-opacity duration-700"
+          style={{ background: slide.overlay, opacity: i === current ? 1 : 0 }}
+        />
+      ))}
 
       {/* Lueur or subtile — bas gauche */}
       <div
