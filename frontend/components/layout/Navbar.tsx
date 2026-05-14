@@ -195,12 +195,6 @@ export function Navbar() {
               <Search className="w-4 h-4" />
             </button>
 
-            {/* Currency + Language */}
-            <div className="hidden xl:flex items-center gap-1">
-              <CurrencySwitcher />
-              <LanguageSwitcher />
-            </div>
-
             {/* Compte */}
             {currentUser ? (
               <div className="relative" ref={userMenuRef}>
