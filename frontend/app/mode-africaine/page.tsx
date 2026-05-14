@@ -36,9 +36,26 @@ const SORT_OPTIONS = [
   { value: "price_desc", label: "Prix ↓" },
 ];
 
+// ─── Mini cadre bannière ──────────────────────────────────────────────────────
+
+const BANNER_IMAGES = [
+  "/categories/petBan1.png",
+  "/categories/ManFemPet.png",
+  "/categories/sacPetc.png",
+  "/categories/sacPetCad.png",
+];
+
 // ─── Hero Banner ─────────────────────────────────────────────────────────────
 
 function HeroSlider({ onCta }: { onCta: () => void }) {
+  const [bannerIdx, setBannerIdx] = useState(0);
+  const bannerTimer = useRef<ReturnType<typeof setInterval>>();
+
+  useEffect(() => {
+    bannerTimer.current = setInterval(() => setBannerIdx(i => (i + 1) % BANNER_IMAGES.length), 3200);
+    return () => clearInterval(bannerTimer.current);
+  }, []);
+
   return (
     <div
       className="relative overflow-hidden w-full"
@@ -74,10 +91,11 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
         }}
       />
 
-      {/* Contenu texte — aligné à gauche */}
-      <div className="relative z-10 h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
-        <div className="max-w-[260px] xs:max-w-xs sm:max-w-sm lg:max-w-md py-8 sm:py-10">
+      {/* Contenu — texte gauche + mini cadre droit */}
+      <div className="relative z-10 h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sm:gap-8">
 
+        {/* Texte */}
+        <div className="max-w-[260px] xs:max-w-xs sm:max-w-sm lg:max-w-md py-8 sm:py-10">
           <span
             className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-extrabold tracking-widest uppercase px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full mb-3 sm:mb-4"
             style={{ background: "rgba(212,150,30,0.15)", border: "1px solid rgba(212,150,30,0.35)", color: "#D4961E" }}
@@ -101,6 +119,46 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
           >
             Voir la collection <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
+        </div>
+
+        {/* Mini cadre — visible sm+ */}
+        <div
+          className="hidden sm:block relative flex-shrink-0 rounded-2xl overflow-hidden select-none"
+          style={{
+            width: "clamp(100px, 14vw, 175px)",
+            aspectRatio: "3/4",
+            border: "1px solid rgba(212,150,30,0.32)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)",
+          }}
+        >
+          {BANNER_IMAGES.map((src, i) => (
+            <img
+              key={src}
+              src={src}
+              alt="Mode africaine"
+              className="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700"
+              style={{ opacity: i === bannerIdx ? 1 : 0 }}
+              loading={i === 0 ? "eager" : "lazy"}
+            />
+          ))}
+          <div
+            className="absolute inset-x-0 bottom-0 h-10 pointer-events-none"
+            style={{ background: "linear-gradient(to top, rgba(0,0,0,0.4), transparent)" }}
+          />
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+            {BANNER_IMAGES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setBannerIdx(i)}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  width:      i === bannerIdx ? 14 : 5,
+                  height:     5,
+                  background: i === bannerIdx ? "#D4961E" : "rgba(255,255,255,0.55)",
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>
