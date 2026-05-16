@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductCardSkeleton } from "@/components/product/ProductCardSkeleton";
 import { api } from "@/lib/api";
@@ -12,7 +12,16 @@ import type { Product } from "@/lib/types";
 export function NewArrivalsSection() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading]   = useState(true);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef                = useRef<HTMLDivElement>(null);
+  const [canScrollLeft,  setCanScrollLeft]  = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const updateArrows = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  }, []);
 
   useEffect(() => {
     api.products.list({ section: "newarrival", limit: "12", sortBy: "newest" } as any)
@@ -21,11 +30,22 @@ export function NewArrivalsSection() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    updateArrows();
+    el.addEventListener("scroll", updateArrows, { passive: true });
+    window.addEventListener("resize", updateArrows);
+    return () => {
+      el.removeEventListener("scroll", updateArrows);
+      window.removeEventListener("resize", updateArrows);
+    };
+  }, [updateArrows, loading]);
+
   if (!loading && products.length === 0) return null;
 
   function scroll(dir: "left" | "right") {
-    if (!scrollRef.current) return;
-    scrollRef.current.scrollBy({ left: dir === "left" ? -280 : 280, behavior: "smooth" });
+    scrollRef.current?.scrollBy({ left: dir === "left" ? -280 : 280, behavior: "smooth" });
   }
 
   return (
@@ -48,43 +68,71 @@ export function NewArrivalsSection() {
               </h2>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:flex gap-1">
-              <button onClick={() => scroll("left")}
-                className="w-7 h-7 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:border-green-300 hover:text-green-600 transition-colors">
+          <Link href="/produits?sortBy=newest"
+            className="flex items-center gap-1 text-xs font-semibold transition-colors hover:opacity-80"
+            style={{ color: "#1B3A2D" }}>
+            Voir tout <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {/* Carousel */}
+        <div className="relative">
+
+          {canScrollLeft && (
+            <div
+              className="hidden sm:flex absolute left-0 top-0 bottom-2 z-10 items-center pr-6 pointer-events-none"
+              style={{ background: "linear-gradient(to right, white 50%, transparent)" }}
+            >
+              <button
+                onClick={() => scroll("left")}
+                aria-label="Défiler à gauche"
+                className="pointer-events-auto w-8 h-8 rounded-full bg-white border border-gray-200
+                           shadow-[0_2px_10px_rgba(0,0,0,0.15)] flex items-center justify-center
+                           text-gray-500 hover:border-green-300 hover:text-green-600
+                           transition-all active:scale-90"
+              >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <button onClick={() => scroll("right")}
-                className="w-7 h-7 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:border-green-300 hover:text-green-600 transition-colors">
+            </div>
+          )}
+
+          <div
+            ref={scrollRef}
+            className="flex gap-3 overflow-x-auto pb-2"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {loading
+              ? Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="flex-shrink-0" style={{ width: "clamp(140px, 40vw, 190px)" }}>
+                    <ProductCardSkeleton />
+                  </div>
+                ))
+              : products.map(product => (
+                  <div key={product.id} className="flex-shrink-0" style={{ width: "clamp(140px, 40vw, 190px)" }}>
+                    <ProductCard product={product} />
+                  </div>
+                ))
+            }
+          </div>
+
+          {canScrollRight && (
+            <div
+              className="hidden sm:flex absolute right-0 top-0 bottom-2 z-10 items-center justify-end pl-6 pointer-events-none"
+              style={{ background: "linear-gradient(to left, white 50%, transparent)" }}
+            >
+              <button
+                onClick={() => scroll("right")}
+                aria-label="Défiler à droite"
+                className="pointer-events-auto w-8 h-8 rounded-full bg-white border border-gray-200
+                           shadow-[0_2px_10px_rgba(0,0,0,0.15)] flex items-center justify-center
+                           text-gray-500 hover:border-green-300 hover:text-green-600
+                           transition-all active:scale-90"
+              >
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
-            <Link href="/produits?sortBy=newest"
-              className="flex items-center gap-1 text-xs font-semibold transition-colors hover:opacity-80"
-              style={{ color: "#1B3A2D" }}>
-              Voir tout <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-        </div>
+          )}
 
-        {/* Scroll row */}
-        <div
-          ref={scrollRef}
-          className="flex gap-3 overflow-x-auto pb-2"
-          style={{ scrollbarWidth: "none" }}
-        >
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0" style={{ width: "clamp(140px, 40vw, 190px)" }}>
-                  <ProductCardSkeleton />
-                </div>
-              ))
-            : products.map(product => (
-                <div key={product.id} className="flex-shrink-0" style={{ width: "clamp(140px, 40vw, 190px)" }}>
-                  <ProductCard product={product} />
-                </div>
-              ))
-          }
         </div>
       </div>
     </section>

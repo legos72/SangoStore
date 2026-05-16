@@ -6,7 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   ShoppingBag, Truck, Menu, X, Search, MapPin, Globe,
   Package, ShoppingCart, User, LogOut, ChevronDown,
-  Shield, Store, Shirt,
+  Shield, Store, Shirt, Briefcase, Smartphone, Sparkles,
+  Home, UtensilsCrossed, Dumbbell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LogoCart } from "@/components/ui/LogoCart";
@@ -69,13 +70,27 @@ export function Navbar() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const NAV_LINKS = [
-    { href: "/produits",       label: "Produits",        icon: ShoppingBag, african: false, special: false },
-    { href: "/mode-africaine", label: "Mode Africaine",  icon: Shirt,       african: true,  special: false },
-    { href: "/transporteurs",  label: "Envoi de colis",  icon: Truck,       african: false, special: false },
-    { href: "/suivi",          label: "Suivi colis",     icon: Package,     african: false, special: false },
-    { href: "/auth/register",  label: "Devenir vendeur", icon: Store,       african: false, special: false },
-  ];
+  const isCategoryPage = pathname.startsWith("/categorie") || pathname === "/mode-africaine";
+
+  const NAV_LINKS = isCategoryPage
+    ? [
+        { href: "/mode-africaine",         label: "Mode Africaine",  icon: Shirt           },
+        { href: "/categorie/mode-femme",   label: "Mode Femme",      icon: ShoppingBag     },
+        { href: "/categorie/mode-homme",   label: "Mode Homme",      icon: Briefcase       },
+        { href: "/categorie/electronique", label: "Électronique",    icon: Smartphone      },
+        { href: "/categorie/beaute",       label: "Beauté & Soins",  icon: Sparkles        },
+        { href: "/categorie/maison",       label: "Maison",          icon: Home            },
+        { href: "/categorie/alimentation", label: "Supermarché",     icon: UtensilsCrossed },
+        { href: "/categorie/sport",        label: "Sport & Loisirs", icon: Dumbbell        },
+        { href: "/produits",               label: "Autres",          icon: Package         },
+      ]
+    : [
+        { href: "/produits",       label: "Produits",        icon: ShoppingBag },
+        { href: "/mode-africaine", label: "Mode Africaine",  icon: Shirt       },
+        { href: "/transporteurs",  label: "Envoi de colis",  icon: Truck       },
+        { href: "/suivi",          label: "Suivi colis",     icon: Package     },
+        { href: "/auth/register",  label: "Devenir vendeur", icon: Store       },
+      ];
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -332,18 +347,12 @@ export function Navbar() {
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all shadow-sm",
                   isActive
-                    ? gold ? "text-white border-transparent" : "text-white border-transparent"
+                    ? "text-white border-transparent"
                     : gold
                     ? "text-amber-700 border-amber-200 bg-amber-50 hover:bg-amber-100"
                     : "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
                 )}
-                style={
-                  isActive
-                    ? gold
-                      ? { background: "#D4961E" }
-                      : { background: "#1B3A2D" }
-                    : {}
-                }
+                style={isActive ? { background: gold ? "#D4961E" : "#1B3A2D" } : {}}
               >
                 <Icon className="w-3.5 h-3.5 flex-shrink-0" />
                 {label}

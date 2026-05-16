@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Grid3x3, List, SlidersHorizontal, AlertCircle, RefreshCw,
-  X, Search, Phone,
+  X, Search,
 } from "lucide-react";
 import { SearchAndFilter } from "@/components/product/SearchAndFilter";
 import { CountryFilter } from "@/components/product/CountryFilter";
@@ -14,9 +14,6 @@ import { api } from "@/lib/api";
 import { apiToProduct } from "@/lib/adapters";
 import type { ProductFilters, Product, ProductCategory } from "@/lib/types";
 import { cn, CATEGORY_LABELS } from "@/lib/utils";
-
-const SUPPORT_WHATSAPP = "221786863969";
-const SUPPORT_PHONE    = "+221 78 686 39 69";
 
 const CATEGORIES = Object.entries(CATEGORY_LABELS) as [ProductCategory, string][];
 
@@ -236,39 +233,6 @@ function ProduitsContent() {
               <SearchAndFilter filters={filters} onChange={setFilters} totalResults={total} />
             </div>
           )}
-        </div>
-
-        {/* ── Support mini-strip ──────────────────────────────────── */}
-        <div className="flex items-center justify-between bg-white border border-orange-100/80 rounded-2xl px-3 sm:px-4 py-2.5 mb-4 shadow-[0_1px_6px_rgba(249,115,22,0.06)]">
-          <div className="flex items-center gap-2.5">
-            <div className="relative flex-shrink-0">
-              <div className="w-7 h-7 rounded-xl bg-orange-50 flex items-center justify-center text-sm">🎧</div>
-              <span className="absolute -bottom-0.5 -right-0.5 flex">
-                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-green-400 opacity-60" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500 border border-white" />
-              </span>
-            </div>
-            <div>
-              <p className="text-[9px] font-extrabold text-green-600 uppercase tracking-widest leading-none">Support en ligne</p>
-              <p className="text-xs text-gray-700 font-medium mt-px">Besoin d&apos;aide pour commander ?</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <a
-              href={`https://wa.me/${SUPPORT_WHATSAPP}`}
-              target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-white transition-all hover:opacity-90"
-              style={{ background: "#22c55e" }}
-            >
-              💬 WhatsApp
-            </a>
-            <a
-              href={`tel:${SUPPORT_PHONE.replace(/\s/g, "")}`}
-              className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-medium text-gray-600 bg-gray-50 border border-gray-200 hover:border-orange-300 transition-colors"
-            >
-              <Phone className="w-3 h-3" /> Appeler
-            </a>
-          </div>
         </div>
 
         {/* ── Sous-catégories ─────────────────────────────────────── */}

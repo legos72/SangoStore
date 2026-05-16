@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, Zap } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -49,6 +49,15 @@ export function FlashSaleSection() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading]   = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft,  setCanScrollLeft]  = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const updateArrows = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  }, []);
 
   // Use the earliest flash_sale_end among loaded products as the countdown target
   const soonestEnd = products
@@ -64,6 +73,18 @@ export function FlashSaleSection() {
       .catch(() => setProducts([]))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    updateArrows();
+    el.addEventListener("scroll", updateArrows, { passive: true });
+    window.addEventListener("resize", updateArrows);
+    return () => {
+      el.removeEventListener("scroll", updateArrows);
+      window.removeEventListener("resize", updateArrows);
+    };
+  }, [updateArrows, loading]);
 
   if (!loading && products.length === 0) return null;
 
@@ -104,22 +125,10 @@ export function FlashSaleSection() {
             )}
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:flex gap-1">
-              <button onClick={() => scroll("left")}
-                className="w-7 h-7 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 transition-colors">
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button onClick={() => scroll("right")}
-                className="w-7 h-7 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20 transition-colors">
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            <Link href="/produits?section=flashsale"
-              className="flex items-center gap-1 text-xs font-semibold text-yellow-400 hover:opacity-80 transition-opacity">
-              Voir tout <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
+          <Link href="/produits?section=flashsale"
+            className="flex items-center gap-1 text-xs font-semibold text-yellow-400 hover:opacity-80 transition-opacity">
+            Voir tout <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
         {/* Mobile countdown */}
@@ -135,23 +144,59 @@ export function FlashSaleSection() {
         )}
 
         {/* Scroll row */}
-        <div
-          ref={scrollRef}
-          className="flex gap-3 overflow-x-auto pb-2"
-          style={{ scrollbarWidth: "none" }}
-        >
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex-shrink-0" style={{ width: "clamp(140px, 40vw, 190px)" }}>
-                  <ProductCardSkeleton />
-                </div>
-              ))
-            : products.map(product => (
-                <div key={product.id} className="flex-shrink-0" style={{ width: "clamp(140px, 40vw, 190px)" }}>
-                  <ProductCard product={product} />
-                </div>
-              ))
-          }
+        <div className="relative">
+
+          {canScrollLeft && (
+            <div
+              className="hidden sm:flex absolute left-0 top-0 bottom-2 z-10 items-center pr-6 pointer-events-none"
+              style={{ background: "linear-gradient(to right, #1a0a00 50%, transparent)" }}
+            >
+              <button
+                onClick={() => scroll("left")}
+                aria-label="Défiler à gauche"
+                className="pointer-events-auto w-8 h-8 rounded-full border border-white/25 bg-white/15 flex items-center justify-center
+                           text-white hover:bg-white/25 transition-all active:scale-90"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          <div
+            ref={scrollRef}
+            className="flex gap-3 overflow-x-auto pb-2"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {loading
+              ? Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="flex-shrink-0" style={{ width: "clamp(140px, 40vw, 190px)" }}>
+                    <ProductCardSkeleton />
+                  </div>
+                ))
+              : products.map(product => (
+                  <div key={product.id} className="flex-shrink-0" style={{ width: "clamp(140px, 40vw, 190px)" }}>
+                    <ProductCard product={product} />
+                  </div>
+                ))
+            }
+          </div>
+
+          {canScrollRight && (
+            <div
+              className="hidden sm:flex absolute right-0 top-0 bottom-2 z-10 items-center justify-end pl-6 pointer-events-none"
+              style={{ background: "linear-gradient(to left, #1a0a00 50%, transparent)" }}
+            >
+              <button
+                onClick={() => scroll("right")}
+                aria-label="Défiler à droite"
+                className="pointer-events-auto w-8 h-8 rounded-full border border-white/25 bg-white/15 flex items-center justify-center
+                           text-white hover:bg-white/25 transition-all active:scale-90"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
         </div>
       </div>
     </section>
