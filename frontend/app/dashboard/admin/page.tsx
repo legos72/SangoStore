@@ -11,6 +11,7 @@ import {
   CreditCard, UserCheck, BarChart3, Activity,
   ChevronRight, Phone, Mail, AlertCircle, Trash2,
   Power, Send, MessageSquare, ToggleLeft, ToggleRight,
+  Flame, Tag,
 } from "lucide-react";
 import { api, getUser, getImageUrl } from "@/lib/api";
 import { formatPrice, formatDate, ORDER_STATUS_LABELS } from "@/lib/utils";
@@ -128,6 +129,11 @@ export default function AdminDashboard() {
   const [rejectModal, setRejectModal] = useState<{ user: any } | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [productModal, setProductModal] = useState<{ product: any } | null>(null);
+  const [flagsModal, setFlagsModal]   = useState<{ product: any } | null>(null);
+  const [flagsState, setFlagsState]   = useState<{
+    isTrending: boolean; isFlashSale: boolean; isFeatured: boolean;
+    isFastDelivery: boolean; flashSaleEnd: string; sectionPriority: number;
+  } | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
   const [toast, setToast]             = useState<{ msg: string; ok: boolean } | null>(null);
 
@@ -263,6 +269,45 @@ export default function AdminDashboard() {
     await api.admin.toggleProduct(product.id, newVal);
     setProducts(p => p.map(x => x.id === product.id ? { ...x, is_available: newVal } : x));
     showToast(newVal ? "Produit activé" : "Produit désactivé");
+  }
+
+  function openFlagsModal(product: any) {
+    setFlagsModal({ product });
+    setFlagsState({
+      isTrending:      product.is_trending      ?? false,
+      isFlashSale:     product.is_flash_sale     ?? false,
+      isFeatured:      product.is_featured       ?? false,
+      isFastDelivery:  product.is_fast_delivery  ?? false,
+      flashSaleEnd:    product.flash_sale_end     ? new Date(product.flash_sale_end).toISOString().slice(0, 16) : "",
+      sectionPriority: product.section_priority  ?? 0,
+    });
+  }
+
+  async function handleSaveFlags() {
+    if (!flagsModal || !flagsState) return;
+    setModalLoading(true);
+    try {
+      await api.admin.updateProductFlags(flagsModal.product.id, {
+        isTrending:     flagsState.isTrending,
+        isFlashSale:    flagsState.isFlashSale,
+        isFeatured:     flagsState.isFeatured,
+        isFastDelivery: flagsState.isFastDelivery,
+        flashSaleEnd:   flagsState.flashSaleEnd ? flagsState.flashSaleEnd : null,
+        sectionPriority:flagsState.sectionPriority,
+      });
+      setProducts(p => p.map(x => x.id === flagsModal.product.id ? {
+        ...x,
+        is_trending:      flagsState.isTrending,
+        is_flash_sale:    flagsState.isFlashSale,
+        is_featured:      flagsState.isFeatured,
+        is_fast_delivery: flagsState.isFastDelivery,
+        flash_sale_end:   flagsState.flashSaleEnd || null,
+        section_priority: flagsState.sectionPriority,
+      } : x));
+      showToast("Sections mises à jour");
+      setFlagsModal(null);
+    } catch { showToast("Erreur lors de la mise à jour", false); }
+    finally { setModalLoading(false); }
   }
 
   async function handleDeleteProduct(product: any) {
@@ -455,6 +500,72 @@ export default function AdminDashboard() {
                 <Trash2 className="w-3.5 h-3.5" /> Supprimer
               </button>
             </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── Flags / Sections Modal ── */}
+      {flagsModal && flagsState && (
+        <Modal title={`Sections — ${flagsModal.product.title?.slice(0, 32)}…`} onClose={() => setFlagsModal(null)}>
+          <div className="space-y-4">
+            <p className="text-[11px] text-slate-500">Cochez les sections où ce produit doit apparaître sur la homepage.</p>
+
+            {/* Toggle flags */}
+            {([
+              { key: "isTrending",     label: "🔥 Produit tendance",     color: "text-orange-400" },
+              { key: "isFlashSale",    label: "⚡ Flash Sale",            color: "text-yellow-400" },
+              { key: "isFeatured",     label: "⭐ Mis en avant",          color: "text-amber-400"  },
+              { key: "isFastDelivery", label: "🚚 Livraison rapide",      color: "text-blue-400"   },
+            ] as { key: keyof typeof flagsState; label: string; color: string }[]).map(({ key, label, color }) => (
+              <div key={key} className="flex items-center justify-between py-2 border-b border-white/5">
+                <span className={cn("text-sm font-medium", color)}>{label}</span>
+                <button
+                  onClick={() => setFlagsState(s => s ? { ...s, [key]: !s[key as keyof typeof s] } : s)}
+                  className={cn("relative w-10 h-5 rounded-full transition-colors flex-shrink-0",
+                    flagsState[key] ? "bg-orange-500" : "bg-slate-700"
+                  )}
+                >
+                  <span className={cn("absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform",
+                    flagsState[key] ? "translate-x-5" : "translate-x-0.5"
+                  )} />
+                </button>
+              </div>
+            ))}
+
+            {/* Flash sale end date */}
+            {flagsState.isFlashSale && (
+              <div>
+                <label className="text-xs text-slate-400 font-medium mb-1 block">Date fin Flash Sale</label>
+                <input
+                  type="datetime-local"
+                  value={flagsState.flashSaleEnd}
+                  onChange={e => setFlagsState(s => s ? { ...s, flashSaleEnd: e.target.value } : s)}
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-orange-500/50"
+                />
+              </div>
+            )}
+
+            {/* Priority */}
+            <div>
+              <label className="text-xs text-slate-400 font-medium mb-1 block">
+                Priorité d&apos;affichage <span className="text-slate-600">(0 = normal, 10 = max)</span>
+              </label>
+              <input
+                type="number" min={0} max={100}
+                value={flagsState.sectionPriority}
+                onChange={e => setFlagsState(s => s ? { ...s, sectionPriority: parseInt(e.target.value) || 0 } : s)}
+                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-orange-500/50"
+              />
+            </div>
+
+            <button
+              onClick={handleSaveFlags}
+              disabled={modalLoading}
+              className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl text-sm font-bold disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              <Flame className="w-4 h-4" />
+              {modalLoading ? "Sauvegarde…" : "Sauvegarder les sections"}
+            </button>
           </div>
         </Modal>
       )}
@@ -1074,6 +1185,14 @@ export default function AdminDashboard() {
                               <button onClick={() => setProductModal({ product })}
                                 className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors" title="Voir details">
                                 <Eye className="w-3.5 h-3.5" />
+                              </button>
+                              <button onClick={() => openFlagsModal(product)}
+                                className={cn("p-1.5 rounded-lg transition-colors",
+                                  (product.is_trending || product.is_flash_sale || product.is_featured || product.is_fast_delivery)
+                                    ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30"
+                                    : "bg-slate-700/50 text-slate-400 hover:bg-orange-500/10 hover:text-orange-400"
+                                )} title="Gérer sections homepage">
+                                <Flame className="w-3.5 h-3.5" />
                               </button>
                               <button onClick={() => handleToggleProduct(product)}
                                 className={cn("p-1.5 rounded-lg transition-colors", product.is_available

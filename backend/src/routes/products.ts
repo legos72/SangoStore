@@ -10,7 +10,7 @@ export const productsRouter = Router();
 // GET /api/products — list with filters
 productsRouter.get("/", async (req, res) => {
   const {
-    search, country, category, minPrice, maxPrice,
+    search, country, category, minPrice, maxPrice, section,
     sortBy = "newest", page = "1", limit = "24",
   } = req.query as Record<string, string>;
 
@@ -38,6 +38,18 @@ productsRouter.get("/", async (req, res) => {
     params.push(parseFloat(maxPrice));
     conditions.push(`p.price <= $${params.length}`);
   }
+  if (section) {
+    switch (section) {
+      case "trending":     conditions.push("p.is_trending = TRUE"); break;
+      case "flashsale":
+        conditions.push("p.is_flash_sale = TRUE");
+        conditions.push("(p.flash_sale_end IS NULL OR p.flash_sale_end > NOW())");
+        break;
+      case "featured":     conditions.push("p.is_featured = TRUE"); break;
+      case "fastdelivery": conditions.push("p.is_fast_delivery = TRUE"); break;
+      case "newarrival":   conditions.push("p.created_at >= NOW() - INTERVAL '30 days'"); break;
+    }
+  }
 
   const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
@@ -47,7 +59,14 @@ productsRouter.get("/", async (req, res) => {
     price_desc: "p.price DESC",
     rating:     "avg_rating DESC NULLS LAST",
   };
-  const orderBy = orderMap[sortBy] || orderMap.newest;
+  const sectionOrderMap: Record<string, string> = {
+    trending:    "p.section_priority DESC, p.created_at DESC",
+    flashsale:   "p.section_priority DESC, p.flash_sale_end ASC NULLS LAST",
+    featured:    "p.section_priority DESC, p.created_at DESC",
+    fastdelivery:"p.section_priority DESC, p.created_at DESC",
+    newarrival:  "p.created_at DESC",
+  };
+  const orderBy = (section && sectionOrderMap[section]) || orderMap[sortBy] || orderMap.newest;
 
   const sql = `
     SELECT

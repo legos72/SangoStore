@@ -20,6 +20,17 @@ const SUPPORT_PHONE    = "+221 78 686 39 69";
 
 const CATEGORIES = Object.entries(CATEGORY_LABELS) as [ProductCategory, string][];
 
+const SUBCATEGORIES: Record<string, string[]> = {
+  "mode_femme":    ["Sacs", "Chaussures", "Bijoux", "Robes", "Talons", "Vêtements", "Montres", "Accessoires", "Lunettes", "Parfums", "Maquillage"],
+  "mode_homme":    ["Sneakers", "Chaussures", "Souliers", "Chemises", "Pantalons", "T-shirts", "Vestes", "Montres", "Ceintures", "Lunettes", "Accessoires"],
+  "mode":          ["Mode Africaine", "Mode Femme", "Mode Homme", "Accessoires"],
+  "maison":        ["Cuisine", "Décoration", "Éclairage", "Meubles", "Rideaux", "Literie", "Électroménager", "Organisation"],
+  "alimentation":  ["Alimentaire", "Boissons", "Épices", "Snacks", "Bio", "Conserves", "Produits locaux"],
+  "beaute":        ["Soins", "Maquillage", "Parfums", "Cheveux", "Corps"],
+  "sport":         ["Fitness", "Football", "Basketball", "Tennis", "Natation", "Vélo", "Camping"],
+  "electronique":  ["Smartphones", "Ordinateurs", "TV & Audio", "Gaming", "Accessoires"],
+};
+
 const SORT_OPTIONS = [
   { value: "newest",     label: "Récents"    },
   { value: "price_asc",  label: "Prix ↑"     },
@@ -36,6 +47,7 @@ function ProduitsContent() {
   const initialCountry  = searchParams.get("country")  || undefined;
   const initialSearch   = searchParams.get("search")   || undefined;
   const initialCategory = (searchParams.get("category") || undefined) as ProductFilters["category"];
+  const genre           = searchParams.get("genre")    || undefined;
 
   const [filters, setFilters] = useState<ProductFilters>({
     countryCode: initialCountry,
@@ -43,13 +55,23 @@ function ProduitsContent() {
     category:    initialCategory,
     sortBy:      "newest",
   });
+  const [activeSub, setActiveSub]     = useState<string | undefined>(undefined);
   const [view, setView]               = useState<"grid" | "list">("grid");
-  const [filtersOpen, setFiltersOpen] = useState(false);   // desktop panel
-  const [drawerOpen, setDrawerOpen]   = useState(false);   // mobile drawer
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen]   = useState(false);
   const [products, setProducts]       = useState<Product[]>([]);
   const [total, setTotal]             = useState(0);
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState(false);
+
+  const subKey  = filters.category ? (genre ? `${filters.category}_${genre}` : filters.category) : undefined;
+  const subcats = subKey ? SUBCATEGORIES[subKey] : undefined;
+
+  const pageTitle = genre === "femme" ? "Mode Femme"
+    : genre === "homme" ? "Mode Homme"
+    : filters.category ? (CATEGORY_LABELS[filters.category] ?? "Produits")
+    : filters.search ? `"${filters.search}"`
+    : "Tous les produits";
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -57,11 +79,13 @@ function ProduitsContent() {
     return () => { document.body.style.overflow = ""; };
   }, [drawerOpen]);
 
+  useEffect(() => { setActiveSub(undefined); }, [filters.category, genre]);
+
   useEffect(() => {
     setLoading(true);
     setError(false);
     api.products.list({
-      search:   filters.search,
+      search:   activeSub || filters.search,
       country:  filters.countryCode,
       category: filters.category,
       sortBy:   filters.sortBy,
@@ -74,7 +98,7 @@ function ProduitsContent() {
       })
       .catch(() => { setProducts([]); setError(true); })
       .finally(() => setLoading(false));
-  }, [filters]);
+  }, [filters, activeSub]);
 
   const fCount = countActive(filters);
 
@@ -86,7 +110,7 @@ function ProduitsContent() {
         <div className="flex items-center justify-between mb-3 sm:mb-5">
           <div>
             <h1 className="text-xl sm:text-3xl font-extrabold text-gray-900 leading-tight">
-              {filters.search ? `"${filters.search}"` : "Tous les produits"}
+              {pageTitle}
             </h1>
             <p className="text-gray-400 text-xs sm:text-sm mt-0.5">
               {loading ? "Chargement…" : error ? "Erreur de chargement" : `${total} produit${total !== 1 ? "s" : ""} trouvé${total !== 1 ? "s" : ""}`}
@@ -246,6 +270,37 @@ function ProduitsContent() {
             </a>
           </div>
         </div>
+
+        {/* ── Sous-catégories ─────────────────────────────────────── */}
+        {subcats && subcats.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto pb-1 mb-4" style={{ scrollbarWidth: "none" }}>
+            <button
+              onClick={() => setActiveSub(undefined)}
+              className={cn(
+                "flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap",
+                !activeSub
+                  ? "bg-orange-500 text-white shadow-sm shadow-orange-200"
+                  : "bg-white border border-gray-200 text-gray-600 hover:border-orange-300 hover:text-orange-600"
+              )}
+            >
+              Tout voir
+            </button>
+            {subcats.map(sub => (
+              <button
+                key={sub}
+                onClick={() => setActiveSub(activeSub === sub ? undefined : sub)}
+                className={cn(
+                  "flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap",
+                  activeSub === sub
+                    ? "bg-orange-500 text-white shadow-sm shadow-orange-200"
+                    : "bg-white border border-gray-200 text-gray-600 hover:border-orange-300 hover:text-orange-600"
+                )}
+              >
+                {sub}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* ── Products ────────────────────────────────────────────── */}
         {loading && (

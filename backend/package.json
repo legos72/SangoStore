@@ -8,7 +8,8 @@
     "start": "node dist/index.js",
     "db:migrate": "node -r ts-node/register src/config/migrate.ts",
     "db:migrate:promotions": "node -r ts-node/register src/config/migrate_promotions.ts",
-    "db:seed": "node -r ts-node/register src/config/seed.ts"
+    "db:seed": "node -r ts-node/register src/config/seed.ts",
+    "db:migrate:sections": "node -r ts-node/register src/config/migrate_sections.ts"
   },
   "dependencies": {
     "@types/nodemailer": "^8.0.0",

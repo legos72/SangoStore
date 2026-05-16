@@ -372,6 +372,14 @@ export const api = {
     deleteProduct: (id: string) =>
       apiFetch<void>(`/api/admin/products/${id}`, { method: "DELETE" }),
 
+    updateProductFlags: (id: string, flags: {
+      isTrending?: boolean; isFlashSale?: boolean; isFeatured?: boolean;
+      isFastDelivery?: boolean; flashSaleEnd?: string | null; sectionPriority?: number;
+    }) =>
+      apiFetch<any>(`/api/admin/products/${id}/flags`, {
+        method: "PATCH", body: JSON.stringify(flags),
+      }),
+
     updateUserStatus: (id: string, status: "approved" | "rejected", reason?: string) =>
       apiFetch<any>(`/api/admin/users/${id}/status`, {
         method: "PATCH", body: JSON.stringify({ status, reason }),

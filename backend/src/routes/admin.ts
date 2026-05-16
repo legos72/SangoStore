@@ -218,6 +218,38 @@ adminRouter.post("/users/:id/message", async (req: AuthRequest, res) => {
   res.json({ status: "success", message: "Message envoyé" });
 });
 
+// PATCH /api/admin/products/:id/flags  { isTrending, isFlashSale, isFeatured, isFastDelivery, flashSaleEnd, sectionPriority }
+adminRouter.patch("/products/:id/flags", async (req: AuthRequest, res) => {
+  const { id } = req.params;
+  const { isTrending, isFlashSale, isFeatured, isFastDelivery, flashSaleEnd, sectionPriority } = req.body;
+
+  const product = await queryOne<any>("SELECT id FROM products WHERE id = $1", [id]);
+  if (!product) throw new AppError("Produit introuvable", 404);
+
+  const updates: string[] = [];
+  const params: any[]     = [];
+
+  const push = (col: string, val: any) => { params.push(val); updates.push(`${col} = $${params.length}`); };
+
+  if (isTrending    !== undefined) push("is_trending",      Boolean(isTrending));
+  if (isFlashSale   !== undefined) push("is_flash_sale",    Boolean(isFlashSale));
+  if (isFeatured    !== undefined) push("is_featured",      Boolean(isFeatured));
+  if (isFastDelivery !== undefined) push("is_fast_delivery", Boolean(isFastDelivery));
+  if (flashSaleEnd  !== undefined) push("flash_sale_end",   flashSaleEnd ? new Date(flashSaleEnd) : null);
+  if (sectionPriority !== undefined) push("section_priority", parseInt(sectionPriority) || 0);
+
+  if (updates.length === 0) throw new AppError("Aucune donnée à mettre à jour", 400);
+
+  params.push(id);
+  const [updated] = await query(
+    `UPDATE products SET ${updates.join(", ")} WHERE id = $${params.length}
+     RETURNING id, is_trending, is_flash_sale, is_featured, is_fast_delivery, flash_sale_end, section_priority`,
+    params
+  );
+
+  res.json({ status: "success", data: updated });
+});
+
 // PATCH /api/admin/products/:id/availability  { isAvailable: boolean }
 adminRouter.patch("/products/:id/availability", async (req: AuthRequest, res) => {
   const { id } = req.params;

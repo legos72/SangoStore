@@ -68,5 +68,11 @@ export function apiToProduct(p: any): Product {
     promoPrice: p.promo_price != null ? parseFloat(p.promo_price) : null,
     promoEnd: p.promo_end ?? null,
     wholesalePrices: parseWholesalePrices(p.wholesale_prices),
+    isTrending:      p.is_trending      ?? false,
+    isFlashSale:     p.is_flash_sale    ?? false,
+    isFeatured:      p.is_featured      ?? false,
+    isFastDelivery:  p.is_fast_delivery ?? false,
+    flashSaleEnd:    p.flash_sale_end   ?? null,
+    sectionPriority: p.section_priority ?? 0,
   };
 }

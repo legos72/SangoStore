@@ -64,6 +64,13 @@ export interface Product {
   // Options produit
   colors?: string[];
   localDeliveryCostXAF?: number;
+  // Section flags (admin-managed)
+  isTrending?:      boolean;
+  isFlashSale?:     boolean;
+  isFeatured?:      boolean;
+  isFastDelivery?:  boolean;
+  flashSaleEnd?:    string | null;
+  sectionPriority?: number;
 }
 
 // ─── COMMANDES ────────────────────────────────────────────────────────────────

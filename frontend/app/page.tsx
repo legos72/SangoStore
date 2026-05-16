@@ -1,18 +1,23 @@
 import Link from "next/link";
-import { ArrowRight, Phone, Shirt, Smartphone, Sparkles, Home, UtensilsCrossed, Dumbbell } from "lucide-react";
+import { ArrowRight, Phone, Shirt, Smartphone, Sparkles, Home, UtensilsCrossed, Dumbbell, ShoppingBag, Briefcase } from "lucide-react";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
+import { TrendingSection } from "@/components/home/TrendingSection";
+import { FlashSaleSection } from "@/components/home/FlashSaleSection";
+import { NewArrivalsSection } from "@/components/home/NewArrivalsSection";
 import { HomeTransporters } from "@/components/home/HomeTransporters";
 import { CountryScroll } from "@/components/home/CountryScroll";
 import { COUNTRIES } from "@/lib/countries";
 
 const MAIN_CATEGORIES = [
-  { slug: "mode",         href: "/mode-africaine",                 label: "Mode Africaine",      shortLabel: "Mode",        count: "12 990", img: "/categories/homme.png",      grad: "from-amber-900   to-amber-700",   Icon: Shirt,           iconColor: "#F59E0B" },
-  { slug: "electronique", href: "/produits?category=electronique", label: "Électronique",        shortLabel: "Électro",     count: "8 750",  img: "/categoriHome/electro.png",   grad: "from-blue-900    to-blue-700",    Icon: Smartphone,      iconColor: "#60A5FA" },
-  { slug: "beaute",       href: "/produits?category=beaute",       label: "Beauté & Soins",      shortLabel: "Beauté",      count: "6 240",  img: "/categoriHome/Soin1.png",    grad: "from-rose-900    to-rose-700",    Icon: Sparkles,        iconColor: "#F472B6" },
-  { slug: "maison",       href: "/produits?category=maison",       label: "Maison & Décoration", shortLabel: "Maison",      count: "4 810",  img: "/categoriHome/lit.png",      grad: "from-emerald-900 to-emerald-700", Icon: Home,            iconColor: "#34D399" },
-  { slug: "alimentation", href: "/produits?category=alimentation", label: "Alimentation",        shortLabel: "Aliment.",    count: "7 100",  img: "/categoriHome/alim.png",     grad: "from-orange-900  to-orange-700",  Icon: UtensilsCrossed, iconColor: "#FB923C" },
-  { slug: "sport",        href: "/produits?category=sport",        label: "Sport & Loisirs",     shortLabel: "Sport",       count: "3 860",  img: "/categoriHome/alte.png",     grad: "from-violet-900  to-violet-700",  Icon: Dumbbell,        iconColor: "#A78BFA" },
+  { slug: "mode",         href: "/mode-africaine",                          label: "Mode Africaine",      shortLabel: "Africaine", img: "/categories/homme.png",      grad: "from-amber-900   to-amber-700",   Icon: Shirt,           iconColor: "#F59E0B" },
+  { slug: "mode-femme",   href: "/produits?category=mode&genre=femme",      label: "Mode Femme",          shortLabel: "Femme",     img: "/categoriHome/femme.png",    grad: "from-pink-900    to-pink-700",    Icon: ShoppingBag,     iconColor: "#F472B6" },
+  { slug: "mode-homme",   href: "/produits?category=mode&genre=homme",      label: "Mode Homme",          shortLabel: "Homme",     img: "/categoriHome/homme.png",    grad: "from-slate-900   to-slate-700",   Icon: Briefcase,       iconColor: "#94A3B8" },
+  { slug: "electronique", href: "/produits?category=electronique",          label: "Électronique",        shortLabel: "Électro",   img: "/categoriHome/electro.png",   grad: "from-blue-900    to-blue-700",    Icon: Smartphone,      iconColor: "#60A5FA" },
+  { slug: "beaute",       href: "/produits?category=beaute",                label: "Beauté & Soins",      shortLabel: "Beauté",    img: "/categoriHome/Soin1.png",    grad: "from-rose-900    to-rose-700",    Icon: Sparkles,        iconColor: "#F472B6" },
+  { slug: "maison",       href: "/produits?category=maison",                label: "Maison & Décoration", shortLabel: "Maison",    img: "/categoriHome/lit.png",      grad: "from-emerald-900 to-emerald-700", Icon: Home,            iconColor: "#34D399" },
+  { slug: "alimentation", href: "/produits?category=alimentation",          label: "Alimentation",        shortLabel: "Aliment.",  img: "/categoriHome/alim.png",     grad: "from-orange-900  to-orange-700",  Icon: UtensilsCrossed, iconColor: "#FB923C" },
+  { slug: "sport",        href: "/produits?category=sport",                 label: "Sport & Loisirs",     shortLabel: "Sport",     img: "/categoriHome/alte.png",     grad: "from-violet-900  to-violet-700",  Icon: Dumbbell,        iconColor: "#A78BFA" },
 ];
 
 const SUPPORT_PHONE    = "+221 78 686 39 69";
@@ -56,7 +61,7 @@ export default function HomePage() {
             className="flex gap-2 sm:gap-3 overflow-x-auto pb-1"
             style={{ scrollbarWidth: "none" }}
           >
-            {MAIN_CATEGORIES.map(({ slug, href, label, shortLabel, count, img, grad, Icon, iconColor }) => (
+            {MAIN_CATEGORIES.map(({ slug, href, label, shortLabel, img, grad, Icon, iconColor }) => (
               <Link
                 key={slug}
                 href={href}
@@ -141,7 +146,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Produits tendance ──────────────────────────────────────────── */}
+      {/* ── Flash Sale ─────────────────────────────────────────────────── */}
+      <FlashSaleSection />
+
+      {/* ── Tendances (admin-managed) ───────────────────────────────────── */}
+      <TrendingSection />
+
+      {/* ── Dernières arrivées ─────────────────────────────────────────── */}
+      <NewArrivalsSection />
+
+      {/* ── Produits populaires ────────────────────────────────────────── */}
       <FeaturedProducts />
 
       {/* ── Support client strip ────────────────────────────────────────── */}
