@@ -121,9 +121,8 @@ export function CategoriesSection() {
                 </div>
 
                 <div className="px-1.5 pt-1 pb-2 text-center bg-white group-hover:bg-amber-50 transition-colors">
-                  <p className="text-[10px] sm:text-[11px] font-bold leading-tight text-gray-800 group-hover:text-amber-700 transition-colors break-words">
-                    <span className="sm:hidden">{shortLabel}</span>
-                    <span className="hidden sm:inline">{label}</span>
+                  <p className="text-[9px] sm:text-[11px] font-bold leading-tight text-gray-800 group-hover:text-amber-700 transition-colors hyphens-auto break-words">
+                    {label}
                   </p>
                 </div>
               </Link>
