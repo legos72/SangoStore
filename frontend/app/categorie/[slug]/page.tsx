@@ -385,31 +385,31 @@ function CategoryPageContent() {
 
       {/* ── Bannière ─────────────────────────────────────────────────────── */}
       {config.heroBg ? (
-        /* Full-image hero */
-        <div className="relative overflow-hidden" style={{ minHeight: "180px" }}>
+        /* Full-image hero — image entière visible, texte en overlay */
+        <div className="relative w-full">
           <img
             src={config.heroBg} alt={config.title}
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            className="w-full block"
           />
           {/* Overlay dégradé gauche pour lisibilité du texte */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0.05) 100%)" }} />
-          <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(0,0,0,0.70) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0) 100%)" }} />
+          <div className="absolute inset-0 flex flex-col justify-between z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 w-full" style={{ left: 0, right: 0 }}>
             <div className="flex items-center gap-1.5 text-white/60 text-xs">
               <Link href="/" className="hover:text-white transition-colors">Accueil</Link>
               <ChevronRight className="w-3 h-3" />
               <span className="text-white font-medium">{config.title}</span>
             </div>
-          </div>
-          <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight mb-1.5">
-              {config.title}
-            </h1>
-            <p className="text-white/70 text-sm sm:text-base max-w-xs sm:max-w-sm leading-relaxed mb-3">
-              {config.description}
-            </p>
-            <span className="inline-flex items-center gap-1.5 bg-black/30 text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-white/20 backdrop-blur-sm">
-              {loading ? "Chargement…" : `${total.toLocaleString()} produit${total !== 1 ? "s" : ""} disponible${total !== 1 ? "s" : ""}`}
-            </span>
+            <div className="pb-2 sm:pb-3">
+              <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-white leading-tight mb-1">
+                {config.title}
+              </h1>
+              <p className="text-white/70 text-xs sm:text-sm max-w-xs leading-relaxed mb-2 hidden sm:block">
+                {config.description}
+              </p>
+              <span className="inline-flex items-center gap-1.5 bg-black/30 text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-white/20 backdrop-blur-sm">
+                {loading ? "Chargement…" : `${total.toLocaleString()} produit${total !== 1 ? "s" : ""} disponible${total !== 1 ? "s" : ""}`}
+              </span>
+            </div>
           </div>
         </div>
       ) : (
