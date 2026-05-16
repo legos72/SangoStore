@@ -24,7 +24,6 @@ type CatConfig = {
   gradientFrom: string;
   gradientTo: string;
   bannerImg: string;
-  heroBg?: string;
   subcategories: SubCat[];
   brands: string[];
 };
@@ -51,7 +50,6 @@ const CATEGORY_CONFIG: Record<string, CatConfig> = {
     apiCategory: "mode",
     gradientFrom: "#0f172a", gradientTo: "#1e40af",
     bannerImg: "/categoriHome/HCatH.png",
-    heroBg: "/BaniereCategHome/c1.png",
     subcategories: [
       { label: "Sneakers",    icon: "👟" }, { label: "Chemises",    icon: "👔" },
       { label: "Pantalons",   icon: "👖" }, { label: "T-shirts",    icon: "👕" },
@@ -384,73 +382,42 @@ function CategoryPageContent() {
     <div className="min-h-screen bg-[#F7F4EE]">
 
       {/* ── Bannière ─────────────────────────────────────────────────────── */}
-      {config.heroBg ? (
-        /* Full-image hero — image entière visible, texte en overlay */
-        <div className="relative w-full">
-          <img
-            src={config.heroBg} alt={config.title}
-            className="w-full block"
-          />
-          {/* Overlay dégradé gauche pour lisibilité du texte */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(0,0,0,0.70) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0) 100%)" }} />
-          <div className="absolute inset-0 flex flex-col justify-between z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 w-full" style={{ left: 0, right: 0 }}>
-            <div className="flex items-center gap-1.5 text-white/60 text-xs">
-              <Link href="/" className="hover:text-white transition-colors">Accueil</Link>
-              <ChevronRight className="w-3 h-3" />
-              <span className="text-white font-medium">{config.title}</span>
-            </div>
-            <div className="pb-2 sm:pb-3">
-              <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-white leading-tight mb-1">
-                {config.title}
-              </h1>
-              <p className="text-white/70 text-xs sm:text-sm max-w-xs leading-relaxed mb-2 hidden sm:block">
-                {config.description}
-              </p>
-              <span className="inline-flex items-center gap-1.5 bg-black/30 text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-white/20 backdrop-blur-sm">
+      <div
+        className="relative overflow-hidden"
+        style={{ background: `linear-gradient(135deg, ${config.gradientFrom} 0%, ${config.gradientTo} 100%)` }}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
+          <div className="flex items-center gap-1.5 text-white/60 text-xs">
+            <Link href="/" className="hover:text-white transition-colors">Accueil</Link>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-white font-medium">{config.title}</span>
+          </div>
+        </div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex items-center gap-8">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight mb-1.5">
+              {config.title}
+            </h1>
+            <p className="text-white/65 text-sm sm:text-base max-w-md leading-relaxed">
+              {config.description}
+            </p>
+            <div className="mt-3">
+              <span className="inline-flex items-center gap-1.5 bg-white/15 text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-white/20">
                 {loading ? "Chargement…" : `${total.toLocaleString()} produit${total !== 1 ? "s" : ""} disponible${total !== 1 ? "s" : ""}`}
               </span>
             </div>
           </div>
-        </div>
-      ) : (
-        /* Gradient hero par défaut */
-        <div
-          className="relative overflow-hidden"
-          style={{ background: `linear-gradient(135deg, ${config.gradientFrom} 0%, ${config.gradientTo} 100%)` }}
-        >
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
-            <div className="flex items-center gap-1.5 text-white/60 text-xs">
-              <Link href="/" className="hover:text-white transition-colors">Accueil</Link>
-              <ChevronRight className="w-3 h-3" />
-              <span className="text-white font-medium">{config.title}</span>
-            </div>
+          <div className="hidden sm:block flex-shrink-0 w-36 h-36 lg:w-48 lg:h-48">
+            <img
+              src={config.bannerImg} alt={config.title}
+              className="w-full h-full object-cover object-top rounded-2xl"
+              style={{ filter: "drop-shadow(0 8px 30px rgba(0,0,0,0.35))", opacity: 0.92 }}
+            />
           </div>
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex items-center gap-8">
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight mb-1.5">
-                {config.title}
-              </h1>
-              <p className="text-white/65 text-sm sm:text-base max-w-md leading-relaxed">
-                {config.description}
-              </p>
-              <div className="mt-3">
-                <span className="inline-flex items-center gap-1.5 bg-white/15 text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-white/20">
-                  {loading ? "Chargement…" : `${total.toLocaleString()} produit${total !== 1 ? "s" : ""} disponible${total !== 1 ? "s" : ""}`}
-                </span>
-              </div>
-            </div>
-            <div className="hidden sm:block flex-shrink-0 w-36 h-36 lg:w-48 lg:h-48">
-              <img
-                src={config.bannerImg} alt={config.title}
-                className="w-full h-full object-cover object-top rounded-2xl"
-                style={{ filter: "drop-shadow(0 8px 30px rgba(0,0,0,0.35))", opacity: 0.92 }}
-              />
-            </div>
-          </div>
-          <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-white/5 pointer-events-none" />
-          <div className="absolute -bottom-14 -left-14 w-64 h-64 rounded-full bg-white/[0.03] pointer-events-none" />
         </div>
-      )}
+        <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute -bottom-14 -left-14 w-64 h-64 rounded-full bg-white/[0.03] pointer-events-none" />
+      </div>
 
       {/* ── Sous-catégories ────────────────────────────────────────────────── */}
       <div className="bg-white border-b border-gray-100">
