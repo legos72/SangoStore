@@ -290,7 +290,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
 
         {/* Titre */}
         <Link href={`/produits/${product.id}`}>
-          <h3 className="text-[12px] sm:text-[13px] font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-orange-600 transition-colors mb-2">
+          <h3 className="text-[12px] sm:text-[13px] font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-orange-600 transition-colors mb-2 min-h-[36px]">
             {product.title}
           </h3>
         </Link>

@@ -169,13 +169,13 @@ export function FlashSaleSection() {
           >
             {loading
               ? Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="flex-shrink-0" style={{ width: "clamp(140px, 40vw, 190px)" }}>
+                  <div key={i} className="flex-shrink-0 flex flex-col" style={{ width: "clamp(148px, 42vw, 192px)" }}>
                     <ProductCardSkeleton />
                   </div>
                 ))
               : products.map(product => (
-                  <div key={product.id} className="flex-shrink-0" style={{ width: "clamp(140px, 40vw, 190px)" }}>
-                    <ProductCard product={product} />
+                  <div key={product.id} className="flex-shrink-0 flex flex-col" style={{ width: "clamp(148px, 42vw, 192px)" }}>
+                    <ProductCard product={product} className="flex-1" />
                   </div>
                 ))
             }

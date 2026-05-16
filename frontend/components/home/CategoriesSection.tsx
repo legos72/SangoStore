@@ -5,14 +5,14 @@ import Link from "next/link";
 import { ArrowRight, Shirt, Smartphone, Sparkles, Home, UtensilsCrossed, Dumbbell, ShoppingBag, Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
 
 const MAIN_CATEGORIES = [
-  { slug: "mode",         href: "/mode-africaine",         label: "Mode Africaine",      shortLabel: "Africaine", img: "/categories/homme.png",     grad: "from-amber-900   to-amber-700",   Icon: Shirt,           iconColor: "#F59E0B" },
-  { slug: "mode-femme",   href: "/categorie/mode-femme",   label: "Mode Femme",          shortLabel: "Femme",     img: "/categoriHome/femme.png",   grad: "from-pink-900    to-pink-700",    Icon: ShoppingBag,     iconColor: "#F472B6" },
-  { slug: "mode-homme",   href: "/categorie/mode-homme",   label: "Mode Homme",          shortLabel: "Homme",     img: "/categoriHome/homme.png",   grad: "from-slate-900   to-slate-700",   Icon: Briefcase,       iconColor: "#94A3B8" },
-  { slug: "electronique", href: "/categorie/electronique", label: "Électronique",        shortLabel: "Électro",   img: "/categoriHome/electro.png",  grad: "from-blue-900    to-blue-700",    Icon: Smartphone,      iconColor: "#60A5FA" },
-  { slug: "beaute",       href: "/categorie/beaute",       label: "Beauté & Soins",      shortLabel: "Beauté",    img: "/categoriHome/Soin1.png",   grad: "from-rose-900    to-rose-700",    Icon: Sparkles,        iconColor: "#F472B6" },
-  { slug: "maison",       href: "/categorie/maison",       label: "Maison & Décoration", shortLabel: "Maison",    img: "/categoriHome/lit.png",     grad: "from-emerald-900 to-emerald-700", Icon: Home,            iconColor: "#34D399" },
-  { slug: "alimentation", href: "/categorie/alimentation", label: "Alimentation",        shortLabel: "Aliment.",  img: "/categoriHome/alim.png",    grad: "from-orange-900  to-orange-700",  Icon: UtensilsCrossed, iconColor: "#FB923C" },
-  { slug: "sport",        href: "/categorie/sport",        label: "Sport & Loisirs",     shortLabel: "Sport",     img: "/categoriHome/alte.png",    grad: "from-violet-900  to-violet-700",  Icon: Dumbbell,        iconColor: "#A78BFA" },
+  { slug: "mode",         href: "/mode-africaine",         label: "Mode Africaine", shortLabel: "Africaine", img: "/categories/homme.png",    grad: "from-amber-900   to-amber-700",   Icon: Shirt,           iconColor: "#F59E0B" },
+  { slug: "mode-femme",   href: "/categorie/mode-femme",   label: "Mode Femme",     shortLabel: "Femme",     img: "/categoriHome/Mf1h.png",   grad: "from-pink-900    to-pink-700",    Icon: ShoppingBag,     iconColor: "#F472B6" },
+  { slug: "mode-homme",   href: "/categorie/mode-homme",   label: "Mode Homme",     shortLabel: "Homme",     img: "/categoriHome/HCatH.png",  grad: "from-slate-900   to-slate-700",   Icon: Briefcase,       iconColor: "#94A3B8" },
+  { slug: "electronique", href: "/categorie/electronique", label: "Électronique",   shortLabel: "Électro",   img: "/categoriHome/electro.png", grad: "from-blue-900    to-blue-700",    Icon: Smartphone,      iconColor: "#60A5FA" },
+  { slug: "beaute",       href: "/categorie/beaute",       label: "Beauté & Soins", shortLabel: "Beauté",    img: "/categoriHome/Soin1.png",  grad: "from-rose-900    to-rose-700",    Icon: Sparkles,        iconColor: "#F472B6" },
+  { slug: "maison",       href: "/categorie/maison",       label: "Maison",         shortLabel: "Maison",    img: "/categoriHome/lit.png",    grad: "from-emerald-900 to-emerald-700", Icon: Home,            iconColor: "#34D399" },
+  { slug: "alimentation", href: "/categorie/alimentation", label: "Supermarché",    shortLabel: "Aliment.",  img: "/categoriHome/alim.png",   grad: "from-orange-900  to-orange-700",  Icon: UtensilsCrossed, iconColor: "#FB923C" },
+  { slug: "sport",        href: "/categorie/sport",        label: "Sport & Loisirs",shortLabel: "Sport",     img: "/categoriHome/alte.png",   grad: "from-violet-900  to-violet-700",  Icon: Dumbbell,        iconColor: "#A78BFA" },
 ];
 
 export function CategoriesSection() {
@@ -97,7 +97,7 @@ export function CategoriesSection() {
                 className="group flex flex-col rounded-xl sm:rounded-2xl overflow-hidden border-2 border-transparent flex-shrink-0
                            hover:border-amber-300 hover:shadow-[0_4px_18px_rgba(212,150,30,0.25)]
                            transition-all duration-200 shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
-                style={{ width: "clamp(90px, 15vw, 160px)" }}
+                style={{ width: "clamp(100px, 18vw, 160px)" }}
               >
                 <div className={`aspect-square w-full relative overflow-hidden bg-gradient-to-br ${grad}`}>
                   {img ? (
@@ -120,8 +120,8 @@ export function CategoriesSection() {
                   </div>
                 </div>
 
-                <div className="px-1 pt-1 pb-1.5 text-center bg-white group-hover:bg-amber-50 transition-colors">
-                  <p className="text-[10px] sm:text-[11px] font-bold leading-tight line-clamp-1 text-gray-800 group-hover:text-amber-700 transition-colors">
+                <div className="px-1.5 pt-1 pb-2 text-center bg-white group-hover:bg-amber-50 transition-colors">
+                  <p className="text-[10px] sm:text-[11px] font-bold leading-tight text-gray-800 group-hover:text-amber-700 transition-colors break-words">
                     <span className="sm:hidden">{shortLabel}</span>
                     <span className="hidden sm:inline">{label}</span>
                   </p>

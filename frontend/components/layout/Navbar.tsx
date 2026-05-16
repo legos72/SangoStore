@@ -333,13 +333,9 @@ export function Navbar() {
           className="lg:hidden border-t border-gray-100/80 -mx-4 sm:-mx-6 px-3 py-2 flex items-center gap-2 overflow-x-auto"
           style={{ scrollbarWidth: "none" }}
         >
-          {[
-            { href: "/produits",       label: "Produits",       icon: ShoppingBag },
-            { href: "/mode-africaine", label: "Mode Africaine", icon: Shirt,      gold: true },
-            { href: "/transporteurs",  label: "Diaspora",       icon: Globe },
-            { href: "/suivi",          label: "Suivi colis",    icon: Package },
-          ].map(({ href, label, icon: Icon, gold }) => {
-            const isActive = pathname.startsWith(href);
+          {NAV_LINKS.map(({ href, label, icon: Icon }) => {
+            const isActive = pathname === href || (href !== "/" && pathname.startsWith(href));
+            const isGold = href === "/mode-africaine";
             return (
               <Link
                 key={href}
@@ -348,11 +344,11 @@ export function Navbar() {
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all shadow-sm",
                   isActive
                     ? "text-white border-transparent"
-                    : gold
+                    : isGold
                     ? "text-amber-700 border-amber-200 bg-amber-50 hover:bg-amber-100"
                     : "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
                 )}
-                style={isActive ? { background: gold ? "#D4961E" : "#1B3A2D" } : {}}
+                style={isActive ? { background: isGold ? "#D4961E" : "#1B3A2D" } : {}}
               >
                 <Icon className="w-3.5 h-3.5 flex-shrink-0" />
                 {label}
