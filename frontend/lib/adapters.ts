@@ -45,6 +45,7 @@ export function apiToProduct(p: any): Product {
     currency: (p.currency as "XAF" | "EUR" | "USD") ?? "XAF",
     images: parseImages(p.images),
     category: (p.category as ProductCategory) ?? "autre",
+    subcategory: p.subcategory ?? undefined,
     originCountry: country,
     seller: {
       id: p.seller_id ?? "",

@@ -46,6 +46,7 @@ export interface Product {
   currency: "XAF" | "EUR" | "USD";
   images: string[];
   category: ProductCategory;
+  subcategory?: string;
   originCountry: Country;    // PAYS D'ORIGINE — OBLIGATOIRE
   seller: User;
   stock: number;

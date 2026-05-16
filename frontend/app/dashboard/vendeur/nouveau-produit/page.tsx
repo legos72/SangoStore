@@ -15,23 +15,9 @@ import { uploadImage } from "@/lib/imageUtils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Currency = "XAF" | "EUR" | "USD";
-type Category =
-  | "electronique" | "mode" | "alimentation" | "maison"
-  | "beaute" | "jouets" | "sante" | "sport" | "auto" | "autre";
+import { SELLER_CATEGORIES, getApiCategory } from "@/lib/categories";
 
-const CATEGORIES: { value: Category; label: string; emoji: string }[] = [
-  { value: "electronique",  label: "Électronique",  emoji: "📱" },
-  { value: "mode",          label: "Mode",           emoji: "👗" },
-  { value: "alimentation",  label: "Alimentation",  emoji: "🥘" },
-  { value: "maison",        label: "Maison",         emoji: "🏠" },
-  { value: "beaute",        label: "Beauté",         emoji: "💄" },
-  { value: "jouets",        label: "Jouets",         emoji: "🧸" },
-  { value: "sante",         label: "Santé",          emoji: "💊" },
-  { value: "sport",         label: "Sport",          emoji: "⚽" },
-  { value: "auto",          label: "Auto",           emoji: "🚗" },
-  { value: "autre",         label: "Autre",          emoji: "📦" },
-];
+type Currency = "XAF" | "EUR" | "USD";
 
 const CURRENCIES: { value: Currency; label: string; symbol: string }[] = [
   { value: "XAF", label: "FCFA", symbol: "FCFA" },
@@ -51,7 +37,8 @@ interface FormState {
   // Base
   title:          string;
   description:    string;
-  category:       Category;
+  categorySlug:   string;
+  subcategory:    string;
   originCountry:  string;
   // Pricing
   price:          string;
@@ -197,7 +184,8 @@ export default function NouveauProduitPage() {
   const [form, setForm] = useState<FormState>({
     title:             "",
     description:       "",
-    category:          "electronique",
+    categorySlug:      "electronique",
+    subcategory:       "",
     originCountry:     "FR",
     price:             "",
     currency:          "EUR",
@@ -373,7 +361,8 @@ export default function NouveauProduitPage() {
           price:         parseFloat(form.price),
           currency:      form.currency,
           images:        safeImages,
-          category:      form.category,
+          category:      getApiCategory(form.categorySlug),
+          subcategory:   form.subcategory || undefined,
           originCountry: form.originCountry,
           stock:         parseInt(form.stock, 10),
           weightKg:      form.weightKg  ? parseFloat(form.weightKg)  : undefined,
@@ -405,7 +394,8 @@ export default function NouveauProduitPage() {
           price:        parseFloat(form.price),
           currency:     form.currency,
           images:       finalImages.filter(Boolean),
-          category:     form.category,
+          category:     getApiCategory(form.categorySlug),
+          subcategory:  form.subcategory || undefined,
           origin_country: form.originCountry,
           stock:        parseInt(form.stock, 10),
           is_available: true,
@@ -541,24 +531,86 @@ export default function NouveauProduitPage() {
             />
           </Field>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field>
-              <Label required>Catégorie</Label>
-              <Select value={form.category} onChange={e => set("category", e.target.value as Category)}>
-                {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.emoji} {c.label}</option>)}
-              </Select>
-            </Field>
-            <Field>
-              <Label required>Pays d'expédition</Label>
-              <Select
-                value={form.originCountry}
-                onChange={e => set("originCountry", e.target.value)}
-                className={errors.originCountry ? "border-red-300" : ""}
-              >
-                {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
-              </Select>
-            </Field>
-          </div>
+          {/* ── Catégorie principale — grille visuelle ───────────────── */}
+          <Field>
+            <Label required>Catégorie principale</Label>
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              {SELLER_CATEGORIES.map(cat => {
+                const isSelected = form.categorySlug === cat.slug;
+                return (
+                  <button
+                    key={cat.slug}
+                    type="button"
+                    onClick={() => {
+                      set("categorySlug", cat.slug);
+                      set("subcategory", "");
+                    }}
+                    className={cn(
+                      "flex flex-col items-center gap-1.5 rounded-xl border-2 p-2.5 transition-all text-center",
+                      isSelected
+                        ? "border-orange-400 bg-orange-50 shadow-sm shadow-orange-100"
+                        : "border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50"
+                    )}
+                  >
+                    <span className="text-xl leading-none">{cat.emoji}</span>
+                    <span className={cn(
+                      "text-[10px] font-bold leading-tight",
+                      isSelected ? "text-orange-700" : "text-gray-600"
+                    )}>
+                      {cat.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </Field>
+
+          {/* ── Sous-catégorie — apparaît dynamiquement ──────────────── */}
+          {(() => {
+            const cat = SELLER_CATEGORIES.find(c => c.slug === form.categorySlug);
+            if (!cat || cat.subcategories.length === 0) return null;
+            return (
+              <Field>
+                <Label>Sous-catégorie</Label>
+                <div className="flex flex-wrap gap-2">
+                  {cat.subcategories.map(sub => {
+                    const isSelected = form.subcategory === sub;
+                    return (
+                      <button
+                        key={sub}
+                        type="button"
+                        onClick={() => set("subcategory", isSelected ? "" : sub)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-full border text-xs font-semibold transition-all",
+                          isSelected
+                            ? "bg-orange-500 border-orange-500 text-white shadow-sm"
+                            : "bg-white border-gray-200 text-gray-600 hover:border-orange-300 hover:text-orange-600"
+                        )}
+                      >
+                        {sub}
+                      </button>
+                    );
+                  })}
+                </div>
+                {form.subcategory && (
+                  <p className="text-[11px] text-orange-600 font-semibold mt-1">
+                    ✓ Sous-catégorie sélectionnée : <span className="font-bold">{form.subcategory}</span>
+                  </p>
+                )}
+              </Field>
+            );
+          })()}
+
+          <Field>
+            <Label required>Pays d'expédition</Label>
+            <Select
+              value={form.originCountry}
+              onChange={e => set("originCountry", e.target.value)}
+              className={errors.originCountry ? "border-red-300" : ""}
+            >
+              {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+            </Select>
+          </Field>
         </Card>
 
         {/* ═══════════════════════════════════════════════════════════════════
@@ -992,7 +1044,11 @@ export default function NouveauProduitPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-gray-900 text-sm leading-snug line-clamp-2">{form.title || "Titre du produit"}</h3>
-                <p className="text-xs text-gray-400 mt-1 line-clamp-2">{form.description || "Description du produit…"}</p>
+                <p className="text-[10px] text-orange-500 font-semibold mt-0.5">
+                  {SELLER_CATEGORIES.find(c => c.slug === form.categorySlug)?.label}
+                  {form.subcategory && <span className="text-gray-400"> › {form.subcategory}</span>}
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{form.description || "Description du produit…"}</p>
                 <div className="flex items-baseline gap-2 mt-2 flex-wrap">
                   {form.hasPromo && form.promoPrice && Number(form.promoPrice) < Number(form.price) ? (
                     <>

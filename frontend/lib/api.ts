@@ -196,7 +196,7 @@ export const api = {
 
     create: (data: {
       title: string; description?: string; price: number; currency: string;
-      images: string[]; category: string; originCountry: string;
+      images: string[]; category: string; subcategory?: string; originCountry: string;
       stock: number; weightKg?: number; dimensions?: string; tags?: string[];
       promoPrice?: number | null; promoEnd?: string | null;
       wholesalePrices?: { min_qty: number; price: number }[];
@@ -205,7 +205,7 @@ export const api = {
 
     update: (id: string, data: Partial<{
       title: string; description: string; price: number; currency: string;
-      images: string[]; category: string; originCountry: string;
+      images: string[]; category: string; subcategory: string; originCountry: string;
       stock: number; isAvailable: boolean; weightKg: number;
       promoPrice: number | null; promoEnd: string | null;
       wholesalePrices: { min_qty: number; price: number }[];
