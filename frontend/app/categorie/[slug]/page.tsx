@@ -51,7 +51,7 @@ const CATEGORY_CONFIG: Record<string, CatConfig> = {
     apiCategory: "mode",
     gradientFrom: "#0f172a", gradientTo: "#1e40af",
     bannerImg: "/categoriHome/HCatH.png",
-    heroBg: "/BaniereCategHome/banMH.png",
+    heroBg: "/BaniereCategHome/b1.png",
     subcategories: [
       { label: "Sneakers",    icon: "👟" }, { label: "Chemises",    icon: "👔" },
       { label: "Pantalons",   icon: "👖" }, { label: "T-shirts",    icon: "👕" },
