@@ -21,6 +21,7 @@ type CatConfig = {
   title: string;
   description: string;
   apiCategory: ProductCategory;
+  sellerCategorySlug?: string;
   gradientFrom: string;
   gradientTo: string;
   bannerImg: string;
@@ -33,6 +34,7 @@ const CATEGORY_CONFIG: Record<string, CatConfig> = {
     title: "Mode Femme",
     description: "Robes, sacs, bijoux et accessoires tendance pour femmes",
     apiCategory: "mode",
+    sellerCategorySlug: "mode-femme",
     gradientFrom: "#6b1938", gradientTo: "#c4286a",
     bannerImg: "/categoriHome/femme.png",
     subcategories: [
@@ -48,6 +50,7 @@ const CATEGORY_CONFIG: Record<string, CatConfig> = {
     title: "Mode Homme",
     description: "Sneakers, chemises, montres et accessoires pour hommes",
     apiCategory: "mode",
+    sellerCategorySlug: "mode-homme",
     gradientFrom: "#0f172a", gradientTo: "#1e40af",
     bannerImg: "/categoriHome/HCatH.png",
     subcategories: [
@@ -197,6 +200,7 @@ function CategoryPageContent() {
       page: page.toString(),
       limit: PAGE_SIZE.toString(),
     };
+    if (config.sellerCategorySlug) p.sellerCategory = config.sellerCategorySlug;
     if (activeSub)             p.search      = activeSub;
     if (minPrice)              p.minPrice    = minPrice;
     if (maxPrice)              p.maxPrice    = maxPrice;

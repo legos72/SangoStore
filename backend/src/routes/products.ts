@@ -10,7 +10,7 @@ export const productsRouter = Router();
 // GET /api/products — list with filters
 productsRouter.get("/", async (req, res) => {
   const {
-    search, country, category, minPrice, maxPrice, section,
+    search, country, category, sellerCategory, minPrice, maxPrice, section,
     sortBy = "newest", page = "1", limit = "24",
   } = req.query as Record<string, string>;
 
@@ -29,6 +29,10 @@ productsRouter.get("/", async (req, res) => {
   if (category) {
     params.push(category);
     conditions.push(`p.category = $${params.length}::product_category`);
+  }
+  if (sellerCategory) {
+    params.push(sellerCategory);
+    conditions.push(`p.seller_category = $${params.length}`);
   }
   if (minPrice) {
     params.push(parseFloat(minPrice));
@@ -141,6 +145,7 @@ productsRouter.post("/", authenticate, authorize("vendeur", "admin"), async (req
     images:          Joi.array().items(Joi.string().min(1)).default([]),
     category:        Joi.string().required(),
     subcategory:     Joi.string().max(100).optional().allow(null, ""),
+    sellerCategory:  Joi.string().max(100).optional().allow(null, ""),
     originCountry:   Joi.string().length(2).uppercase().required(),
     stock:           Joi.number().integer().min(0).required(),
     weightKg:        Joi.number().positive().optional(),
@@ -163,13 +168,14 @@ productsRouter.post("/", authenticate, authorize("vendeur", "admin"), async (req
 
   const [product] = await query(
     `INSERT INTO products
-      (seller_id, title, description, price, currency, images, category, subcategory, origin_country,
+      (seller_id, title, description, price, currency, images, category, subcategory, seller_category, origin_country,
        stock, weight_kg, dimensions, tags, promo_price, promo_end, wholesale_prices)
-     VALUES ($1,$2,$3,$4,$5,$6,$7::product_category,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+     VALUES ($1,$2,$3,$4,$5,$6,$7::product_category,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
      RETURNING *`,
     [
       req.user!.id, value.title, value.description, value.price, value.currency,
-      value.images, value.category, value.subcategory ?? null, value.originCountry.toUpperCase(),
+      value.images, value.category, value.subcategory ?? null, value.sellerCategory ?? null,
+      value.originCountry.toUpperCase(),
       value.stock, value.weightKg, value.dimensions, value.tags,
       value.promoPrice ?? null,
       value.promoEnd   ? new Date(value.promoEnd) : null,
@@ -191,7 +197,7 @@ productsRouter.patch("/:id", authenticate, authorize("vendeur", "admin"), async 
     throw new AppError("Non autorisé à modifier ce produit", 403);
   }
 
-  const allowed = ["title", "description", "price", "currency", "images", "category", "subcategory", "origin_country", "stock", "weight_kg", "dimensions", "tags", "is_available", "promo_price", "promo_end", "wholesale_prices"];
+  const allowed = ["title", "description", "price", "currency", "images", "category", "subcategory", "seller_category", "origin_country", "stock", "weight_kg", "dimensions", "tags", "is_available", "promo_price", "promo_end", "wholesale_prices"];
   const updates: string[] = [];
   const params: any[] = [];
 

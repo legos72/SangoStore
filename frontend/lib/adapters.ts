@@ -46,6 +46,7 @@ export function apiToProduct(p: any): Product {
     images: parseImages(p.images),
     category: (p.category as ProductCategory) ?? "autre",
     subcategory: p.subcategory ?? undefined,
+    sellerCategory: p.seller_category ?? undefined,
     originCountry: country,
     seller: {
       id: p.seller_id ?? "",

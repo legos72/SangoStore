@@ -47,6 +47,7 @@ export interface Product {
   images: string[];
   category: ProductCategory;
   subcategory?: string;
+  sellerCategory?: string;
   originCountry: Country;    // PAYS D'ORIGINE — OBLIGATOIRE
   seller: User;
   stock: number;

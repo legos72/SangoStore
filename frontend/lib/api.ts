@@ -188,7 +188,7 @@ export const api = {
 
   // ── Products ──────────────────────────────────────────────────────────────
   products: {
-    list: (params?: { search?: string; country?: string; category?: string; sortBy?: string; page?: string; limit?: string }) =>
+    list: (params?: { search?: string; country?: string; category?: string; sellerCategory?: string; sortBy?: string; page?: string; limit?: string }) =>
       apiFetch<any[]>(`/api/products${qs(params as any)}`),
 
     get: (id: string) =>
@@ -196,7 +196,7 @@ export const api = {
 
     create: (data: {
       title: string; description?: string; price: number; currency: string;
-      images: string[]; category: string; subcategory?: string; originCountry: string;
+      images: string[]; category: string; subcategory?: string; sellerCategory?: string; originCountry: string;
       stock: number; weightKg?: number; dimensions?: string; tags?: string[];
       promoPrice?: number | null; promoEnd?: string | null;
       wholesalePrices?: { min_qty: number; price: number }[];

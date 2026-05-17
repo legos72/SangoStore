@@ -261,7 +261,7 @@ export default function ModeAfricainePage() {
     async function load() {
       setLoading(true);
       try {
-        const res = await api.products.list({ category: "mode", limit: "60" });
+        const res = await api.products.list({ category: "mode", sellerCategory: "mode-africaine", limit: "60" });
         setProducts((res.data ?? []).map(apiToProduct));
       } catch {
         setProducts([]);
