@@ -43,6 +43,14 @@ const SUBCATEGORIES: Record<string, string[]> = {
   "electronique":  ["Smartphones", "Ordinateurs", "TV & Audio", "Gaming", "Accessoires"],
 };
 
+// Mapping sous-catégories "mode" → seller_category slug en base
+// Les autres sous-cats (Smartphones, Maquillage…) passent en search texte
+const SUBCAT_SELLER_MAP: Record<string, string> = {
+  "Mode Africaine": "mode-africaine",
+  "Mode Femme":     "mode-femme",
+  "Mode Homme":     "mode-homme",
+};
+
 const SORT_OPTIONS = [
   { value: "newest",     label: "Récents",   icon: "✨" },
   { value: "price_asc",  label: "Prix ↑",    icon: "💰" },
@@ -450,6 +458,7 @@ function ProduitsContent() {
 
   const pageTitle = genre === "femme" ? "Mode Femme"
     : genre === "homme" ? "Mode Homme"
+    : activeSub ? activeSub
     : filters.category ? (CATEGORY_LABELS[filters.category] ?? "Produits")
     : filters.search ? `"${filters.search}"`
     : "Tous les produits";
@@ -478,13 +487,18 @@ function ProduitsContent() {
   useEffect(() => {
     setLoading(true);
     setError(false);
+    // Résoudre le filtre pour la sous-catégorie active
+    const sellerCatFromSub = activeSub ? SUBCAT_SELLER_MAP[activeSub] : undefined;
     api.products.list({
-      search:   activeSub || filters.search,
-      country:  filters.countryCode,
-      category: filters.category,
-      sortBy:   filters.sortBy,
-      minPrice: filters.minPrice?.toString(),
-      maxPrice: filters.maxPrice?.toString(),
+      // Si la sous-cat a un seller_category dédié (ex: "Mode Africaine" → "mode-africaine"),
+      // on utilise sellerCategory. Sinon on passe en search texte (ex: "Smartphones").
+      search:         sellerCatFromSub ? filters.search : (activeSub || filters.search),
+      sellerCategory: sellerCatFromSub,
+      country:        filters.countryCode,
+      category:       filters.category,
+      sortBy:         filters.sortBy,
+      minPrice:       filters.minPrice?.toString(),
+      maxPrice:       filters.maxPrice?.toString(),
     } as any)
       .then((res: any) => {
         setProducts((res.data ?? []).map(apiToProduct));
