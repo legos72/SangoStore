@@ -328,6 +328,7 @@ export default function NouveauProduitPage() {
       const finalImages: string[] = [];
       const totalFiles = imageFiles.current.filter(Boolean).length;
       let uploaded = 0;
+      let lastUploadError = "";
       for (let i = 0; i < form.images.length; i++) {
         const file = imageFiles.current[i];
         if (file) {
@@ -339,7 +340,9 @@ export default function NouveauProduitPage() {
             uploaded++;
           } catch (err: any) {
             if (err?.isAuth) throw new Error("Session expirée — veuillez vous reconnecter");
-            // Upload failed for this image — skip it (don't save blob: URL to DB)
+            lastUploadError = err?.message ?? "Erreur upload";
+            console.error("[upload] image échouée:", lastUploadError);
+            // Skip this image — don't save blob: URL to DB
           }
         } else if (form.images[i] && !form.images[i].startsWith("blob:")) {
           finalImages.push(form.images[i]);
@@ -349,7 +352,7 @@ export default function NouveauProduitPage() {
 
       // 2. Block if all uploads failed (don't create a product with no images)
       if (totalFiles > 0 && finalImages.length === 0) {
-        throw new Error("Impossible d'uploader les images. Vérifiez votre connexion et réessayez.");
+        throw new Error(lastUploadError || "Impossible d'uploader les images. Vérifiez votre connexion et réessayez.");
       }
       const safeImages = finalImages.filter(u => u && !u.startsWith("blob:"));
       const { api } = await import("@/lib/api");

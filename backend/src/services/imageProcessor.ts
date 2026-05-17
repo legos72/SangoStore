@@ -12,9 +12,13 @@
 
 import sharp from "sharp";
 import path from "path";
+import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 
 const UPLOADS_DIR = path.join(__dirname, "../../uploads");
+
+// Crée le dossier uploads s'il n'existe pas (absent sur serveur après git pull car ignoré par .gitignore)
+fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 // ─── Tier 1 : Sharp ──────────────────────────────────────────────────────────
 
