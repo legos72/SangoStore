@@ -20,7 +20,8 @@ const CATEGORIES = [
   { slug: "accessoire", label: "Accessoires",      shortLabel: "Accesso.", tags: ["accessoire","sac","bijou","chaussure"], grad: "from-orange-900  to-orange-600",  emoji: "👜", img: "/categories/accessoire.png" },
 ];
 
-const STYLE_TABS = [
+// Sous-catégories par défaut (aucune catégorie principale sélectionnée)
+const DEFAULT_TABS = [
   { id: "tous",      label: "Tous" },
   { id: "bazin",     label: "Bazin" },
   { id: "wax",       label: "Wax" },
@@ -28,7 +29,86 @@ const STYLE_TABS = [
   { id: "tunique",   label: "Tuniques" },
   { id: "robe",      label: "Robes" },
   { id: "ensemble",  label: "Ensembles" },
+  { id: "kaftan",    label: "Kaftans" },
 ];
+
+// Sous-catégories dynamiques selon la catégorie principale
+const SUBCATEGORIES_BY_CAT: Record<string, { id: string; label: string }[]> = {
+  homme: [
+    { id: "tous",      label: "Tous" },
+    { id: "boubou",    label: "Boubous" },
+    { id: "bazin",     label: "Bazin" },
+    { id: "wax",       label: "Wax Homme" },
+    { id: "ensemble",  label: "Ensembles" },
+    { id: "tunique",   label: "Tuniques" },
+    { id: "chemise",   label: "Chemises africaines" },
+    { id: "veste",     label: "Vestes africaines" },
+    { id: "kaftan",    label: "Kaftans" },
+    { id: "ceremonie", label: "Tenues cérémonie" },
+    { id: "casual",    label: "Casual africain" },
+    { id: "sandale",   label: "Sandales" },
+    { id: "bonnet",    label: "Bonnets" },
+  ],
+  femme: [
+    { id: "tous",          label: "Tous" },
+    { id: "robe",          label: "Robes Wax" },
+    { id: "bazin",         label: "Bazin Femme" },
+    { id: "ensemble",      label: "Ensembles Femme" },
+    { id: "kaftan",        label: "Kaftans Femme" },
+    { id: "soiree",        label: "Robes soirée" },
+    { id: "mariage",       label: "Tenues mariage" },
+    { id: "sac",           label: "Sacs" },
+    { id: "bijou",         label: "Bijoux" },
+    { id: "foulard",       label: "Foulards" },
+    { id: "talon",         label: "Talons africains" },
+  ],
+  tissu: [
+    { id: "tous",     label: "Tous" },
+    { id: "wax",      label: "Wax" },
+    { id: "bazin",    label: "Bazin" },
+    { id: "kente",    label: "Kenté" },
+    { id: "bogolan",  label: "Bogolan" },
+    { id: "kita",     label: "Kita" },
+    { id: "brode",    label: "Tissus brodés" },
+    { id: "couture",  label: "Couture Homme" },
+    { id: "couturef", label: "Couture Femme" },
+    { id: "tailleur", label: "Tailleurs" },
+  ],
+  mariage: [
+    { id: "tous",        label: "Tous" },
+    { id: "couple",      label: "Couple africain" },
+    { id: "robe",        label: "Robes mariage" },
+    { id: "marie",       label: "Tenues marié homme" },
+    { id: "mariee",      label: "Tenues mariée femme" },
+    { id: "demoiselle",  label: "Demoiselles d'honneur" },
+    { id: "accessoire",  label: "Accessoires mariage" },
+    { id: "bijou",       label: "Bijoux mariage" },
+    { id: "chaussure",   label: "Chaussures cérémonie" },
+  ],
+  enfant: [
+    { id: "tous",      label: "Tous" },
+    { id: "garcon",    label: "Garçon" },
+    { id: "fille",     label: "Fille" },
+    { id: "boubou",    label: "Boubou enfant" },
+    { id: "robe",      label: "Robes enfant" },
+    { id: "ensemble",  label: "Ensembles enfant" },
+    { id: "accessoire",label: "Accessoires enfant" },
+    { id: "bapteme",   label: "Baptême" },
+    { id: "fete",      label: "Fêtes" },
+  ],
+  accessoire: [
+    { id: "tous",      label: "Tous" },
+    { id: "sac",       label: "Sacs" },
+    { id: "bijou",     label: "Bijoux" },
+    { id: "montre",    label: "Montres" },
+    { id: "bonnet",    label: "Bonnets" },
+    { id: "foulard",   label: "Foulards" },
+    { id: "chaussure", label: "Chaussures" },
+    { id: "sandale",   label: "Sandales" },
+    { id: "lunette",   label: "Lunettes" },
+    { id: "ceinture",  label: "Ceintures" },
+  ],
+};
 
 const SORT_OPTIONS = [
   { value: "popular",    label: "Populaires" },
@@ -272,11 +352,19 @@ export default function ModeAfricainePage() {
     load();
   }, []);
 
+  // Sous-catégories actives selon la catégorie principale sélectionnée
+  const activeStyleTabs = useMemo(() =>
+    activeCat ? (SUBCATEGORIES_BY_CAT[activeCat] ?? DEFAULT_TABS) : DEFAULT_TABS,
+  [activeCat]);
+
   const catCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const cat of CATEGORIES) {
       counts[cat.slug] = products.filter(p =>
-        cat.tags.some(tag => p.tags?.includes(tag))
+        cat.tags.some(tag =>
+          p.tags?.includes(tag) ||
+          p.subcategory?.toLowerCase().includes(tag)
+        )
       ).length;
     }
     return counts;
@@ -284,13 +372,29 @@ export default function ModeAfricainePage() {
 
   const displayed = useMemo(() => {
     let list = [...products];
+
+    // Filtre catégorie principale — tags OU subcategory
     if (activeCat) {
       const cat = CATEGORIES.find(c => c.slug === activeCat);
-      if (cat) list = list.filter(p => cat.tags.some(tag => p.tags?.includes(tag)));
+      if (cat) {
+        list = list.filter(p =>
+          cat.tags.some(tag =>
+            p.tags?.includes(tag) ||
+            p.subcategory?.toLowerCase().includes(tag)
+          )
+        );
+      }
     }
+
+    // Filtre sous-catégorie — tags OU subcategory (sauf "tous")
     if (activeStyle !== "tous") {
-      list = list.filter(p => p.tags?.includes(activeStyle));
+      list = list.filter(p =>
+        p.tags?.includes(activeStyle) ||
+        p.tags?.some(t => t.includes(activeStyle)) ||
+        p.subcategory?.toLowerCase().includes(activeStyle)
+      );
     }
+
     if (sortBy === "newest")          list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     else if (sortBy === "price_asc")  list.sort((a, b) => a.price - b.price);
     else if (sortBy === "price_desc") list.sort((a, b) => b.price - a.price);
@@ -458,7 +562,7 @@ export default function ModeAfricainePage() {
           className="-mx-4 px-4 sm:mx-0 sm:px-0 flex gap-2 overflow-x-auto pb-2 mb-4 sm:mb-5"
           style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
         >
-          {STYLE_TABS.map(tab => {
+          {activeStyleTabs.map(tab => {
             const active = activeStyle === tab.id;
             return (
               <button
