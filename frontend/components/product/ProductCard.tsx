@@ -26,6 +26,34 @@ function getWishlist(): string[] {
   catch { return []; }
 }
 
+// ─── Badges dynamiques ────────────────────────────────────────────────────────
+
+function getExtraBadge(p: Product): { label: string; cls: string } | null {
+  if (p.isFlashSale)    return { label: "⚡ Flash",    cls: "bg-red-500" };
+  if (p.isTrending)     return { label: "🔥 Tendance", cls: "bg-amber-500" };
+  if (p.isFastDelivery) return { label: "🚀 GP Rapide",cls: "bg-emerald-500" };
+  const isNew = Date.now() - new Date(p.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
+  if (isNew)            return { label: "✨ Nouveau",  cls: "bg-sky-500" };
+  return null;
+}
+
+// ─── Étoiles ─────────────────────────────────────────────────────────────────
+
+function StarRow({ rating, count }: { rating: number; count: number }) {
+  if (!rating || !count) return null;
+  const full = Math.min(5, Math.round(rating));
+  return (
+    <div className="flex items-center gap-1 mb-1">
+      <div className="flex gap-px">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <span key={i} className={cn("text-[10px] leading-none", i < full ? "text-amber-400" : "text-gray-200")}>★</span>
+        ))}
+      </div>
+      <span className="text-[9px] text-gray-400 font-medium">({count})</span>
+    </div>
+  );
+}
+
 export function ProductCard({ product, className, variant = "grid" }: ProductCardProps) {
   const router = useRouter();
   const [liked,     setLiked]     = useState(false);
@@ -52,6 +80,8 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
     : null;
 
   const showConversion = product.currency !== currency;
+  const extraBadge     = getExtraBadge(product);
+  const lowStock       = product.stock > 0 && product.stock <= 5;
 
   useEffect(() => {
     try {
@@ -134,6 +164,11 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
               -{discountPct}%
             </span>
           )}
+          {extraBadge && !promoActive && (
+            <span className={cn("absolute top-2 left-2 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm", extraBadge.cls)}>
+              {extraBadge.label}
+            </span>
+          )}
           {(!product.isAvailable || product.stock === 0) && (
             <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
               <span className="bg-white text-gray-800 text-[10px] font-semibold px-2 py-0.5 rounded-full">
@@ -151,11 +186,15 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
               {product.category}
             </span>
           </div>
+          <StarRow rating={product.rating} count={product.reviewCount} />
           <Link href={`/produits/${product.id}`}>
             <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug group-hover:text-orange-600 transition-colors">
               {product.title}
             </h3>
           </Link>
+          {lowStock && (
+            <p className="text-[9px] font-bold text-red-500 mt-0.5">Plus que {product.stock} dispo !</p>
+          )}
 
           <div className="mt-auto pt-2 flex items-center justify-between gap-2">
             <div className="min-w-0">
@@ -213,20 +252,19 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
     );
   }
 
-  /* ── GRID VARIANT — Design 3 ───────────────────────────────────────────────── */
+  /* ── GRID VARIANT ────────────────────────────────────────────────────────────── */
   return (
     <div
       className={cn(
         "group relative flex flex-col rounded-2xl overflow-hidden bg-white",
         "shadow-[0_1px_8px_rgba(0,0,0,0.06)]",
-        "hover:shadow-[0_6px_24px_rgba(0,0,0,0.1)]",
+        "hover:shadow-[0_8px_28px_rgba(0,0,0,0.11)]",
         "hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200",
         className
       )}
     >
       {/* ── IMAGE ── */}
       <Link href={`/produits/${product.id}`} className="relative aspect-square overflow-hidden flex-shrink-0 bg-gray-100 block">
-        {/* Skeleton pulse while loading */}
         {!imgLoaded && !imgError && imgSrc && (
           <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse" />
         )}
@@ -237,9 +275,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
             alt={product.title}
             className={cn(
               "w-full h-full object-cover transition-all duration-500 ease-out",
-              imgLoaded
-                ? "opacity-100 group-hover:scale-[1.04]"
-                : "opacity-0"
+              imgLoaded ? "opacity-100 group-hover:scale-[1.06]" : "opacity-0"
             )}
             loading="lazy"
             onLoad={() => setImgLoaded(true)}
@@ -247,10 +283,23 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
           />
         )}
 
-        {/* Promo badge */}
+        {/* Overlay hover desktop — "Voir le produit" */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 hidden sm:block" />
+
+        {/* Promo badge — top left */}
         {promoActive && (
           <span className="absolute top-2 left-2 z-20 bg-red-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shadow-sm">
             -{discountPct}%
+          </span>
+        )}
+
+        {/* Extra badge — bottom left */}
+        {extraBadge && (
+          <span className={cn(
+            "absolute bottom-2 left-2 z-20 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm",
+            extraBadge.cls
+          )}>
+            {extraBadge.label}
           </span>
         )}
 
@@ -286,14 +335,25 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
           <span className="text-[10px] text-gray-400 capitalize tracking-wide truncate font-medium">
             {product.category}
           </span>
+          {product.seller?.isVerified && (
+            <span className="ml-auto text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1 py-px rounded flex-shrink-0">✓ Vérifié</span>
+          )}
         </div>
+
+        {/* Étoiles */}
+        <StarRow rating={product.rating} count={product.reviewCount} />
 
         {/* Titre */}
         <Link href={`/produits/${product.id}`}>
-          <h3 className="text-[12px] sm:text-[13px] font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-orange-600 transition-colors mb-2 min-h-[36px]">
+          <h3 className="text-[12px] sm:text-[13px] font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-orange-600 transition-colors mb-1.5 min-h-[32px]">
             {product.title}
           </h3>
         </Link>
+
+        {/* Stock faible */}
+        {lowStock && (
+          <p className="text-[9px] font-bold text-red-500 mb-1">⚠ Plus que {product.stock} dispo !</p>
+        )}
 
         {/* Prix */}
         <div className="mt-auto">
