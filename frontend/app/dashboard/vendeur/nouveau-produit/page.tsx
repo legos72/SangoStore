@@ -477,7 +477,7 @@ export default function NouveauProduitPage() {
     );
   }
 
-  const hasErrors = Object.keys(errors).length > 0;
+  const hasErrors = Object.values(errors).some(Boolean);
   const currency  = CURRENCIES.find(c => c.value === form.currency)!;
 
   // ── Main form ───────────────────────────────────────────────────────────────
