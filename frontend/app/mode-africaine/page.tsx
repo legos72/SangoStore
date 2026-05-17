@@ -205,7 +205,7 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
   return (
     <div
       className="relative overflow-hidden w-full"
-      style={{ height: "clamp(260px, 50vw, 460px)" }}
+      style={{ height: "clamp(260px, 42vw, 600px)" }}
     >
       {/* Backgrounds par slide */}
       {HERO_SLIDES.map((slide, i) => (
@@ -214,7 +214,7 @@ function HeroSlider({ onCta }: { onCta: () => void }) {
           src={slide.bg}
           alt=""
           aria-hidden
-          className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700"
+          className="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700"
           style={{ opacity: i === current ? 1 : 0 }}
           loading={i === 0 ? "eager" : "lazy"}
         />
