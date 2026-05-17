@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { ChevronRight, LayoutGrid, List, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
+import { apiToProduct } from "@/lib/adapters";
 import type { Product } from "@/lib/types";
 import { ProductCard } from "@/components/product/ProductCard";
 import { cn } from "@/lib/utils";
@@ -261,7 +262,7 @@ export default function ModeAfricainePage() {
       setLoading(true);
       try {
         const res = await api.products.list({ category: "mode", limit: "60" });
-        setProducts(res.data ?? []);
+        setProducts((res.data ?? []).map(apiToProduct));
       } catch {
         setProducts([]);
       } finally {
