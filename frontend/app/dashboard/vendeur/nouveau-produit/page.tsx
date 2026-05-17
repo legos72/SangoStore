@@ -38,6 +38,7 @@ interface FormState {
   title:          string;
   description:    string;
   categorySlug:   string;
+  subSpace:       string;
   subcategory:    string;
   originCountry:  string;
   // Pricing
@@ -185,6 +186,7 @@ export default function NouveauProduitPage() {
     title:             "",
     description:       "",
     categorySlug:      "electronique",
+    subSpace:          "",
     subcategory:       "",
     originCountry:     "FR",
     price:             "",
@@ -222,7 +224,13 @@ export default function NouveauProduitPage() {
   }, [router]);
 
   // imageFiles[i] holds the actual File; form.images[i] holds the blob: preview URL
-  const imageFiles = useRef<(File | null)[]>([null]);
+  const imageFiles     = useRef<(File | null)[]>([null]);
+  const errorBannerRef = useRef<HTMLDivElement>(null);
+
+  function resetCategory(slug: string) {
+    setForm(prev => ({ ...prev, categorySlug: slug, subSpace: "", subcategory: "" }));
+    setErrors(prev => ({ ...prev, categorySlug: undefined, subSpace: undefined, subcategory: undefined }));
+  }
 
   const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -274,6 +282,16 @@ export default function NouveauProduitPage() {
     if (!form.originCountry)                                             errs.originCountry = "Pays obligatoire";
     const hasImage = imageFiles.current.some(Boolean) || form.images.some(url => url && !url.startsWith("blob:"));
     if (!hasImage) errs.images = "Au moins une image est requise";
+
+    // Category hierarchy validation
+    const selectedCat = SELLER_CATEGORIES.find(c => c.slug === form.categorySlug);
+    if (selectedCat?.subSpaces?.length) {
+      if (!form.subSpace) errs.subSpace = "Choisissez un espace (Homme, Femme, etc.)";
+      else if (!form.subcategory) errs.subcategory = "Choisissez une sous-catégorie";
+    } else if (selectedCat && selectedCat.subcategories.length > 0 && !form.subcategory) {
+      errs.subcategory = "Choisissez une sous-catégorie";
+    }
+
     if (form.hasPromo) {
       if (!form.promoPrice || isNaN(Number(form.promoPrice)) || Number(form.promoPrice) <= 0)
         errs.promoPrice  = "Prix promotionnel invalide";
@@ -289,7 +307,11 @@ export default function NouveauProduitPage() {
         errs.tripCapacityKg = "Capacité invalide";
     }
     setErrors(errs);
-    return Object.keys(errs).length === 0;
+    if (Object.keys(errs).length > 0) {
+      setTimeout(() => errorBannerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+      return false;
+    }
+    return true;
   }
 
   function addTier() {
@@ -371,7 +393,12 @@ export default function NouveauProduitPage() {
           stock:         parseInt(form.stock, 10),
           weightKg:      form.weightKg  ? parseFloat(form.weightKg)  : undefined,
           dimensions:    form.dimensions || undefined,
-          tags:          form.tags ? form.tags.split(",").map(t => t.trim()).filter(Boolean) : undefined,
+          tags: (() => {
+            const base = form.tags ? form.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
+            const auto = form.subSpace ? [form.subSpace] : [];
+            const all  = [...new Set([...auto, ...base])];
+            return all.length > 0 ? all : undefined;
+          })(),
           promoPrice:      form.hasPromo && form.promoPrice ? parseFloat(form.promoPrice) : null,
           promoEnd:        form.hasPromo && form.promoEndDate ? form.promoEndDate : null,
           wholesalePrices: form.typeVente !== "normal" ? form.wholesalePrices : [],
@@ -495,7 +522,7 @@ export default function NouveauProduitPage() {
 
         {/* Error banner */}
         {hasErrors && (
-          <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-2xl p-4">
+          <div ref={errorBannerRef} className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-2xl p-4">
             <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-bold text-red-700">Corrigez les erreurs avant de continuer</p>
@@ -545,10 +572,7 @@ export default function NouveauProduitPage() {
                   <button
                     key={cat.slug}
                     type="button"
-                    onClick={() => {
-                      set("categorySlug", cat.slug);
-                      set("subcategory", "");
-                    }}
+                    onClick={() => resetCategory(cat.slug)}
                     className={cn(
                       "flex flex-col items-center gap-1.5 rounded-xl border-2 p-2.5 transition-all text-center",
                       isSelected
@@ -569,15 +593,59 @@ export default function NouveauProduitPage() {
             </div>
           </Field>
 
-          {/* ── Sous-catégorie — apparaît dynamiquement ──────────────── */}
+          {/* ── Niveau 2 : Sub-spaces (ex: Homme / Femme / Mariage…) ─── */}
           {(() => {
             const cat = SELLER_CATEGORIES.find(c => c.slug === form.categorySlug);
-            if (!cat || cat.subcategories.length === 0) return null;
+            if (!cat?.subSpaces?.length) return null;
             return (
               <Field>
-                <Label>Sous-catégorie</Label>
+                <Label required>Espace</Label>
                 <div className="flex flex-wrap gap-2">
-                  {cat.subcategories.map(sub => {
+                  {cat.subSpaces.map(ss => {
+                    const isSelected = form.subSpace === ss.slug;
+                    return (
+                      <button
+                        key={ss.slug}
+                        type="button"
+                        onClick={() => {
+                          setForm(prev => ({ ...prev, subSpace: ss.slug, subcategory: "" }));
+                          setErrors(prev => ({ ...prev, subSpace: undefined, subcategory: undefined }));
+                        }}
+                        className={cn(
+                          "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all",
+                          isSelected
+                            ? "bg-orange-500 border-orange-500 text-white shadow-sm"
+                            : "bg-white border-gray-200 text-gray-600 hover:border-orange-300 hover:text-orange-600"
+                        )}
+                      >
+                        <span>{ss.emoji}</span>
+                        <span>{ss.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {errors.subSpace && <ErrMsg>{errors.subSpace}</ErrMsg>}
+              </Field>
+            );
+          })()}
+
+          {/* ── Niveau 3 : Sous-catégories du sub-space, ou niveau 2 direct ── */}
+          {(() => {
+            const cat = SELLER_CATEGORIES.find(c => c.slug === form.categorySlug);
+            if (!cat) return null;
+            let subcats: string[];
+            if (cat.subSpaces?.length) {
+              if (!form.subSpace) return null;
+              subcats = cat.subSpaces.find(s => s.slug === form.subSpace)?.subcategories ?? [];
+            } else {
+              subcats = cat.subcategories;
+            }
+            if (subcats.length === 0) return null;
+            return (
+              <Field>
+                <Label required>Sous-catégorie</Label>
+                <div className="flex flex-wrap gap-2">
+                  {subcats.map(sub => {
                     const isSelected = form.subcategory === sub;
                     return (
                       <button
@@ -598,9 +666,10 @@ export default function NouveauProduitPage() {
                 </div>
                 {form.subcategory && (
                   <p className="text-[11px] text-orange-600 font-semibold mt-1">
-                    ✓ Sous-catégorie sélectionnée : <span className="font-bold">{form.subcategory}</span>
+                    ✓ {form.subcategory}
                   </p>
                 )}
+                {errors.subcategory && <ErrMsg>{errors.subcategory}</ErrMsg>}
               </Field>
             );
           })()}
@@ -1050,6 +1119,10 @@ export default function NouveauProduitPage() {
                 <h3 className="font-bold text-gray-900 text-sm leading-snug line-clamp-2">{form.title || "Titre du produit"}</h3>
                 <p className="text-[10px] text-orange-500 font-semibold mt-0.5">
                   {SELLER_CATEGORIES.find(c => c.slug === form.categorySlug)?.label}
+                  {form.subSpace && (() => {
+                    const ss = SELLER_CATEGORIES.find(c => c.slug === form.categorySlug)?.subSpaces?.find(s => s.slug === form.subSpace);
+                    return ss ? <span className="text-gray-400"> › {ss.label}</span> : null;
+                  })()}
                   {form.subcategory && <span className="text-gray-400"> › {form.subcategory}</span>}
                 </p>
                 <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{form.description || "Description du produit…"}</p>

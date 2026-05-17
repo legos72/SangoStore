@@ -1,12 +1,20 @@
 import type { ProductCategory } from "./types";
 
+export interface SubSpace {
+  slug:          string;
+  label:         string;
+  emoji:         string;
+  subcategories: string[];
+}
+
 export interface SellerCategory {
   slug:          string;
   label:         string;
   emoji:         string;
-  color:         string;    // Tailwind bg class for the card
+  color:         string;
   apiCategory:   ProductCategory;
-  subcategories: string[];
+  subcategories: string[];   // niveau 2 direct (si pas de subSpaces)
+  subSpaces?:    SubSpace[]; // niveau 2 intermédiaire → niveau 3 subcategories
 }
 
 export const SELLER_CATEGORIES: SellerCategory[] = [
@@ -16,7 +24,45 @@ export const SELLER_CATEGORIES: SellerCategory[] = [
     emoji: "🌍",
     color: "from-amber-500 to-yellow-400",
     apiCategory: "mode",
-    subcategories: ["Tissus & Couture", "Robes Africaines", "Boubous", "Kaftan", "Wax & Ankara", "Chaussures", "Accessoires"],
+    subcategories: [],
+    subSpaces: [
+      {
+        slug: "homme",
+        label: "Homme",
+        emoji: "👔",
+        subcategories: ["Boubou", "Bazin", "Wax Homme", "Ensembles", "Tuniques", "Chemises africaines", "Vestes africaines", "Kaftans", "Tenues cérémonie", "Casual africain", "Sandales", "Bonnets"],
+      },
+      {
+        slug: "femme",
+        label: "Femme",
+        emoji: "👗",
+        subcategories: ["Robes Wax", "Bazin Femme", "Ensembles Femme", "Kaftans Femme", "Robes soirée", "Tenues mariage", "Sacs", "Bijoux", "Foulards", "Talons africains"],
+      },
+      {
+        slug: "mariage",
+        label: "Mariage",
+        emoji: "💍",
+        subcategories: ["Couple africain", "Robes mariage", "Tenues marié homme", "Tenues mariée femme", "Demoiselles d'honneur", "Accessoires mariage", "Bijoux mariage", "Chaussures cérémonie"],
+      },
+      {
+        slug: "enfant",
+        label: "Enfants",
+        emoji: "🧒",
+        subcategories: ["Garçon", "Fille", "Boubou enfant", "Robes enfant", "Ensembles enfant", "Accessoires enfant", "Baptême", "Fêtes"],
+      },
+      {
+        slug: "tissu",
+        label: "Tissus & Couture",
+        emoji: "🧵",
+        subcategories: ["Wax", "Bazin", "Kenté", "Bogolan", "Kita", "Tissus brodés", "Couture Homme", "Couture Femme", "Tailleurs"],
+      },
+      {
+        slug: "accessoire",
+        label: "Accessoires",
+        emoji: "👜",
+        subcategories: ["Sacs", "Bijoux", "Montres", "Bonnets", "Foulards", "Chaussures", "Sandales", "Lunettes", "Ceintures"],
+      },
+    ],
   },
   {
     slug: "mode-femme",
