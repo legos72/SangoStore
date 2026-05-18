@@ -5,6 +5,7 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { TrendingSection } from "@/components/home/TrendingSection";
 import { FlashSaleSection } from "@/components/home/FlashSaleSection";
+import { PromoBlocks } from "@/components/home/PromoBlocks";
 import { NewArrivalsSection } from "@/components/home/NewArrivalsSection";
 import { HomeTransporters } from "@/components/home/HomeTransporters";
 import { CountryScroll } from "@/components/home/CountryScroll";
@@ -66,6 +67,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── Blocs promo ────────────────────────────────────────────────── */}
+      <PromoBlocks />
 
       {/* ── Flash Sale ─────────────────────────────────────────────────── */}
       <FlashSaleSection />

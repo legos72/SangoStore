@@ -2,16 +2,16 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Zap } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Zap, Heart, Star, ShoppingCart } from "lucide-react";
 import { api, getImageUrl } from "@/lib/api";
 import { apiToProduct } from "@/lib/adapters";
+import { useCart } from "@/contexts/CartContext";
 import type { Product } from "@/lib/types";
 
 // ─── Countdown hook ───────────────────────────────────────────────────────────
 
 function useCountdown(end: string | null | undefined) {
   const [time, setTime] = useState({ h: 0, m: 0, s: 0, expired: false });
-
   useEffect(() => {
     if (!end) return;
     const endMs = new Date(end).getTime();
@@ -29,214 +29,155 @@ function useCountdown(end: string | null | undefined) {
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [end]);
-
   return time;
 }
 
-// ─── Timer block (Apple/Tesla style glass) ───────────────────────────────────
+// ─── Timer block (compact dark box) ──────────────────────────────────────────
 
 function TimeBlock({ value, label }: { value: number; label: string }) {
   return (
-    <div className="flex flex-col items-center">
-      <div
-        className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center tabular-nums font-extrabold text-sm text-white"
-        style={{
-          background: "rgba(15,23,42,0.7)",
-          backdropFilter: "blur(8px)",
-          border: "1px solid rgba(249,115,22,0.3)",
-          boxShadow: "0 0 8px rgba(249,115,22,0.2), inset 0 1px 0 rgba(255,255,255,0.07)",
-        }}
-      >
+    <div className="flex flex-col items-center gap-px">
+      <span className="w-7 h-7 rounded-md bg-gray-900 text-white text-[11px] font-extrabold flex items-center justify-center tabular-nums leading-none">
         {String(value).padStart(2, "0")}
-      </div>
-      <span className="text-[8px] uppercase tracking-widest mt-0.5 font-semibold" style={{ color: "rgba(251,146,60,0.65)" }}>
-        {label}
       </span>
+      <span className="text-[7px] text-gray-400 uppercase tracking-wide font-medium">{label}</span>
     </div>
   );
 }
 
-// ─── Skeleton card (dark shimmer) ─────────────────────────────────────────────
+// ─── Skeleton card ────────────────────────────────────────────────────────────
 
 function FlashCardSkeleton() {
   return (
     <div
-      className="flex-shrink-0 rounded-2xl overflow-hidden"
-      style={{
-        width: "clamp(158px, 43vw, 196px)",
-        background: "rgba(255,255,255,0.05)",
-        border: "1px solid rgba(255,255,255,0.07)",
-      }}
+      className="flex-shrink-0 bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm"
+      style={{ width: "clamp(148px, 40vw, 175px)" }}
     >
-      <div className="flash-shimmer" style={{ height: "clamp(138px, 37vw, 172px)" }} />
-      <div className="p-3 space-y-2.5">
-        <div className="flash-shimmer rounded-full h-2.5 w-2/3" />
-        <div className="flash-shimmer rounded-full h-2.5 w-full" />
-        <div className="flash-shimmer rounded-full h-2 w-3/4" />
-        <div className="flex justify-between items-center pt-0.5">
-          <div className="flash-shimmer rounded-full h-5 w-20" />
-          <div className="flash-shimmer rounded-xl h-8 w-16" />
+      <div className="shimmer-bg" style={{ height: "clamp(145px, 38vw, 170px)" }} />
+      <div className="p-2.5 space-y-2">
+        <div className="shimmer-bg rounded-full h-2.5 w-full" />
+        <div className="shimmer-bg rounded-full h-2.5 w-3/4" />
+        <div className="shimmer-bg rounded-full h-4 w-20 mt-1" />
+        <div className="flex justify-between items-center pt-1">
+          <div className="shimmer-bg rounded-full h-2 w-16" />
+          <div className="shimmer-bg rounded-xl h-7 w-7" />
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Premium Flash Card ───────────────────────────────────────────────────────
+// ─── Flash Deal Card ──────────────────────────────────────────────────────────
 
-function FlashCard({ product }: { product: Product }) {
+function FlashDealCard({ product }: { product: Product }) {
   const [imgError, setImgError] = useState(false);
-  const imgSrc = !imgError && product.images[0] ? getImageUrl(product.images[0]) : null;
+  const [liked, setLiked]       = useState(false);
+  const [added, setAdded]       = useState(false);
+  const { addItem }             = useCart();
 
-  const hasPromo = product.promoPrice != null && product.promoPrice > 0 && product.promoPrice < product.price;
-  const displayPrice = hasPromo ? product.promoPrice! : product.price;
-  const originalPrice = hasPromo ? product.price : null;
-  const discountPct = hasPromo ? Math.round((1 - product.promoPrice! / product.price) * 100) : null;
-
-  const stockUrgent = product.stock > 0 && product.stock <= 5;
-  const stockLow    = product.stock > 5  && product.stock <= 15;
-  const showStock   = product.stock < 20;
-  const stockMax    = stockUrgent ? 8 : 20;
-  const stockRatio  = Math.max(0.1, Math.min(0.95, 1 - product.stock / stockMax));
-  // "Déjà X vendus" — proxy: reviews × 4 + base, seeded by stock for stability
-  const soldCount   = Math.max(14, (product.reviewCount ?? 0) * 4 + (product.stock % 7) * 3 + 12);
+  const imgSrc    = !imgError && product.images[0] ? getImageUrl(product.images[0]) : null;
+  const hasPromo  = product.promoPrice != null && product.promoPrice > 0 && product.promoPrice < product.price;
+  const display   = hasPromo ? product.promoPrice! : product.price;
+  const original  = hasPromo ? product.price : null;
+  const pct       = hasPromo ? Math.round((1 - product.promoPrice! / product.price) * 100) : null;
 
   const fmt = (p: number) => {
     if (product.currency === "XAF") return `${Math.round(p).toLocaleString("fr-FR")} F`;
-    if (product.currency === "EUR") return `${p.toLocaleString("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: 2 })} €`;
-    return `$${p.toLocaleString("fr-FR", { maximumFractionDigits: 2 })}`;
+    if (product.currency === "EUR") return `${p.toLocaleString("fr-FR")} €`;
+    return `$${p.toLocaleString("fr-FR")}`;
   };
+
+  function handleCart(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem(product);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1400);
+  }
+
+  const stars = Math.round(product.rating || 4);
 
   return (
     <Link
       href={`/produits/${product.id}`}
-      className="flex-shrink-0 group"
-      style={{ width: "clamp(158px, 43vw, 196px)" }}
+      className="group flex-shrink-0"
+      style={{ width: "clamp(148px, 40vw, 175px)" }}
     >
-      <div
-        className="rounded-[20px] overflow-hidden flex flex-col transition-all duration-300 group-hover:-translate-y-1.5"
-        style={{
-          background: "linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 100%)",
-          border: "1px solid rgba(255,255,255,0.1)",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.07) inset",
-        }}
-      >
+      <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-200 group-hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] group-hover:-translate-y-0.5">
+
         {/* Image zone */}
-        <div className="relative overflow-hidden" style={{ height: "clamp(138px, 37vw, 172px)" }}>
+        <div className="relative overflow-hidden bg-gray-50" style={{ height: "clamp(145px, 38vw, 170px)" }}>
           {imgSrc ? (
             <img
               src={imgSrc}
               alt={product.title}
               onError={() => setImgError(true)}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.08] group-hover:brightness-110"
+              className="w-full h-full object-cover transition-transform duration-400 group-hover:scale-105"
             />
           ) : (
-            <div
-              className="w-full h-full flex items-center justify-center text-3xl"
-              style={{ background: "rgba(255,255,255,0.04)" }}
-            >
-              📦
+            <div className="w-full h-full flex items-center justify-center text-3xl text-gray-300">📦</div>
+          )}
+
+          {/* Promo badge */}
+          {pct != null && (
+            <div className="absolute top-2 left-2 px-1.5 py-[3px] rounded-[6px] text-[10px] font-extrabold text-white leading-none"
+              style={{ background: "#EF4444" }}>
+              -{pct}%
             </div>
           )}
 
-          {/* Bottom gradient */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%)" }}
-          />
-
-          {/* Flash badge */}
-          {discountPct != null && (
-            <div className="absolute top-2 left-2">
-              <div
-                className="flash-badge-pulse flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold text-white"
-                style={{
-                  background: "linear-gradient(135deg, #dc2626 0%, #f97316 100%)",
-                  boxShadow: "0 0 10px rgba(239,68,68,0.55), 0 0 20px rgba(249,115,22,0.25)",
-                }}
-              >
-                <Zap className="w-2.5 h-2.5 fill-white stroke-none" />
-                -{discountPct}%
-              </div>
-            </div>
-          )}
-
-          {/* "Presque épuisé" top-right */}
-          {stockUrgent && (
-            <div
-              className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white"
-              style={{ background: "rgba(220,38,38,0.85)", backdropFilter: "blur(4px)" }}
-            >
-              Rare
-            </div>
-          )}
+          {/* Favorite */}
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLiked(l => !l); }}
+            className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/90 shadow-sm flex items-center justify-center transition-all active:scale-90 hover:bg-white"
+          >
+            <Heart className={`w-3 h-3 transition-colors ${liked ? "fill-red-500 text-red-500" : "text-gray-400"}`} />
+          </button>
         </div>
 
         {/* Content */}
-        <div className="px-3 pt-2.5 pb-3 flex flex-col gap-2">
+        <div className="px-2.5 pt-2 pb-2.5 flex flex-col gap-1.5">
 
           {/* Title */}
-          <p
-            className="text-white/90 text-[11px] sm:text-xs font-semibold leading-tight line-clamp-2"
-            style={{ minHeight: "2.4em" }}
-          >
+          <p className="text-[11px] font-semibold text-gray-800 line-clamp-2 leading-snug" style={{ minHeight: "2.5em" }}>
             {product.title}
           </p>
 
-          {/* Price row */}
-          <div className="flex items-baseline gap-1.5 flex-wrap">
-            <span className="text-sm sm:text-base font-extrabold" style={{ color: "#fb923c" }}>
-              {fmt(displayPrice)}
-            </span>
-            {originalPrice != null && (
-              <span className="text-[10px] line-through" style={{ color: "rgba(255,255,255,0.35)" }}>
-                {fmt(originalPrice)}
-              </span>
+          {/* Prices */}
+          <div>
+            <p className="text-sm font-extrabold leading-none" style={{ color: "#EF4444" }}>
+              {fmt(display)}
+            </p>
+            {original != null && (
+              <p className="text-[10px] text-gray-400 line-through mt-0.5 leading-none">
+                {fmt(original)}
+              </p>
             )}
           </div>
 
-          {/* Stock urgency bar */}
-          {showStock && (
-            <div className="space-y-1">
-              <div className="h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
-                <div
-                  className="h-full rounded-full transition-all duration-700"
-                  style={{
-                    width: `${stockRatio * 100}%`,
-                    background: stockUrgent
-                      ? "linear-gradient(90deg, #ef4444, #f97316)"
-                      : stockLow
-                      ? "linear-gradient(90deg, #f97316, #fbbf24)"
-                      : "linear-gradient(90deg, #f97316, #fbbf24)",
-                  }}
-                />
-              </div>
-              <div className="flex items-center justify-between gap-1">
-                {stockUrgent ? (
-                  <span className="text-[9px] font-bold" style={{ color: "#f87171" }}>
-                    ⚡ {product.stock} restant{product.stock > 1 ? "s" : ""}
-                  </span>
-                ) : (
-                  <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.38)" }}>
-                    {product.stock} en stock
-                  </span>
-                )}
-                <span className="text-[9px] font-semibold flex-shrink-0" style={{ color: "rgba(251,146,60,0.65)" }}>
-                  {soldCount} vendus
-                </span>
-              </div>
+          {/* Stars + cart */}
+          <div className="flex items-center justify-between gap-1 pt-0.5">
+            <div className="flex items-center gap-px flex-shrink-0">
+              {[1, 2, 3, 4, 5].map(s => (
+                <Star key={s} className={`w-2 h-2 ${s <= stars ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
+              ))}
+              {(product.reviewCount ?? 0) > 0 && (
+                <span className="text-[9px] text-gray-400 ml-0.5">({product.reviewCount})</span>
+              )}
             </div>
-          )}
-
-          {/* CTA */}
-          <div
-            className="w-full py-2 rounded-xl text-[11px] font-bold text-white text-center transition-all duration-200 group-active:scale-95"
-            style={{
-              background: "linear-gradient(135deg, #f97316 0%, #dc2626 100%)",
-              boxShadow: "0 2px 10px rgba(249,115,22,0.3)",
-            }}
-          >
-            Acheter
+            <button
+              onClick={handleCart}
+              className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 transition-all active:scale-90"
+              style={{
+                background: added ? "#22c55e" : "#F59E0B",
+                boxShadow: "0 2px 6px rgba(245,158,11,0.35)",
+              }}
+            >
+              {added
+                ? <span className="text-white text-[10px] font-black">✓</span>
+                : <ShoppingCart className="w-3.5 h-3.5 text-white" />
+              }
+            </button>
           </div>
 
         </div>
@@ -290,119 +231,78 @@ export function FlashSaleSection() {
   if (!loading && products.length === 0) return null;
 
   function scroll(dir: "left" | "right") {
-    scrollRef.current?.scrollBy({ left: dir === "left" ? -210 : 210, behavior: "smooth" });
+    scrollRef.current?.scrollBy({ left: dir === "left" ? -195 : 195, behavior: "smooth" });
   }
 
   return (
-    <section
-      className="py-6 sm:py-10 relative overflow-hidden"
-      style={{
-        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 45%, #7c2d12 100%)",
-      }}
-    >
-      {/* Ambient glow blobs */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 60% 50% at 15% 50%, rgba(249,115,22,0.07) 0%, transparent 70%), radial-gradient(ellipse 40% 60% at 85% 30%, rgba(239,68,68,0.05) 0%, transparent 70%)",
-        }}
-      />
+    <section className="pt-4 pb-5 sm:pt-5 sm:pb-7 bg-white border-t border-gray-100">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
 
-      <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 relative">
-
-        {/* ── Header ────────────────────────────────────────────────────────── */}
-        <div className="flex items-start justify-between gap-3 mb-4 sm:mb-6">
+        {/* ── Header ─────────────────────────────────────────────────────── */}
+        <div className="flex items-start justify-between gap-2 mb-3 sm:mb-4">
 
           {/* Left: icon + title */}
-          <div className="flex items-center gap-3">
-            {/* Animated icon */}
+          <div className="flex items-center gap-2">
             <div
-              className="flash-icon-pulse w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{
-                background: "linear-gradient(135deg, #ef4444 0%, #f97316 100%)",
-                boxShadow: "0 0 20px rgba(249,115,22,0.45), 0 0 40px rgba(249,115,22,0.15)",
-              }}
+              className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ background: "linear-gradient(135deg, #ef4444 0%, #f97316 100%)" }}
             >
-              <Zap className="w-5 h-5 text-white fill-white stroke-none" />
+              <Zap className="w-3.5 h-3.5 text-white fill-white stroke-none" />
             </div>
-
             <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-widest" style={{ color: "#fb923c" }}>
+              <p className="text-[9px] font-extrabold uppercase tracking-widest text-orange-500">
                 Offres limitées
               </p>
-              <h2
-                className="text-xl sm:text-2xl font-black text-white leading-none tracking-tight mt-0.5"
-                style={{ textShadow: "0 0 24px rgba(249,115,22,0.35)" }}
-              >
-                Flash Sale
+              <h2 className="text-base sm:text-lg font-black text-gray-900 leading-tight tracking-tight">
+                Offres Flash
               </h2>
             </div>
           </div>
 
           {/* Right: countdown + voir tout */}
-          <div className="flex flex-col items-end gap-2 flex-shrink-0">
+          <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
             {soonestEnd && !timer.expired && (
               <div className="flex items-center gap-1.5">
-                <span
-                  className="hidden sm:block text-[9px] uppercase tracking-widest font-semibold mr-0.5"
-                  style={{ color: "rgba(251,146,60,0.6)" }}
-                >
+                <span className="text-[9px] uppercase tracking-wide font-semibold text-gray-400 mr-0.5 whitespace-nowrap">
                   Fin dans
                 </span>
                 <TimeBlock value={timer.h} label="h" />
-                <span className="text-base font-black pb-4" style={{ color: "rgba(249,115,22,0.5)" }}>:</span>
+                <span className="text-xs font-bold text-gray-400 pb-3.5">:</span>
                 <TimeBlock value={timer.m} label="min" />
-                <span className="text-base font-black pb-4" style={{ color: "rgba(249,115,22,0.5)" }}>:</span>
+                <span className="text-xs font-bold text-gray-400 pb-3.5">:</span>
                 <TimeBlock value={timer.s} label="sec" />
               </div>
             )}
             <Link
               href="/produits?section=flashsale"
-              className="flex items-center gap-1 text-xs font-bold transition-opacity hover:opacity-70"
-              style={{ color: "#fb923c" }}
+              className="flex items-center gap-0.5 text-xs font-semibold text-orange-500 hover:text-orange-600 transition-colors"
             >
               Voir tout <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
 
-        {/* Mobile: countdown label */}
-        {soonestEnd && !timer.expired && (
-          <p className="sm:hidden text-[9px] uppercase tracking-widest font-semibold mb-3 -mt-2" style={{ color: "rgba(251,146,60,0.6)" }}>
-            Fin dans
-          </p>
-        )}
-
-        {/* ── Scroll row ───────────────────────────────────────────────────── */}
+        {/* ── Scroll row ──────────────────────────────────────────────────── */}
         <div className="relative">
 
-          {/* Left fade + arrow */}
           {canScrollLeft && (
             <div
-              className="hidden sm:flex absolute left-0 top-0 bottom-2 z-10 items-center pr-8 pointer-events-none"
-              style={{ background: "linear-gradient(to right, #0f172a 40%, transparent)" }}
+              className="hidden sm:flex absolute left-0 top-0 bottom-2 z-10 items-center pr-6 pointer-events-none"
+              style={{ background: "linear-gradient(to right, white 50%, transparent)" }}
             >
               <button
                 onClick={() => scroll("left")}
                 aria-label="Défiler à gauche"
-                className="pointer-events-auto w-9 h-9 rounded-full flex items-center justify-center text-white
-                           transition-all active:scale-90 hover:scale-105"
-                style={{
-                  background: "rgba(255,255,255,0.1)",
-                  backdropFilter: "blur(8px)",
-                  border: "1px solid rgba(255,255,255,0.18)",
-                  boxShadow: "0 2px 12px rgba(0,0,0,0.3)",
-                }}
+                className="pointer-events-auto w-8 h-8 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-500 hover:border-orange-300 hover:text-orange-500 transition-all active:scale-90"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
             </div>
           )}
 
-          {/* Cards row */}
           <div
             ref={scrollRef}
-            className="flex gap-3 overflow-x-auto pb-1"
+            className="flex gap-2.5 overflow-x-auto pb-1.5"
             style={{ scrollbarWidth: "none", scrollSnapType: "x mandatory" }}
           >
             {loading
@@ -413,29 +313,21 @@ export function FlashSaleSection() {
                 ))
               : products.map(product => (
                   <div key={product.id} style={{ scrollSnapAlign: "start" }}>
-                    <FlashCard product={product} />
+                    <FlashDealCard product={product} />
                   </div>
                 ))
             }
           </div>
 
-          {/* Right fade + arrow */}
           {canScrollRight && (
             <div
-              className="hidden sm:flex absolute right-0 top-0 bottom-2 z-10 items-center justify-end pl-8 pointer-events-none"
-              style={{ background: "linear-gradient(to left, #7c2d12 30%, transparent)" }}
+              className="hidden sm:flex absolute right-0 top-0 bottom-2 z-10 items-center justify-end pl-6 pointer-events-none"
+              style={{ background: "linear-gradient(to left, white 50%, transparent)" }}
             >
               <button
                 onClick={() => scroll("right")}
                 aria-label="Défiler à droite"
-                className="pointer-events-auto w-9 h-9 rounded-full flex items-center justify-center text-white
-                           transition-all active:scale-90 hover:scale-105"
-                style={{
-                  background: "rgba(255,255,255,0.1)",
-                  backdropFilter: "blur(8px)",
-                  border: "1px solid rgba(255,255,255,0.18)",
-                  boxShadow: "0 2px 12px rgba(0,0,0,0.3)",
-                }}
+                className="pointer-events-auto w-8 h-8 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-500 hover:border-orange-300 hover:text-orange-500 transition-all active:scale-90"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
