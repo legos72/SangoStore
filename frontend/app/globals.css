@@ -197,3 +197,34 @@
 .animate-fade-slide {
   animation: fade-slide 0.55s ease-out both;
 }
+
+/* ── Flash Sale — dark shimmer skeleton ────────────────────────────────────── */
+.flash-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.09) 40%,
+    rgba(255,255,255,0.04) 80%,
+    rgba(255,255,255,0.04) 100%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* ── Flash Sale — badge pulse glow ─────────────────────────────────────────── */
+@keyframes flash-badge-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(239,68,68,0.55), 0 0 20px rgba(249,115,22,0.25); }
+  50%       { box-shadow: 0 0 16px rgba(239,68,68,0.8),  0 0 30px rgba(249,115,22,0.45); }
+}
+.flash-badge-pulse {
+  animation: flash-badge-pulse 2s ease-in-out infinite;
+}
+
+/* ── Flash Sale — icon pulse ───────────────────────────────────────────────── */
+@keyframes flash-icon-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(249,115,22,0.45), 0 0 40px rgba(249,115,22,0.15); transform: scale(1); }
+  50%       { box-shadow: 0 0 28px rgba(249,115,22,0.65), 0 0 55px rgba(249,115,22,0.25); transform: scale(1.05); }
+}
+.flash-icon-pulse {
+  animation: flash-icon-pulse 2.5s ease-in-out infinite;
+}
