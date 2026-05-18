@@ -12,13 +12,11 @@ import { cn } from "@/lib/utils";
 import { COUNTRIES } from "@/lib/countries";
 import { ImageUploader } from "@/components/ui/ImageUploader";
 import { uploadImage } from "@/lib/imageUtils";
+import { SELLER_CATEGORIES, getApiCategory } from "@/lib/categories";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Currency = "XAF" | "EUR" | "USD";
-type Category =
-  | "electronique" | "mode" | "alimentation" | "maison"
-  | "beaute" | "jouets" | "sante" | "sport" | "auto" | "autre";
 type SaleType = "normal" | "grossiste" | "mixte";
 
 interface WholesaleTier {
@@ -30,7 +28,9 @@ interface WholesaleTier {
 interface FormState {
   title:         string;
   description:   string;
-  category:      Category;
+  categorySlug:  string;
+  subSpace:      string;
+  subcategory:   string;
   originCountry: string;
   price:         string;
   currency:      Currency;
@@ -48,25 +48,13 @@ interface FormState {
 }
 
 const DEFAULT_FORM: FormState = {
-  title: "", description: "", category: "electronique", originCountry: "FR",
+  title: "", description: "", categorySlug: "electronique",
+  subSpace: "", subcategory: "", originCountry: "FR",
   price: "", currency: "EUR", stock: "0", isAvailable: true,
   hasPromo: false, promoPrice: "", promoEndDate: "",
   images: [""], weightKg: "", dimensions: "", tags: "",
   typeVente: "normal", wholesalePrices: [],
 };
-
-const CATEGORIES: { value: Category; label: string; emoji: string }[] = [
-  { value: "electronique",  label: "Électronique",  emoji: "📱" },
-  { value: "mode",          label: "Mode",           emoji: "👗" },
-  { value: "alimentation",  label: "Alimentation",  emoji: "🥘" },
-  { value: "maison",        label: "Maison",         emoji: "🏠" },
-  { value: "beaute",        label: "Beauté",         emoji: "💄" },
-  { value: "jouets",        label: "Jouets",         emoji: "🧸" },
-  { value: "sante",         label: "Santé",          emoji: "💊" },
-  { value: "sport",         label: "Sport",          emoji: "⚽" },
-  { value: "auto",          label: "Auto",           emoji: "🚗" },
-  { value: "autre",         label: "Autre",          emoji: "📦" },
-];
 
 const CURRENCIES: { value: Currency; symbol: string }[] = [
   { value: "XAF", symbol: "FCFA" },
@@ -227,10 +215,24 @@ export default function ModifierProduitPage() {
 
         const wPrices = parseWholesale(p.wholesale_prices);
 
+        const catSlug = p.seller_category ?? p.category ?? "electronique";
+        const sellerCat = SELLER_CATEGORIES.find(c => c.slug === catSlug);
+        const rawTags: string[] = Array.isArray(p.tags)
+          ? p.tags
+          : (typeof p.tags === "string" && p.tags
+              ? p.tags.split(",").map((t: string) => t.trim()).filter(Boolean)
+              : []);
+        const subSpaceSlug = sellerCat?.subSpaces
+          ? (sellerCat.subSpaces.find(ss => rawTags.includes(ss.slug))?.slug ?? "")
+          : "";
+        const userTags = rawTags.filter(t => !sellerCat?.subSpaces?.some(ss => ss.slug === t));
+
         setForm({
           title:         p.title         ?? "",
           description:   p.description   ?? "",
-          category:      (p.category as Category) ?? "electronique",
+          categorySlug:  catSlug,
+          subSpace:      subSpaceSlug,
+          subcategory:   p.subcategory   ?? "",
           originCountry: p.origin_country ?? "FR",
           price:         p.price          != null ? String(parseFloat(p.price)) : "",
           currency:      (p.currency as Currency) ?? "EUR",
@@ -244,7 +246,7 @@ export default function ModifierProduitPage() {
           images:         displayImgs,
           weightKg:       p.weight_kg != null ? String(p.weight_kg) : "",
           dimensions:     p.dimensions   ?? "",
-          tags:           Array.isArray(p.tags) ? p.tags.join(", ") : (p.tags ?? ""),
+          tags:           userTags.join(", "),
           typeVente:      wPrices.length > 0 ? "mixte" : "normal",
           wholesalePrices: wPrices,
         });
@@ -262,6 +264,11 @@ export default function ModifierProduitPage() {
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm(prev => ({ ...prev, [key]: value }));
     if (errors[key as keyof typeof errors]) setErrors(prev => ({ ...prev, [key]: undefined }));
+  }
+
+  function resetCategory(slug: string) {
+    setForm(prev => ({ ...prev, categorySlug: slug, subSpace: "", subcategory: "" }));
+    setErrors(prev => ({ ...prev, categorySlug: undefined, subSpace: undefined, subcategory: undefined }));
   }
 
   function addImage() {
@@ -313,6 +320,15 @@ export default function ModifierProduitPage() {
     if (!form.price || isNaN(Number(form.price)) || Number(form.price) <= 0) errs.price    = "Prix de vente invalide";
     if (!form.stock || isNaN(Number(form.stock)) || Number(form.stock) < 0)  errs.stock    = "Stock invalide";
     if (!form.originCountry)                                                 errs.originCountry = "Pays obligatoire";
+
+    const selectedCat = SELLER_CATEGORIES.find(c => c.slug === form.categorySlug);
+    if (selectedCat?.subSpaces?.length) {
+      if (!form.subSpace) errs.subSpace = "Choisissez un espace (Homme, Femme, etc.)";
+      else if (!form.subcategory) errs.subcategory = "Choisissez une sous-catégorie";
+    } else if (selectedCat && selectedCat.subcategories.length > 0 && !form.subcategory) {
+      errs.subcategory = "Choisissez une sous-catégorie";
+    }
+
     if (form.hasPromo) {
       if (!form.promoPrice || isNaN(Number(form.promoPrice)) || Number(form.promoPrice) <= 0)
         errs.promoPrice = "Prix promotionnel invalide";
@@ -323,7 +339,7 @@ export default function ModifierProduitPage() {
       errs.general = "Ajoutez au moins un palier de prix grossiste";
     }
     setErrors(errs);
-    return Object.keys(errs).length === 0;
+    return Object.values(errs).filter(Boolean).length === 0;
   }
 
   // ── Submit ──────────────────────────────────────────────────────────────────
@@ -363,15 +379,23 @@ export default function ModifierProduitPage() {
       const { api } = await import("@/lib/api");
 
       const updatePayload: Record<string, unknown> = {
-        title:         form.title,
-        description:   form.description || undefined,
-        price:         parseFloat(form.price),
-        currency:      form.currency,
-        images:        finalImages,
-        category:      form.category,
-        originCountry: form.originCountry,
-        stock:         parseInt(form.stock, 10),
-        isAvailable:   form.isAvailable,
+        title:          form.title,
+        description:    form.description || undefined,
+        price:          parseFloat(form.price),
+        currency:       form.currency,
+        images:         finalImages,
+        category:       getApiCategory(form.categorySlug),
+        sellerCategory: form.categorySlug,
+        subcategory:    form.subcategory || undefined,
+        originCountry:  form.originCountry,
+        stock:          parseInt(form.stock, 10),
+        isAvailable:    form.isAvailable,
+        tags: (() => {
+          const base = form.tags ? form.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
+          const auto = form.subSpace ? [form.subSpace] : [];
+          const all  = [...new Set([...auto, ...base])];
+          return all.length > 0 ? all : undefined;
+        })(),
       };
       if (form.weightKg) updatePayload.weightKg = parseFloat(form.weightKg);
       // Only send promo fields when explicitly set (avoids sending null for unrelated products)
@@ -450,7 +474,7 @@ export default function ModifierProduitPage() {
     );
   }
 
-  const hasErrors = Object.keys(errors).length > 0;
+  const hasErrors = Object.values(errors).some(Boolean);
   const currencySymbol = CURRENCIES.find(c => c.value === form.currency)?.symbol ?? form.currency;
 
   // ── Main form ───────────────────────────────────────────────────────────────
@@ -534,24 +558,128 @@ export default function ModifierProduitPage() {
             />
           </Field>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field>
-              <Label required>Catégorie</Label>
-              <Select value={form.category} onChange={e => set("category", e.target.value as Category)}>
-                {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.emoji} {c.label}</option>)}
-              </Select>
-            </Field>
-            <Field>
-              <Label required>Pays d'expédition</Label>
-              <Select
-                value={form.originCountry}
-                onChange={e => set("originCountry", e.target.value)}
-                className={errors.originCountry ? "border-red-300" : ""}
-              >
-                {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
-              </Select>
-            </Field>
-          </div>
+          {/* ── Catégorie principale — grille visuelle ───────────────────── */}
+          <Field>
+            <Label required>Catégorie principale</Label>
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              {SELLER_CATEGORIES.map(cat => {
+                const isSelected = form.categorySlug === cat.slug;
+                return (
+                  <button
+                    key={cat.slug}
+                    type="button"
+                    onClick={() => resetCategory(cat.slug)}
+                    className={cn(
+                      "flex flex-col items-center gap-1.5 rounded-xl border-2 p-2.5 transition-all text-center",
+                      isSelected
+                        ? "border-orange-400 bg-orange-50 shadow-sm shadow-orange-100"
+                        : "border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50"
+                    )}
+                  >
+                    <span className="text-xl leading-none">{cat.emoji}</span>
+                    <span className={cn(
+                      "text-[10px] font-bold leading-tight",
+                      isSelected ? "text-orange-700" : "text-gray-600"
+                    )}>
+                      {cat.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </Field>
+
+          {/* ── Niveau 2 : Sub-spaces (ex: Homme / Femme / Mariage…) ─────── */}
+          {(() => {
+            const cat = SELLER_CATEGORIES.find(c => c.slug === form.categorySlug);
+            if (!cat?.subSpaces?.length) return null;
+            return (
+              <Field>
+                <Label required>Espace</Label>
+                <div className="flex flex-wrap gap-2">
+                  {cat.subSpaces.map(ss => {
+                    const isSelected = form.subSpace === ss.slug;
+                    return (
+                      <button
+                        key={ss.slug}
+                        type="button"
+                        onClick={() => {
+                          setForm(prev => ({ ...prev, subSpace: ss.slug, subcategory: "" }));
+                          setErrors(prev => ({ ...prev, subSpace: undefined, subcategory: undefined }));
+                        }}
+                        className={cn(
+                          "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all",
+                          isSelected
+                            ? "bg-orange-500 border-orange-500 text-white shadow-sm"
+                            : "bg-white border-gray-200 text-gray-600 hover:border-orange-300 hover:text-orange-600"
+                        )}
+                      >
+                        <span>{ss.emoji}</span>
+                        <span>{ss.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {errors.subSpace && <ErrMsg>{errors.subSpace}</ErrMsg>}
+              </Field>
+            );
+          })()}
+
+          {/* ── Niveau 3 : Sous-catégories du sub-space, ou niveau 2 direct ── */}
+          {(() => {
+            const cat = SELLER_CATEGORIES.find(c => c.slug === form.categorySlug);
+            if (!cat) return null;
+            let subcats: string[];
+            if (cat.subSpaces?.length) {
+              if (!form.subSpace) return null;
+              subcats = cat.subSpaces.find(s => s.slug === form.subSpace)?.subcategories ?? [];
+            } else {
+              subcats = cat.subcategories;
+            }
+            if (subcats.length === 0) return null;
+            return (
+              <Field>
+                <Label required>Sous-catégorie</Label>
+                <div className="flex flex-wrap gap-2">
+                  {subcats.map(sub => {
+                    const isSelected = form.subcategory === sub;
+                    return (
+                      <button
+                        key={sub}
+                        type="button"
+                        onClick={() => set("subcategory", isSelected ? "" : sub)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-full border text-xs font-semibold transition-all",
+                          isSelected
+                            ? "bg-orange-500 border-orange-500 text-white shadow-sm"
+                            : "bg-white border-gray-200 text-gray-600 hover:border-orange-300 hover:text-orange-600"
+                        )}
+                      >
+                        {sub}
+                      </button>
+                    );
+                  })}
+                </div>
+                {form.subcategory && (
+                  <p className="text-[11px] text-orange-600 font-semibold mt-1">
+                    ✓ {form.subcategory}
+                  </p>
+                )}
+                {errors.subcategory && <ErrMsg>{errors.subcategory}</ErrMsg>}
+              </Field>
+            );
+          })()}
+
+          <Field>
+            <Label required>Pays d'expédition</Label>
+            <Select
+              value={form.originCountry}
+              onChange={e => set("originCountry", e.target.value)}
+              className={errors.originCountry ? "border-red-300" : ""}
+            >
+              {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+            </Select>
+          </Field>
         </Card>
 
         {/* ═══ SECTION 2 — Prix & stock ═══════════════════════════════════ */}
