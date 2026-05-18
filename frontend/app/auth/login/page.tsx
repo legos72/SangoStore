@@ -4,10 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowRight, Loader2, Clock, XCircle } from "lucide-react";
-import { api, setToken, setUser } from "@/lib/api";
+import { api } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -19,8 +21,8 @@ export default function LoginPage() {
     setError("");
     try {
       const res = await api.auth.login(form.email, form.password) as any;
-      setToken(res.token);
-      setUser(res.user);
+      // login() updates context state + localStorage simultaneously
+      login(res.user, res.token);
       if (res.user?.role === "admin") {
         router.push("/dashboard/admin");
       } else if (res.user?.role === "vendeur") {

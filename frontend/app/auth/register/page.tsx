@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Package, ArrowRight, Loader2, CheckCircle, Clock, XCircle } from "lucide-react";
 import { COUNTRIES } from "@/lib/countries";
 import type { UserRole } from "@/lib/types";
-import { api, setToken, setUser } from "@/lib/api";
+import { api } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 import toast from "react-hot-toast";
 
 const ROLE_OPTIONS: { value: UserRole; label: string; icon: string; desc: string; badge?: string }[] = [
@@ -36,6 +37,7 @@ type RegisterResult = "approved" | "pending" | null;
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading]           = useState(false);
   const [step, setStep]                 = useState<1 | 2>(1);
@@ -72,8 +74,7 @@ export default function RegisterPage() {
         setResult("pending");
       } else {
         // Client — token reçu, connexion immédiate
-        setToken(res.token);
-        setUser(res.user);
+        login(res.user, res.token);
         toast.success("Bienvenue sur SangoStore !");
         router.push("/dashboard");
       }

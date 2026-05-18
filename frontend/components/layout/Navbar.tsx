@@ -14,14 +14,9 @@ import { LogoCart } from "@/components/ui/LogoCart";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { CurrencySwitcher } from "@/components/ui/CurrencySwitcher";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/lib/i18n/context";
 import { translations, t } from "@/lib/i18n/translations";
-
-interface StoredUser {
-  name: string;
-  role: string;
-  email?: string;
-}
 
 const ROLE_DASHBOARD: Record<string, { href: string; label: string; icon: React.ElementType; color: string }> = {
   vendeur:      { href: "/dashboard/vendeur",      label: "Espace vendeur",      icon: Store,  color: "text-orange-600 bg-orange-50 hover:bg-orange-100" },
@@ -44,21 +39,14 @@ export function Navbar() {
   const [searchOpen,      setSearchOpen]      = useState(false);
   const [searchQuery,     setSearchQuery]     = useState("");
   const [searchCategory,  setSearchCategory]  = useState("");
-  const [currentUser,     setCurrentUser]     = useState<StoredUser | null>(null);
   const [userMenuOpen,    setUserMenuOpen]    = useState(false);
   const userMenuRef                           = useRef<HTMLDivElement>(null);
   const pathname                              = usePathname();
   const router                                = useRouter();
   const { locale }                            = useI18n();
   const { totalItems }                        = useCart();
+  const { user: currentUser, logout }         = useAuth();
   const nav                                   = translations.nav;
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("sango_user");
-      if (raw) setCurrentUser(JSON.parse(raw));
-    } catch {}
-  }, []);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -103,9 +91,7 @@ export function Navbar() {
   }
 
   function handleLogout() {
-    localStorage.removeItem("sango_user");
-    localStorage.removeItem("sango_token");
-    setCurrentUser(null);
+    logout();
     setUserMenuOpen(false);
     router.push("/");
   }

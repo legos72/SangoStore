@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -177,6 +177,36 @@ function Toggle({ enabled, onToggle, label }: { enabled: boolean; onToggle: () =
   );
 }
 
+// ─── Draft persistence ────────────────────────────────────────────────────────
+
+const DRAFT_KEY = "sango_product_draft";
+
+type DraftableFields = Pick<FormState,
+  "title" | "description" | "categorySlug" | "subSpace" | "subcategory" |
+  "originCountry" | "price" | "currency" | "stock" | "localDelivery" |
+  "hasPromo" | "promoPrice" | "promoEndDate" | "typeVente" | "wholesalePrices" |
+  "weightKg" | "dimensions" | "colors" | "tags" |
+  "offerShipping" | "tripDepartureDate" | "tripArrivalDate" |
+  "tripPricePerKg" | "tripCurrency" | "tripCapacityKg" | "tripNotes"
+>;
+
+function extractDraftable(f: FormState): DraftableFields {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { images: _images, ...rest } = f;
+  return rest;
+}
+
+function isTokenValid(): boolean {
+  try {
+    const token = localStorage.getItem("sango_token");
+    if (!token) return false;
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return typeof payload.exp === "number" && payload.exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function NouveauProduitPage() {
@@ -217,11 +247,47 @@ export default function NouveauProduitPage() {
   const [uploadMsg,  setUploadMsg]  = useState("");
   const [success,    setSuccess]    = useState(false);
   const [errors,     setErrors]     = useState<Partial<Record<keyof FormState | "images", string>>>({});
+  const [hasDraft,   setHasDraft]   = useState(false);
 
+  // Auth guard + draft detection on mount
   useEffect(() => {
     const token = localStorage.getItem("sango_token");
-    if (!token) router.replace("/connexion?redirect=/dashboard/vendeur/nouveau-produit");
+    if (!token) { router.replace("/connexion?redirect=/dashboard/vendeur/nouveau-produit"); return; }
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const draft = JSON.parse(saved) as DraftableFields;
+        if (draft.title?.trim() || draft.price?.trim()) setHasDraft(true);
+      }
+    } catch { /* ignore */ }
   }, [router]);
+
+  const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Auto-save draft (debounced 2s) whenever form changes (except when submitting or success)
+  const saveDraft = useCallback((f: FormState) => {
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      if (!f.title?.trim() && !f.price?.trim()) return;
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(extractDraftable(f))); } catch { /* quota */ }
+    }, 2000);
+  }, []);
+
+  useEffect(() => { saveDraft(form); }, [form, saveDraft]);
+
+  function restoreDraft() {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (!saved) return;
+      const draft = JSON.parse(saved) as DraftableFields;
+      setForm(prev => ({ ...prev, ...draft, images: prev.images }));
+    } catch { /* ignore */ }
+    setHasDraft(false);
+  }
+
+  function dismissDraft() {
+    setHasDraft(false);
+  }
 
   // imageFiles[i] holds the actual File; form.images[i] holds the blob: preview URL
   const imageFiles     = useRef<(File | null)[]>([null]);
@@ -343,6 +409,14 @@ export default function NouveauProduitPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
+
+    // Client-side token check before any network call
+    if (!isTokenValid()) {
+      setErrors({ images: "Votre session a expiré. Enregistrez votre brouillon puis reconnectez-vous." });
+      setTimeout(() => errorBannerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+      return;
+    }
+
     setSubmitting(true);
     setErrors({});
     try {
@@ -437,6 +511,9 @@ export default function NouveauProduitPage() {
         });
       }
 
+      // Clear draft after successful publish
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+      setHasDraft(false);
       setSuccess(true);
       setTimeout(() => router.push("/dashboard/vendeur"), 2200);
     } catch (err: any) {
@@ -444,9 +521,12 @@ export default function NouveauProduitPage() {
       const isAuth = err?.isAuth || msg.includes("401") || msg.includes("403")
         || msg.toLowerCase().includes("session") || msg.toLowerCase().includes("rôle")
         || msg.toLowerCase().includes("autoris") || msg.toLowerCase().includes("insuffisant");
+      const isNetwork = isNetworkError(err);
       setErrors({
         images: isAuth
           ? "Session expirée ou rôle insuffisant — reconnectez-vous en tant que vendeur."
+          : isNetwork
+          ? "Erreur réseau — vérifiez votre connexion internet et réessayez. Vos données sont conservées."
           : msg || "Erreur lors de la création du produit",
       });
     } finally {
@@ -519,6 +599,33 @@ export default function NouveauProduitPage() {
 
       {/* ── Form ───────────────────────────────────────────────────────────── */}
       <form id="product-form" onSubmit={handleSubmit} className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-5">
+
+        {/* Draft restore banner */}
+        {hasDraft && (
+          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4">
+            <Info className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-amber-800">Brouillon récupéré</p>
+              <p className="text-xs text-amber-600 mt-0.5">Un formulaire non publié a été détecté. Voulez-vous reprendre où vous en étiez ?</p>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <button
+                type="button"
+                onClick={restoreDraft}
+                className="text-xs font-bold px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition-colors"
+              >
+                Reprendre
+              </button>
+              <button
+                type="button"
+                onClick={dismissDraft}
+                className="text-xs font-semibold px-3 py-1.5 border border-amber-300 hover:bg-amber-100 text-amber-700 rounded-lg transition-colors"
+              >
+                Ignorer
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Error banner */}
         {hasErrors && (

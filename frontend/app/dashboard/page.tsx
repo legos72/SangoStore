@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 import { formatPrice, formatDate, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import { getUser, api } from "@/lib/api";
+import { api } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 import type { OrderStatus } from "@/lib/types";
 
 // ─── Mini-timeline ────────────────────────────────────────────────────────────
@@ -86,7 +87,7 @@ function StatusBadge({ status }: { status: OrderStatus }) {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<ReturnType<typeof getUser>>(null);
+  const { user: currentUser, isLoading: authLoading } = useAuth();
   const [orders, setOrders]           = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [colis, setColis]             = useState<any[]>([]);
@@ -94,16 +95,15 @@ export default function DashboardPage() {
   const [clientTab, setClientTab]     = useState<"commandes" | "colis">("commandes");
 
   useEffect(() => {
-    const user = getUser();
-    if (!user) { router.push("/auth/login"); return; }
-    setCurrentUser(user);
+    if (authLoading) return;
+    if (!currentUser) { router.push("/auth/login"); return; }
 
     // Admin → dashboard admin
-    if (user.role === "admin") { router.push("/dashboard/admin"); return; }
+    if (currentUser.role === "admin") { router.push("/dashboard/admin"); return; }
     // Vendeur → dashboard vendeur
-    if (user.role === "vendeur") { router.push("/dashboard/vendeur"); return; }
+    if (currentUser.role === "vendeur") { router.push("/dashboard/vendeur"); return; }
     // Transporteur → dashboard transporteur
-    if (user.role === "transporteur") { router.push("/dashboard/transporteur"); return; }
+    if (currentUser.role === "transporteur") { router.push("/dashboard/transporteur"); return; }
 
     // Charger les commandes marketplace
     api.orders.list()
@@ -117,7 +117,7 @@ export default function DashboardPage() {
       .then((res: any) => setColis(res.data ?? []))
       .catch(() => setColis([]))
       .finally(() => setLoadingColis(false));
-  }, [router]);
+  }, [authLoading, currentUser, router]);
 
   if (!currentUser) {
     return (

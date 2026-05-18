@@ -13,7 +13,8 @@ import {
   Power, Send, MessageSquare, ToggleLeft, ToggleRight,
   Flame, Tag,
 } from "lucide-react";
-import { api, getUser, getImageUrl } from "@/lib/api";
+import { api, getImageUrl } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 import { formatPrice, formatDate, ORDER_STATUS_LABELS } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import type { OrderStatus } from "@/lib/types";
@@ -98,14 +99,12 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AdminDashboard() {
+  const { user: adminUser } = useAuth();
   const [activeTab, setActiveTab]       = useState<Tab>("overview");
   const [search, setSearch]             = useState("");
   const [sidebarOpen, setSidebarOpen]   = useState(false);
   const [notifOpen, setNotifOpen]       = useState(false);
   const [orderFilter, setOrderFilter]   = useState("all");
-
-  // Data state
-  const [adminUser]                             = useState(() => getUser());
   const [stats, setStats]                       = useState<any>(null);
   const [statsLoading, setStatsLoading]         = useState(false);
   const [users, setUsers]                       = useState<any[]>([]);

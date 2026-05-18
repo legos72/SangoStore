@@ -20,6 +20,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartProvider } from "@/contexts/CartContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "react-hot-toast";
 import { I18nProvider } from "@/lib/i18n/context";
 import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
@@ -76,13 +77,15 @@ export default function RootLayout({
           }}
         />
         <I18nProvider>
-          <CurrencyProvider>
-            <CartProvider>
-              <Navbar />
-              <main className="min-h-screen">{children}</main>
-              <Footer />
-            </CartProvider>
-          </CurrencyProvider>
+          <AuthProvider>
+            <CurrencyProvider>
+              <CartProvider>
+                <Navbar />
+                <main className="min-h-screen">{children}</main>
+                <Footer />
+              </CartProvider>
+            </CurrencyProvider>
+          </AuthProvider>
         </I18nProvider>
       </body>
     </html>

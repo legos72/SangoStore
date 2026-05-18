@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   Star, ShoppingCart, Package, Shield, Phone,
   MessageCircle, CheckCircle, Truck, Weight, Minus, Plus,
   Calendar, MapPin, Home, ChevronRight, ChevronDown, ChevronUp,
-  Info, Plane, Globe, X, User, Loader2,
+  Info, Plane, Globe, X, User, Loader2, ChevronLeft, ZoomIn, ZoomOut,
+  Expand,
 } from "lucide-react";
 import { MOCK_PRODUCTS, MOCK_TRIPS } from "@/lib/data";
 import { formatPrice, CATEGORY_LABELS, CATEGORY_ICONS } from "@/lib/utils";
@@ -60,6 +61,154 @@ function fmtShort(iso: string) {
 function daysBetween(a: string, b: string) {
   return Math.round(
     (new Date(b).getTime() - new Date(a).getTime()) / (1000 * 60 * 60 * 24)
+  );
+}
+
+// ─── Lightbox ─────────────────────────────────────────────────────────────────
+
+function LightboxModal({
+  images,
+  current,
+  onNavigate,
+  onClose,
+}: {
+  images: string[];
+  current: number;
+  onNavigate: (i: number) => void;
+  onClose: () => void;
+}) {
+  const [zoomed, setZoomed] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+
+  const prev = useCallback(() => {
+    onNavigate((current - 1 + images.length) % images.length);
+    setZoomed(false);
+  }, [current, images.length, onNavigate]);
+
+  const next = useCallback(() => {
+    onNavigate((current + 1) % images.length);
+    setZoomed(false);
+  }, [current, images.length, onNavigate]);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape")      onClose();
+      if (e.key === "ArrowLeft")   prev();
+      if (e.key === "ArrowRight")  next();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [prev, next, onClose]);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    if (delta < -50)      next();
+    else if (delta > 50)  prev();
+    touchStartX.current = null;
+  }
+
+  return (
+    <div className="fixed inset-0 z-[300] flex flex-col bg-black/96">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 flex-shrink-0 bg-black/40">
+        <span className="text-white/50 text-sm font-medium tabular-nums">
+          {current + 1} / {images.length}
+        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setZoomed(z => !z)}
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+            title={zoomed ? "Réduire" : "Zoomer"}
+          >
+            {zoomed ? <ZoomOut className="w-4 h-4" /> : <ZoomIn className="w-4 h-4" />}
+          </button>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Main image area */}
+      <div
+        className={cn("flex-1 relative flex items-center justify-center", zoomed ? "overflow-auto" : "overflow-hidden")}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Prev arrow */}
+        {images.length > 1 && (
+          <button
+            onClick={prev}
+            className="absolute left-3 z-10 p-3 rounded-full bg-black/40 hover:bg-black/70 text-white transition-all backdrop-blur-sm"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+        )}
+
+        <img
+          key={images[current]}
+          src={images[current]}
+          alt=""
+          onClick={() => setZoomed(z => !z)}
+          className={cn(
+            "select-none transition-transform duration-300",
+            zoomed
+              ? "cursor-zoom-out w-auto h-auto max-w-none max-h-none"
+              : "cursor-zoom-in max-w-full max-h-full object-contain"
+          )}
+          style={zoomed ? { transform: "scale(1.8)", transformOrigin: "center center" } : undefined}
+          draggable={false}
+        />
+
+        {/* Next arrow */}
+        {images.length > 1 && (
+          <button
+            onClick={next}
+            className="absolute right-3 z-10 p-3 rounded-full bg-black/40 hover:bg-black/70 text-white transition-all backdrop-blur-sm"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        )}
+
+        {/* Zoom hint (show only on first view, non-zoomed) */}
+        {!zoomed && (
+          <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/40 text-white/70 text-[11px] font-medium px-2.5 py-1.5 rounded-full backdrop-blur-sm pointer-events-none">
+            <ZoomIn className="w-3 h-3" /> Cliquer pour zoomer
+          </div>
+        )}
+      </div>
+
+      {/* Thumbnail strip */}
+      {images.length > 1 && (
+        <div className="flex-shrink-0 px-4 py-3 flex gap-2 justify-center overflow-x-auto bg-black/40">
+          {images.map((img, i) => (
+            <button
+              key={i}
+              onClick={() => { onNavigate(i); setZoomed(false); }}
+              className={cn(
+                "w-14 h-14 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all",
+                i === current
+                  ? "border-orange-400 opacity-100 scale-105"
+                  : "border-transparent opacity-40 hover:opacity-70"
+              )}
+            >
+              <img src={img} alt="" className="w-full h-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -382,6 +531,7 @@ export default function ProductDetailPage() {
   const product = mockProduct ?? apiProduct;
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [descExpanded, setDescExpanded] = useState(false);
   // ── Delivery system ──
   const [deliveryDestination, setDeliveryDestination] = useState<"local" | "bangui" | null>(null);
@@ -437,6 +587,13 @@ export default function ProductDetailPage() {
   const related = MOCK_PRODUCTS.filter(
     (p) => p.id !== product.id && p.originCountry.code === product.originCountry.code
   ).slice(0, 4);
+
+  // Résoudre toutes les URLs une seule fois — évite les index cassés entre thumbnails et image principale
+  const validImages = product.images
+    .map(img => getImageUrl(img))
+    .filter(Boolean) as string[];
+
+  const safeActiveImage = Math.min(activeImage, Math.max(0, validImages.length - 1));
 
   const weight = product.weight ?? 0.5;
   const localDeliveryCostXAF = product.localDeliveryCostXAF ?? 2500;
@@ -506,38 +663,86 @@ export default function ProductDetailPage() {
 
         {/* ── LEFT: Gallery + Description ── */}
         <div className="space-y-4">
-          <div className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm">
-            {product.images?.[0] ? (
-              <img
-                src={getImageUrl(product.images[activeImage] || product.images[0])}
-                alt={product.title}
-                className="absolute inset-0 w-full h-full object-contain p-5 sm:p-8"
-                onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-              />
+
+          {/* ── Main image ── */}
+          <div className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm group">
+            {validImages.length > 0 ? (
+              <>
+                <img
+                  key={validImages[safeActiveImage]}
+                  src={validImages[safeActiveImage]}
+                  alt={product.title}
+                  className="absolute inset-0 w-full h-full object-contain p-5 sm:p-8 transition-opacity duration-200"
+                  onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                />
+                {/* Click overlay — opens lightbox */}
+                <button
+                  onClick={() => setLightboxOpen(true)}
+                  className="absolute inset-0 w-full h-full flex items-end justify-end p-3 bg-transparent hover:bg-black/5 transition-colors"
+                  aria-label="Agrandir l'image"
+                >
+                  <span className="flex items-center gap-1.5 bg-black/40 group-hover:bg-black/60 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100">
+                    <Expand className="w-3 h-3" /> Agrandir
+                  </span>
+                </button>
+              </>
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-orange-50 gap-2">
                 <span className="text-5xl">📦</span>
                 <span className="text-sm font-medium text-orange-400 px-4 text-center">{product.title}</span>
               </div>
             )}
-            <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-orange-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-lg">
+
+            {/* Country badge */}
+            <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-orange-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-lg pointer-events-none">
               <Package className="w-3.5 h-3.5" />
               {product.originCountry.flag} {product.originCountry.name}
             </div>
+
+            {/* Nav arrows on hover (desktop) */}
+            {validImages.length > 1 && (
+              <>
+                <button
+                  onClick={() => setActiveImage(i => (i - 1 + validImages.length) % validImages.length)}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-md text-gray-700 opacity-0 group-hover:opacity-100 transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setActiveImage(i => (i + 1) % validImages.length)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-md text-gray-700 opacity-0 group-hover:opacity-100 transition-all"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </>
+            )}
           </div>
 
-          {product.images.filter(Boolean).length > 1 && (
+          {/* ── Thumbnails ── */}
+          {validImages.length > 1 && (
             <div className="flex gap-2.5 overflow-x-auto pb-1">
-              {product.images.filter(Boolean).map((img, i) => (
+              {validImages.map((imgUrl, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveImage(i)}
                   className={cn(
                     "relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all",
-                    activeImage === i ? "border-orange-500" : "border-gray-200 hover:border-gray-400"
+                    safeActiveImage === i
+                      ? "border-orange-500 shadow-sm shadow-orange-200"
+                      : "border-gray-200 hover:border-orange-300 opacity-70 hover:opacity-100"
                   )}
                 >
-                  <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: "center 15%" }} />
+                  <img
+                    src={imgUrl}
+                    alt={`${product.title} — vue ${i + 1}`}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ objectPosition: "center 15%" }}
+                    onError={e => {
+                      const el = e.currentTarget as HTMLImageElement;
+                      el.style.display = "none";
+                      el.parentElement!.style.background = "#f3f4f6";
+                    }}
+                  />
                 </button>
               ))}
             </div>
@@ -1318,6 +1523,16 @@ export default function ProductDetailPage() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* ── LIGHTBOX ── */}
+      {lightboxOpen && validImages.length > 0 && (
+        <LightboxModal
+          images={validImages}
+          current={safeActiveImage}
+          onNavigate={setActiveImage}
+          onClose={() => setLightboxOpen(false)}
+        />
       )}
     </div>
   );

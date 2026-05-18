@@ -8,7 +8,8 @@ import {
   Clock, Eye, Loader2, AlertCircle, RefreshCw, MapPin,
   ChevronDown, Calendar, Weight, ArrowRight,
 } from "lucide-react";
-import { api, getUser } from "@/lib/api";
+import { api } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 import { FlagImage } from "@/components/ui/FlagImage";
 import { cn } from "@/lib/utils";
 
@@ -286,6 +287,7 @@ function BookingCard({
 
 export default function TransporteurDashboard() {
   const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
   const [tab, setTab]                   = useState<Tab>("reservations");
   const [filter, setFilter]             = useState<BookingFilter>("pending");
   const [bookings, setBookings]         = useState<any[]>([]);
@@ -296,9 +298,8 @@ export default function TransporteurDashboard() {
   const [refusing, setRefusing]         = useState<string | null>(null);
   const [trackingModal, setTrackingModal] = useState<any | null>(null);
 
-  const user = getUser();
-
   useEffect(() => {
+    if (authLoading) return;
     if (!user) { router.push("/auth/login"); return; }
     if (user.role !== "transporteur" && user.role !== "admin") {
       router.push("/dashboard");
@@ -306,7 +307,7 @@ export default function TransporteurDashboard() {
     }
     loadBookings();
     loadTrips();
-  }, []);
+  }, [authLoading, user, router]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadBookings = useCallback(async () => {
     setLoadingBookings(true);

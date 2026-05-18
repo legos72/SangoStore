@@ -8,7 +8,8 @@ import {
   Calendar, Package, Weight, Loader2, AlertCircle, ChevronRight,
   Clock, Users, TrendingUp, X, Check,
 } from "lucide-react";
-import { api, getUser, getImageUrl } from "@/lib/api";
+import { api, getImageUrl } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { FlagImage } from "@/components/ui/FlagImage";
@@ -32,7 +33,7 @@ interface BookingFormProps {
 
 function BookingForm({ trip, onClose, onSuccess }: BookingFormProps) {
   const router = useRouter();
-  const user   = getUser();
+  const { user } = useAuth();
   const [step, setStep] = useState<1 | 2>(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

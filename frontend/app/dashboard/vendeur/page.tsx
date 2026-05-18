@@ -12,8 +12,9 @@ import {
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { formatPrice, formatDate, ORDER_STATUS_LABELS } from "@/lib/utils";
-import { api, getUser, getImageUrl } from "@/lib/api";
+import { api, getImageUrl } from "@/lib/api";
 import type { VendorProduct, VendorOrder, VendorStats, RevenuePoint, AuthUser } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 import type { OrderStatus } from "@/lib/types";
 
 // ─── Demo product helpers (localStorage fallback when backend is offline) ─────
@@ -94,7 +95,7 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function VendeurDashboard() {
   const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const { user: currentUser, isLoading: authLoading } = useAuth();
 
   const [section, setSection]             = useState<Section>("overview");
   const [productSearch, setProductSearch] = useState("");
@@ -109,14 +110,12 @@ export default function VendeurDashboard() {
   const [updatingOrder, setUpdatingOrder] = useState<string | null>(null);
   const [toast, setToast]                 = useState<{ msg: string; ok: boolean } | null>(null);
 
+  // Guard: redirect only after auth context has finished loading from localStorage
   useEffect(() => {
-    const user = getUser();
-    if (!user) {
+    if (!authLoading && !currentUser) {
       router.push("/auth/login");
-    } else {
-      setCurrentUser(user);
     }
-  }, []);
+  }, [authLoading, currentUser, router]);
 
   const showToast = useCallback((msg: string, ok = true) => {
     setToast({ msg, ok });
