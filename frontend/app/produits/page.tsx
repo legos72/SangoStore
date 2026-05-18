@@ -489,6 +489,7 @@ function ProduitsContent() {
     setError(false);
     // Résoudre le filtre pour la sous-catégorie active
     const sellerCatFromSub = activeSub ? SUBCAT_SELLER_MAP[activeSub] : undefined;
+    const sectionParam = searchParams.get("section");
     api.products.list({
       // Si la sous-cat a un seller_category dédié (ex: "Mode Africaine" → "mode-africaine"),
       // on utilise sellerCategory. Sinon on passe en search texte (ex: "Smartphones").
@@ -499,6 +500,8 @@ function ProduitsContent() {
       sortBy:         filters.sortBy,
       minPrice:       filters.minPrice?.toString(),
       maxPrice:       filters.maxPrice?.toString(),
+      // Par défaut : exclure les produits flash/tendances du catalogue normal
+      section:        sectionParam ?? "normal",
     } as any)
       .then((res: any) => {
         setProducts((res.data ?? []).map(apiToProduct));

@@ -108,15 +108,8 @@ export function NewArrivalsSection() {
                   </div>
                 ))
               : products.map(product => (
-                  <div key={product.id} className="relative flex-shrink-0 flex flex-col" style={{ width: "clamp(148px, 42vw, 192px)" }}>
+                  <div key={product.id} className="flex-shrink-0 flex flex-col" style={{ width: "clamp(148px, 42vw, 192px)" }}>
                     <ProductCard product={product} className="flex-1" />
-                    {/* Badge Nouveau — positionné sur l'image, coin supérieur gauche */}
-                    <div className="absolute top-2 left-2 z-10 pointer-events-none">
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold text-white uppercase tracking-wide leading-none"
-                        style={{ background: "linear-gradient(135deg, #16a34a 0%, #15803d 100%)", boxShadow: "0 1px 6px rgba(22,163,74,0.4)" }}>
-                        Nouveau
-                      </span>
-                    </div>
                   </div>
                 ))
             }

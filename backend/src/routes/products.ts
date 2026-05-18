@@ -52,6 +52,10 @@ productsRouter.get("/", async (req, res) => {
       case "featured":     conditions.push("p.is_featured = TRUE"); break;
       case "fastdelivery": conditions.push("p.is_fast_delivery = TRUE"); break;
       case "newarrival":   conditions.push("p.created_at >= NOW() - INTERVAL '30 days'"); break;
+      case "normal":
+        conditions.push("p.is_flash_sale = FALSE");
+        conditions.push("p.is_trending = FALSE");
+        break;
     }
   }
 

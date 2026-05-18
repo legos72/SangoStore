@@ -37,10 +37,33 @@ function useCountdown(end: string | null | undefined) {
 function TimeBlock({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col items-center gap-px">
-      <span className="w-7 h-7 rounded-md bg-gray-900 text-white text-[11px] font-extrabold flex items-center justify-center tabular-nums leading-none">
+      <span className="min-w-[26px] h-7 px-1 rounded-md bg-gray-900 text-white text-[11px] font-extrabold flex items-center justify-center tabular-nums leading-none">
         {String(value).padStart(2, "0")}
       </span>
       <span className="text-[7px] text-gray-400 uppercase tracking-wide font-medium">{label}</span>
+    </div>
+  );
+}
+
+function TimerRow({ timer }: { timer: { h: number; m: number; s: number; expired: boolean } }) {
+  const days = Math.floor(timer.h / 24);
+  const hours = timer.h % 24;
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="text-[9px] uppercase tracking-wide font-semibold text-gray-400 mr-0.5 whitespace-nowrap">
+        Fin dans
+      </span>
+      {days > 0 && (
+        <>
+          <TimeBlock value={days} label="j" />
+          <span className="text-xs font-bold text-gray-400 pb-3.5">:</span>
+        </>
+      )}
+      <TimeBlock value={hours} label="h" />
+      <span className="text-xs font-bold text-gray-400 pb-3.5">:</span>
+      <TimeBlock value={timer.m} label="min" />
+      <span className="text-xs font-bold text-gray-400 pb-3.5">:</span>
+      <TimeBlock value={timer.s} label="sec" />
     </div>
   );
 }
@@ -53,12 +76,12 @@ function FlashCardSkeleton() {
       className="flex-shrink-0 bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm"
       style={{ width: "clamp(148px, 40vw, 175px)" }}
     >
-      <div className="shimmer-bg" style={{ height: "clamp(145px, 38vw, 170px)" }} />
-      <div className="p-2.5 space-y-2">
+      <div className="shimmer-bg" style={{ height: "clamp(158px, 43vw, 188px)" }} />
+      <div className="px-2.5 pt-2 pb-2.5 space-y-1.5">
         <div className="shimmer-bg rounded-full h-2.5 w-full" />
         <div className="shimmer-bg rounded-full h-2.5 w-3/4" />
-        <div className="shimmer-bg rounded-full h-4 w-20 mt-1" />
-        <div className="flex justify-between items-center pt-1">
+        <div className="shimmer-bg rounded-full h-4 w-20" />
+        <div className="flex justify-between items-center pt-0.5">
           <div className="shimmer-bg rounded-full h-2 w-16" />
           <div className="shimmer-bg rounded-xl h-7 w-7" />
         </div>
@@ -105,8 +128,8 @@ function FlashDealCard({ product }: { product: Product }) {
     >
       <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-200 group-hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] group-hover:-translate-y-0.5">
 
-        {/* Image zone */}
-        <div className="relative overflow-hidden bg-gray-50" style={{ height: "clamp(145px, 38vw, 170px)" }}>
+        {/* Image zone — dominant */}
+        <div className="relative overflow-hidden bg-gray-50" style={{ height: "clamp(158px, 43vw, 188px)" }}>
           {imgSrc ? (
             <img
               src={imgSrc}
@@ -120,7 +143,7 @@ function FlashDealCard({ product }: { product: Product }) {
 
           {/* Promo badge */}
           {pct != null && (
-            <div className="absolute top-2 left-2 px-1.5 py-[3px] rounded-[6px] text-[10px] font-extrabold text-white leading-none"
+            <div className="absolute top-2 left-2 px-1.5 py-[3px] rounded-md text-[10px] font-extrabold text-white leading-none"
               style={{ background: "#EF4444" }}>
               -{pct}%
             </div>
@@ -135,31 +158,31 @@ function FlashDealCard({ product }: { product: Product }) {
           </button>
         </div>
 
-        {/* Content */}
-        <div className="px-2.5 pt-2 pb-2.5 flex flex-col gap-1.5">
+        {/* Content — ultra compact */}
+        <div className="px-2.5 pt-1.5 pb-2 flex flex-col gap-1">
 
           {/* Title */}
-          <p className="text-[11px] font-semibold text-gray-800 line-clamp-2 leading-snug" style={{ minHeight: "2.5em" }}>
+          <p className="text-[11px] font-semibold text-gray-800 line-clamp-2 leading-snug" style={{ minHeight: "2.2em" }}>
             {product.title}
           </p>
 
           {/* Prices */}
-          <div>
-            <p className="text-sm font-extrabold leading-none" style={{ color: "#EF4444" }}>
+          <div className="flex items-baseline gap-1.5 flex-wrap">
+            <span className="text-sm font-extrabold leading-none" style={{ color: "#EF4444" }}>
               {fmt(display)}
-            </p>
+            </span>
             {original != null && (
-              <p className="text-[10px] text-gray-400 line-through mt-0.5 leading-none">
+              <span className="text-[10px] text-gray-400 line-through leading-none">
                 {fmt(original)}
-              </p>
+              </span>
             )}
           </div>
 
           {/* Stars + cart */}
-          <div className="flex items-center justify-between gap-1 pt-0.5">
+          <div className="flex items-center justify-between gap-1">
             <div className="flex items-center gap-px flex-shrink-0">
               {[1, 2, 3, 4, 5].map(s => (
-                <Star key={s} className={`w-2 h-2 ${s <= stars ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
+                <Star key={s} className={`w-2.5 h-2.5 ${s <= stars ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
               ))}
               {(product.reviewCount ?? 0) > 0 && (
                 <span className="text-[9px] text-gray-400 ml-0.5">({product.reviewCount})</span>
@@ -170,7 +193,7 @@ function FlashDealCard({ product }: { product: Product }) {
               className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 transition-all active:scale-90"
               style={{
                 background: added ? "#22c55e" : "#F59E0B",
-                boxShadow: "0 2px 6px rgba(245,158,11,0.35)",
+                boxShadow: "0 2px 6px rgba(245,158,11,0.3)",
               }}
             >
               {added
@@ -262,16 +285,7 @@ export function FlashSaleSection() {
           {/* Right: countdown + voir tout */}
           <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
             {soonestEnd && !timer.expired && (
-              <div className="flex items-center gap-1.5">
-                <span className="text-[9px] uppercase tracking-wide font-semibold text-gray-400 mr-0.5 whitespace-nowrap">
-                  Fin dans
-                </span>
-                <TimeBlock value={timer.h} label="h" />
-                <span className="text-xs font-bold text-gray-400 pb-3.5">:</span>
-                <TimeBlock value={timer.m} label="min" />
-                <span className="text-xs font-bold text-gray-400 pb-3.5">:</span>
-                <TimeBlock value={timer.s} label="sec" />
-              </div>
+              <TimerRow timer={timer} />
             )}
             <Link
               href="/produits?section=flashsale"
