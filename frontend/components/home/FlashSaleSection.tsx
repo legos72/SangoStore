@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Zap, Heart, Star, ShoppingCart } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Zap, Heart, Star } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { api, getImageUrl } from "@/lib/api";
 import { apiToProduct } from "@/lib/adapters";
 import { useCart } from "@/contexts/CartContext";
@@ -95,7 +96,7 @@ function FlashCardSkeleton() {
 function FlashDealCard({ product }: { product: Product }) {
   const [imgError, setImgError] = useState(false);
   const [liked, setLiked]       = useState(false);
-  const [added, setAdded]       = useState(false);
+  const router                  = useRouter();
   const { addItem }             = useCart();
 
   const imgSrc    = !imgError && product.images[0] ? getImageUrl(product.images[0]) : null;
@@ -110,12 +111,11 @@ function FlashDealCard({ product }: { product: Product }) {
     return `$${p.toLocaleString("fr-FR")}`;
   };
 
-  function handleCart(e: React.MouseEvent) {
+  function handleBuy(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     addItem(product);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1400);
+    router.push("/panier");
   }
 
   const stars = Math.round(product.rating || 4);
@@ -178,30 +178,28 @@ function FlashDealCard({ product }: { product: Product }) {
             )}
           </div>
 
-          {/* Stars + cart */}
-          <div className="flex items-center justify-between gap-1">
-            <div className="flex items-center gap-px flex-shrink-0">
-              {[1, 2, 3, 4, 5].map(s => (
-                <Star key={s} className={`w-2.5 h-2.5 ${s <= stars ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
-              ))}
-              {(product.reviewCount ?? 0) > 0 && (
-                <span className="text-[9px] text-gray-400 ml-0.5">({product.reviewCount})</span>
-              )}
-            </div>
-            <button
-              onClick={handleCart}
-              className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 transition-all active:scale-90"
-              style={{
-                background: added ? "#22c55e" : "#F59E0B",
-                boxShadow: "0 2px 6px rgba(245,158,11,0.3)",
-              }}
-            >
-              {added
-                ? <span className="text-white text-[10px] font-black">✓</span>
-                : <ShoppingCart className="w-3.5 h-3.5 text-white" />
-              }
-            </button>
+          {/* Stars */}
+          <div className="flex items-center gap-px">
+            {[1, 2, 3, 4, 5].map(s => (
+              <Star key={s} className={`w-2.5 h-2.5 ${s <= stars ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
+            ))}
+            {(product.reviewCount ?? 0) > 0 && (
+              <span className="text-[9px] text-gray-400 ml-0.5">({product.reviewCount})</span>
+            )}
           </div>
+
+          {/* Bouton Acheter */}
+          <button
+            onClick={handleBuy}
+            className="w-full h-8 flex items-center justify-center text-[11px] font-bold text-white transition-all active:scale-[0.97]"
+            style={{
+              background: "linear-gradient(180deg, #E5B238 0%, #C99214 100%)",
+              borderRadius: "30px",
+              boxShadow: "0 2px 8px rgba(201,146,20,0.35)",
+            }}
+          >
+            Acheter
+          </button>
 
         </div>
       </div>

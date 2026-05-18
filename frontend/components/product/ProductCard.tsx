@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, Heart, Check, Package } from "lucide-react";
+import { Heart, Package } from "lucide-react";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import type { Product } from "@/lib/types";
@@ -57,12 +57,10 @@ function StarRow({ rating, count }: { rating: number; count: number }) {
 export function ProductCard({ product, className, variant = "grid" }: ProductCardProps) {
   const router = useRouter();
   const [liked,     setLiked]     = useState(false);
-  const [justAdded, setJustAdded] = useState(false);
   const [imgError,  setImgError]  = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
-  const { addItem, isInCart }     = useCart();
+  const { addItem }               = useCart();
   const { format, formatOriginal, currency } = useCurrency();
-  const inCart = isInCart(product.id);
   const isList = variant === "list";
 
   const promoActive =
@@ -83,6 +81,12 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
   const extraBadge     = getExtraBadge(product);
   const lowStock       = product.stock > 0 && product.stock <= 5;
 
+  const buyBtnStyle = {
+    background: "linear-gradient(180deg, #E5B238 0%, #C99214 100%)",
+    borderRadius: "30px",
+    boxShadow: "0 2px 8px rgba(201,146,20,0.35)",
+  } as const;
+
   useEffect(() => {
     try {
       const wl: string[] = JSON.parse(localStorage.getItem(WISHLIST_KEY) ?? "[]");
@@ -98,18 +102,6 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
     else { const i = wl.indexOf(product.id); if (i > -1) wl.splice(i, 1); }
     localStorage.setItem(WISHLIST_KEY, JSON.stringify(wl));
     setLiked(next);
-  }
-
-  function handleAddToCart(e: React.MouseEvent) {
-    e.preventDefault(); e.stopPropagation();
-    if (!product.isAvailable || product.stock === 0) return;
-    addItem(product, 1);
-    track("add_to_cart", { product_id: product.id, product_name: product.title, category: product.category });
-    setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 1800);
-    toast.success(`${truncate(product.title, 28)} ajouté au panier`, {
-      duration: 2000, icon: "🛒", style: { fontWeight: 600 },
-    });
   }
 
   function handleBuyNow(e: React.MouseEvent) {
@@ -221,28 +213,13 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
             </div>
 
             {product.isAvailable && product.stock > 0 ? (
-              <div className="flex items-center gap-1.5 flex-shrink-0">
-                <button
-                  onClick={handleAddToCart}
-                  className={cn(
-                    "w-7 h-7 rounded-full flex items-center justify-center transition-all duration-150 active:scale-90 border",
-                    justAdded
-                      ? "bg-green-500 border-green-500 text-white shadow-sm shadow-green-200/50"
-                      : inCart
-                      ? "bg-orange-100 border-orange-200 text-orange-600"
-                      : "bg-white border-gray-200 text-gray-400 hover:border-orange-300 hover:text-orange-500 hover:bg-orange-50"
-                  )}
-                >
-                  {justAdded ? <Check className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
-                </button>
-                <button
-                  onClick={handleBuyNow}
-                  className="h-7 px-3.5 rounded-full flex items-center justify-center text-[11px] font-bold text-[#1a0f00] transition-all duration-150 active:scale-[0.97] tracking-wide"
-                  style={{ background: "linear-gradient(135deg, #F59E0B 0%, #D4961E 100%)", boxShadow: "0 2px 8px rgba(212,150,30,0.35)" }}
-                >
-                  Acheter
-                </button>
-              </div>
+              <button
+                onClick={handleBuyNow}
+                className="h-8 px-4 flex items-center justify-center text-[11px] font-bold text-white transition-all duration-150 active:scale-[0.97] tracking-wide flex-shrink-0"
+                style={buyBtnStyle}
+              >
+                Acheter
+              </button>
             ) : (
               <span className="text-[10px] font-medium text-gray-300 flex-shrink-0">Indispo.</span>
             )}
@@ -382,31 +359,15 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
             </div>
           )}
 
-          {/* ── Boutons ── */}
+          {/* ── Bouton Acheter ── */}
           {product.isAvailable && product.stock > 0 ? (
-            <div className="flex gap-1.5 mt-1.5">
-              <button
-                onClick={handleAddToCart}
-                title={justAdded ? "Ajouté !" : inCart ? "Dans le panier" : "Ajouter au panier"}
-                className={cn(
-                  "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-150 active:scale-90 border",
-                  justAdded
-                    ? "bg-green-500 border-green-500 text-white shadow-sm shadow-green-200/50"
-                    : inCart
-                    ? "bg-orange-100 border-orange-200 text-orange-600"
-                    : "bg-white border-gray-200 text-gray-400 hover:border-orange-300 hover:text-orange-500 hover:bg-orange-50"
-                )}
-              >
-                {justAdded ? <Check className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
-              </button>
-              <button
-                onClick={handleBuyNow}
-                className="flex-1 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-[#1a0f00] transition-all duration-150 active:scale-[0.97] tracking-wide"
-                style={{ background: "linear-gradient(135deg, #F59E0B 0%, #D4961E 100%)", boxShadow: "0 2px 8px rgba(212,150,30,0.35)" }}
-              >
-                Acheter
-              </button>
-            </div>
+            <button
+              onClick={handleBuyNow}
+              className="w-full h-8 mt-1.5 flex items-center justify-center text-[11px] font-bold text-white transition-all duration-150 active:scale-[0.97] tracking-wide"
+              style={buyBtnStyle}
+            >
+              Acheter
+            </button>
           ) : (
             <div className="mt-1.5 flex items-center justify-center">
               <span className="text-[10px] text-gray-300 font-medium">Indisponible</span>
