@@ -287,7 +287,7 @@ export function Navbar() {
             {/* Panier */}
             <Link
               href="/panier"
-              className="relative flex items-center px-2 py-2 hover:bg-gray-50 rounded-lg transition-colors"
+              className="relative flex items-center gap-1.5 px-2 py-2 hover:bg-gray-50 rounded-lg transition-colors"
               aria-label="Mon panier"
             >
               <div className="relative">
@@ -301,6 +301,7 @@ export function Navbar() {
                   </span>
                 )}
               </div>
+              <span className="hidden sm:inline text-sm text-gray-600">Panier</span>
             </Link>
 
             {/* Hamburger mobile */}
