@@ -43,10 +43,10 @@ const HOW_IT_WORKS = [
 export default function HomePage() {
   return (
     <>
-      {/* ── Desktop : sidebar catégories + hero côte à côte ─────────────── */}
+      {/* ── Desktop : sidebar + hero + barre de confiance ──────────────── */}
       <div className="hidden lg:flex bg-white border-b border-gray-100">
 
-          {/* Sidebar catégories — alignée avec la navbar */}
+          {/* Sidebar catégories */}
           <aside className="w-60 flex-shrink-0 border-r border-gray-100/80 bg-white py-1.5">
             {SIDEBAR_CATEGORIES.map(cat => (
               <Link
@@ -70,34 +70,32 @@ export default function HomePage() {
             </div>
           </aside>
 
-          {/* Hero banner — prend le reste de l'espace */}
-          <div className="flex-1 min-w-0">
-            <HeroSection />
+          {/* Colonne droite : petit espace + bannière + barre de confiance */}
+          <div className="flex-1 min-w-0 flex flex-col">
+            {/* Espace latéral + bannière */}
+            <div className="flex-1 px-3 py-3">
+              <HeroSection />
+            </div>
+            {/* Barre de confiance — alignée exactement sous la bannière */}
+            <div className="mx-3 border-t border-gray-100 grid grid-cols-4 divide-x divide-gray-100">
+              {TRUST_ITEMS.map(({ Icon, color, title, sub }) => (
+                <div key={title} className="flex items-center gap-3 px-4 py-3.5">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${color}18` }}>
+                    <Icon className="w-4 h-4" style={{ color }} />
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-semibold text-gray-900 leading-tight">{title}</p>
+                    <p className="text-[11px] text-gray-400">{sub}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
       </div>
 
       {/* ── Mobile : hero seul ─────────────────────────────────────────── */}
       <div className="lg:hidden">
         <HeroSection />
-      </div>
-
-      {/* ── Barre de confiance — desktop uniquement ─────────────────────── */}
-      <div className="hidden lg:block bg-white border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-4 divide-x divide-gray-100">
-            {TRUST_ITEMS.map(({ Icon, color, title, sub }) => (
-              <div key={title} className="flex items-center gap-3 px-4 py-3.5">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${color}18` }}>
-                  <Icon className="w-4.5 h-4.5" style={{ color }} />
-                </div>
-                <div>
-                  <p className="text-[13px] font-semibold text-gray-900 leading-tight">{title}</p>
-                  <p className="text-[11px] text-gray-400">{sub}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* ── Catégories populaires — mobile uniquement ───────────────────── */}
