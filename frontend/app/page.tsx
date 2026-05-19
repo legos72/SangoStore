@@ -48,22 +48,22 @@ export default function HomePage() {
         <div className="flex max-w-6xl mx-auto">
 
           {/* Sidebar catégories — alignée avec la navbar */}
-          <aside className="w-56 xl:w-60 flex-shrink-0 border-r border-gray-100/80 bg-white py-1.5">
+          <aside className="w-60 flex-shrink-0 border-r border-gray-100/80 bg-white py-1.5">
             {SIDEBAR_CATEGORIES.map(cat => (
               <Link
                 key={cat.slug}
                 href={cat.href}
-                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#F0F7F4] hover:text-[#1B3A2D] transition-colors group"
+                className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 hover:bg-[#F0F7F4] hover:text-[#1B3A2D] transition-colors group"
               >
                 <cat.Icon className="w-4 h-4 flex-shrink-0" style={{ color: cat.iconColor }} />
                 <span className="flex-1 truncate">{cat.label}</span>
                 <ChevronRight className="w-3.5 h-3.5 text-gray-200 group-hover:text-[#1B3A2D] transition-colors flex-shrink-0" />
               </Link>
             ))}
-            <div className="mx-3 mt-1 border-t border-gray-100 pt-1">
+            <div className="border-t border-gray-100 mt-1">
               <Link
                 href="/produits"
-                className="flex items-center gap-2 px-1 py-2 text-[12px] font-semibold text-[#1B3A2D] hover:bg-[#F0F7F4] rounded-lg transition-colors"
+                className="flex items-center gap-2 px-3 py-2.5 text-[12px] font-semibold text-[#1B3A2D] hover:bg-[#F0F7F4] transition-colors"
               >
                 Voir toutes les catégories
                 <ChevronRight className="w-3.5 h-3.5 ml-auto" />

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  ShoppingBag, Truck, Menu, X, Search, MapPin, Globe,
+  ShoppingBag, Truck, Menu, X, Search,
   Package, ShoppingCart, User, LogOut, ChevronDown, ChevronRight,
   Shield, Store, Shirt, Briefcase, Smartphone, Sparkles,
   Home, UtensilsCrossed, Dumbbell, Tag,
@@ -321,7 +321,7 @@ export function Navbar() {
             <button
               onClick={() => setCategoriesOpen(o => !o)}
               onMouseEnter={() => setCategoriesOpen(true)}
-              className="flex items-center gap-2 h-full px-5 text-white text-[13px] font-semibold transition-colors hover:opacity-95 flex-shrink-0"
+              className="flex items-center gap-2 h-full px-3 text-white text-[13px] font-semibold transition-colors hover:opacity-95 flex-shrink-0"
               style={{ background: "#1B3A2D" }}
             >
               <Menu className="w-4 h-4" />
@@ -331,7 +331,7 @@ export function Navbar() {
 
             {categoriesOpen && (
               <div
-                className="absolute left-0 top-full w-64 bg-white border border-gray-100 rounded-b-xl shadow-2xl z-50 py-1 animate-fade-in"
+                className="absolute left-0 top-full w-60 bg-white border border-gray-100 rounded-b-xl shadow-2xl z-50 py-1 animate-fade-in"
                 onMouseLeave={() => setCategoriesOpen(false)}
               >
                 {DESKTOP_CATEGORIES.map(cat => (
@@ -339,7 +339,7 @@ export function Navbar() {
                     key={cat.slug}
                     href={cat.href}
                     onClick={() => setCategoriesOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#F0F7F4] hover:text-[#1B3A2D] transition-colors group"
+                    className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 hover:bg-[#F0F7F4] hover:text-[#1B3A2D] transition-colors group"
                   >
                     <cat.Icon className="w-4 h-4 flex-shrink-0" style={{ color: cat.iconColor }} />
                     {cat.label}
@@ -350,7 +350,7 @@ export function Navbar() {
                   <Link
                     href="/produits"
                     onClick={() => setCategoriesOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-semibold text-[#1B3A2D] hover:bg-[#F0F7F4] transition-colors"
+                    className="flex items-center gap-2 px-3 py-2.5 text-[13px] font-semibold text-[#1B3A2D] hover:bg-[#F0F7F4] transition-colors"
                   >
                     Voir toutes les catégories
                     <ChevronRight className="w-3.5 h-3.5 ml-auto" />
