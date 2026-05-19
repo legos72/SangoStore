@@ -156,17 +156,17 @@ function FlashDealCard({ product }: { product: Product }) {
           </button>
         </div>
 
-        {/* Content — ultra compact */}
-        <div className="px-2.5 pt-1.5 pb-2 flex flex-col gap-1">
+        {/* Content */}
+        <div className="px-2.5 pt-2 pb-2 flex flex-col gap-1.5">
 
-          {/* Title */}
+          {/* Catégorie invisible / titre */}
           <p className="text-[11px] font-semibold text-gray-800 line-clamp-2 leading-snug" style={{ minHeight: "2.2em" }}>
             {product.title}
           </p>
 
-          {/* Prices */}
+          {/* Prix */}
           <div className="flex items-baseline gap-1.5 flex-wrap">
-            <span className="text-sm font-extrabold leading-none" style={{ color: "#EF4444" }}>
+            <span className="text-[13px] font-bold leading-none" style={{ color: "#D97706" }}>
               {fmt(display)}
             </span>
             {original != null && (
@@ -176,13 +176,13 @@ function FlashDealCard({ product }: { product: Product }) {
             )}
           </div>
 
-          {/* Bouton Acheter */}
+          {/* Bouton */}
           <button
             onClick={handleBuy}
-            className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl border border-gray-100 bg-gray-50 hover:bg-orange-50 hover:border-orange-200 transition-all active:scale-[0.97]"
+            className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg border border-gray-100/80 bg-gray-50 hover:bg-gray-100 transition-colors active:opacity-70"
           >
             <ShoppingCart className="w-3.5 h-3.5 text-gray-400" />
-            <span className="text-[11px] font-bold" style={{ color: "#C2440A" }}>Acheter</span>
+            <span className="text-[11px] font-semibold text-gray-700">Acheter</span>
           </button>
 
         </div>
@@ -244,38 +244,31 @@ export function FlashSaleSection() {
       <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
 
         {/* ── Header ─────────────────────────────────────────────────────── */}
-        <div className="flex items-start justify-between gap-2 mb-3 sm:mb-4">
-
-          {/* Left: icon + title */}
-          <div className="flex items-center gap-2">
-            <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: "linear-gradient(135deg, #ef4444 0%, #f97316 100%)" }}
-            >
-              <Zap className="w-3.5 h-3.5 text-white fill-white stroke-none" />
-            </div>
-            <div>
-              <p className="text-[9px] font-extrabold uppercase tracking-widest text-orange-500">
+        <div className="flex items-end justify-between gap-4 mb-4 sm:mb-5">
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <div className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 bg-orange-500">
+                <Zap className="w-2.5 h-2.5 text-white fill-white stroke-none" />
+              </div>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-orange-500">
                 Offres limitées
-              </p>
-              <h2 className="text-base sm:text-lg font-black text-gray-900 leading-tight tracking-tight">
-                Offres Flash
-              </h2>
+              </span>
+              {soonestEnd && !timer.expired && (
+                <span className="ml-1">
+                  <TimerRow timer={timer} />
+                </span>
+              )}
             </div>
+            <h2 className="text-[18px] sm:text-[20px] font-bold text-gray-900 leading-tight">
+              Offres Flash
+            </h2>
           </div>
-
-          {/* Right: countdown + voir tout */}
-          <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-            {soonestEnd && !timer.expired && (
-              <TimerRow timer={timer} />
-            )}
-            <Link
-              href="/produits?section=flashsale"
-              className="flex items-center gap-0.5 text-xs font-semibold text-orange-500 hover:text-orange-600 transition-colors"
-            >
-              Voir tout <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
+          <Link
+            href="/produits?section=flashsale"
+            className="flex items-center gap-0.5 text-[12px] font-semibold text-gray-500 hover:text-gray-900 transition-colors whitespace-nowrap pb-0.5"
+          >
+            Voir tout <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
         {/* ── Scroll row ──────────────────────────────────────────────────── */}

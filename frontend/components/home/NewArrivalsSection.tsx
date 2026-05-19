@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { ArrowRight, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Tag, ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductCardSkeleton } from "@/components/product/ProductCardSkeleton";
 import { api } from "@/lib/api";
@@ -53,24 +53,25 @@ export function NewArrivalsSection() {
       <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-3 sm:mb-5">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-sm"
-              style={{ background: "linear-gradient(135deg, #1B3A2D 0%, #2d6a4f 100%)" }}>
-              <Sparkles className="w-4 h-4 text-yellow-400" />
-            </div>
-            <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-widest" style={{ color: "#1B3A2D" }}>
+        <div className="flex items-end justify-between gap-4 mb-4 sm:mb-5">
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <div className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
+                style={{ background: "#1B3A2D" }}>
+                <Tag className="w-2.5 h-2.5 text-amber-400" />
+              </div>
+              <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "#1B3A2D" }}>
                 Nouveautés
-              </p>
-              <h2 className="text-base sm:text-xl font-extrabold text-gray-900 leading-tight">
-                Dernières arrivées
-              </h2>
+              </span>
             </div>
+            <h2 className="text-[18px] sm:text-[20px] font-bold text-gray-900 leading-tight">
+              Nos derniers produits
+            </h2>
           </div>
-          <Link href="/produits?sortBy=newest"
-            className="flex items-center gap-1 text-xs font-semibold transition-colors hover:opacity-80"
-            style={{ color: "#1B3A2D" }}>
+          <Link
+            href="/produits?sortBy=newest"
+            className="flex items-center gap-0.5 text-[12px] font-semibold text-gray-500 hover:text-gray-900 transition-colors whitespace-nowrap pb-0.5"
+          >
             Voir tout <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>

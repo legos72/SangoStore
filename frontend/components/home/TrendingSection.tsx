@@ -53,24 +53,24 @@ export function TrendingSection() {
       <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-3 sm:mb-5">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-sm"
-              style={{ background: "linear-gradient(135deg, #FF6B35 0%, #F59E0B 100%)" }}>
-              <Flame className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-widest" style={{ color: "#FF6B35" }}>
+        <div className="flex items-end justify-between gap-4 mb-4 sm:mb-5">
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <div className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 bg-amber-500">
+                <Flame className="w-2.5 h-2.5 text-white" />
+              </div>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-amber-600">
                 Tendances
-              </p>
-              <h2 className="text-base sm:text-xl font-extrabold text-gray-900 leading-tight">
-                Produits tendances
-              </h2>
+              </span>
             </div>
+            <h2 className="text-[18px] sm:text-[20px] font-bold text-gray-900 leading-tight">
+              Produits tendances
+            </h2>
           </div>
-          <Link href="/produits?section=trending"
-            className="flex items-center gap-1 text-xs font-semibold transition-colors hover:opacity-80"
-            style={{ color: "#FF6B35" }}>
+          <Link
+            href="/produits?section=trending"
+            className="flex items-center gap-0.5 text-[12px] font-semibold text-gray-500 hover:text-gray-900 transition-colors whitespace-nowrap pb-0.5"
+          >
             Voir tout <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -103,12 +103,12 @@ export function TrendingSection() {
           >
             {loading
               ? Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="flex-shrink-0 flex flex-col" style={{ width: "clamp(148px, 42vw, 192px)" }}>
+                  <div key={i} className="flex-shrink-0 flex flex-col" style={{ width: "clamp(160px, 43vw, 220px)" }}>
                     <ProductCardSkeleton />
                   </div>
                 ))
               : products.map(product => (
-                  <div key={product.id} className="flex-shrink-0 flex flex-col" style={{ width: "clamp(148px, 42vw, 192px)" }}>
+                  <div key={product.id} className="flex-shrink-0 flex flex-col" style={{ width: "clamp(160px, 43vw, 220px)" }}>
                     <ProductCard product={product} className="flex-1" />
                   </div>
                 ))
