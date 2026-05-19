@@ -103,12 +103,12 @@ export function NewArrivalsSection() {
           >
             {loading
               ? Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="flex-shrink-0 flex flex-col" style={{ width: "clamp(148px, 42vw, 192px)" }}>
+                  <div key={i} className="flex-shrink-0 flex flex-col" style={{ width: "clamp(180px, 44vw, 240px)" }}>
                     <ProductCardSkeleton />
                   </div>
                 ))
               : products.map(product => (
-                  <div key={product.id} className="flex-shrink-0 flex flex-col" style={{ width: "clamp(148px, 42vw, 192px)" }}>
+                  <div key={product.id} className="flex-shrink-0 flex flex-col" style={{ width: "clamp(180px, 44vw, 240px)" }}>
                     <ProductCard product={product} className="flex-1" />
                   </div>
                 ))

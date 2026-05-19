@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Heart, Package } from "lucide-react";
+import { Heart, Package, ShoppingCart } from "lucide-react";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import type { Product } from "@/lib/types";
@@ -37,22 +37,6 @@ function getExtraBadge(p: Product): { label: string; cls: string } | null {
   return null;
 }
 
-// ─── Étoiles ─────────────────────────────────────────────────────────────────
-
-function StarRow({ rating, count }: { rating: number; count: number }) {
-  if (!rating || !count) return null;
-  const full = Math.min(5, Math.round(rating));
-  return (
-    <div className="flex items-center gap-1 mb-1">
-      <div className="flex gap-px">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <span key={i} className={cn("text-[10px] leading-none", i < full ? "text-amber-400" : "text-gray-200")}>★</span>
-        ))}
-      </div>
-      <span className="text-[9px] text-gray-400 font-medium">({count})</span>
-    </div>
-  );
-}
 
 export function ProductCard({ product, className, variant = "grid" }: ProductCardProps) {
   const router = useRouter();
@@ -79,13 +63,6 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
 
   const showConversion = product.currency !== currency;
   const extraBadge     = getExtraBadge(product);
-  const lowStock       = product.stock > 0 && product.stock <= 5;
-
-  const buyBtnStyle = {
-    background: "linear-gradient(180deg, #E5B238 0%, #C99214 100%)",
-    borderRadius: "30px",
-    boxShadow: "0 2px 8px rgba(201,146,20,0.35)",
-  } as const;
 
   useEffect(() => {
     try {
@@ -178,15 +155,12 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
               {product.category}
             </span>
           </div>
-          <StarRow rating={product.rating} count={product.reviewCount} />
           <Link href={`/produits/${product.id}`}>
             <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug group-hover:text-orange-600 transition-colors">
               {product.title}
             </h3>
           </Link>
-          {lowStock && (
-            <p className="text-[9px] font-bold text-red-500 mt-0.5">Plus que {product.stock} dispo !</p>
-          )}
+
 
           <div className="mt-auto pt-2 flex items-center justify-between gap-2">
             <div className="min-w-0">
@@ -215,10 +189,10 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
             {product.isAvailable && product.stock > 0 ? (
               <button
                 onClick={handleBuyNow}
-                className="h-8 px-4 flex items-center justify-center text-[11px] font-bold text-white transition-all duration-150 active:scale-[0.97] tracking-wide flex-shrink-0"
-                style={buyBtnStyle}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-100 bg-gray-50 hover:bg-orange-50 hover:border-orange-200 transition-all active:scale-[0.97] flex-shrink-0"
               >
-                Acheter
+                <ShoppingCart className="w-3.5 h-3.5 text-gray-400" />
+                <span className="text-[11px] font-bold" style={{ color: "#C2440A" }}>Acheter</span>
               </button>
             ) : (
               <span className="text-[10px] font-medium text-gray-300 flex-shrink-0">Indispo.</span>
@@ -233,15 +207,16 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
   return (
     <div
       className={cn(
-        "group relative flex flex-col rounded-2xl overflow-hidden bg-white",
-        "shadow-[0_1px_8px_rgba(0,0,0,0.06)]",
-        "hover:shadow-[0_8px_28px_rgba(0,0,0,0.11)]",
-        "hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200",
+        "group flex flex-col rounded-2xl overflow-hidden bg-white",
+        "border border-gray-100",
+        "shadow-[0_2px_12px_rgba(0,0,0,0.06)]",
+        "hover:shadow-[0_8px_32px_rgba(0,0,0,0.10)]",
+        "hover:-translate-y-0.5 transition-all duration-200",
         className
       )}
     >
       {/* ── IMAGE ── */}
-      <Link href={`/produits/${product.id}`} className="relative aspect-square overflow-hidden flex-shrink-0 bg-gray-100 block">
+      <Link href={`/produits/${product.id}`} className="relative aspect-square overflow-hidden flex-shrink-0 bg-gray-50 block">
         {!imgLoaded && !imgError && imgSrc && (
           <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse" />
         )}
@@ -252,7 +227,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
             alt={product.title}
             className={cn(
               "w-full h-full object-cover transition-all duration-500 ease-out",
-              imgLoaded ? "opacity-100 group-hover:scale-[1.06]" : "opacity-0"
+              imgLoaded ? "opacity-100 group-hover:scale-[1.05]" : "opacity-0"
             )}
             loading="lazy"
             onLoad={() => setImgLoaded(true)}
@@ -260,37 +235,34 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
           />
         )}
 
-        {/* Overlay hover desktop — "Voir le produit" */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 hidden sm:block" />
-
         {/* Promo badge — top left */}
         {promoActive && (
-          <span className="absolute top-2 left-2 z-20 bg-red-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shadow-sm">
+          <span className="absolute top-2.5 left-2.5 z-20 bg-red-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-sm">
             -{discountPct}%
           </span>
         )}
 
-        {/* Extra badge — bottom left */}
-        {extraBadge && (
+        {/* Extra badge — top left (si pas de promo) */}
+        {extraBadge && !promoActive && (
           <span className={cn(
-            "absolute bottom-2 left-2 z-20 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm",
+            "absolute top-2.5 left-2.5 z-20 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm",
             extraBadge.cls
           )}>
             {extraBadge.label}
           </span>
         )}
 
-        {/* Wishlist */}
+        {/* Wishlist — always visible on mobile, hover on desktop */}
         <button
           onClick={toggleLike}
           className={cn(
-            "absolute top-2 right-2 z-20 w-7 h-7 rounded-full flex items-center justify-center",
-            "bg-white/90 backdrop-blur-sm shadow-sm transition-all duration-150 active:scale-90",
-            liked ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            "absolute top-2.5 right-2.5 z-20 w-8 h-8 rounded-full flex items-center justify-center",
+            "bg-white shadow-[0_1px_6px_rgba(0,0,0,0.12)] transition-all duration-150 active:scale-90",
+            "sm:opacity-0 sm:group-hover:opacity-100 opacity-100"
           )}
           aria-label={liked ? "Retirer des favoris" : "Ajouter aux favoris"}
         >
-          <Heart className={cn("w-3.5 h-3.5", liked ? "fill-red-500 text-red-500" : "text-gray-400")} />
+          <Heart className={cn("w-4 h-4", liked ? "fill-red-500 text-red-500" : "text-gray-400")} />
         </button>
 
         {/* Unavailable overlay */}
@@ -304,76 +276,67 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
       </Link>
 
       {/* ── CONTENT ── */}
-      <div className="flex flex-col flex-1 px-3 pt-2.5 pb-3">
+      <div className="flex flex-col px-4 pt-3 pb-3">
 
         {/* Flag + catégorie */}
-        <div className="flex items-center gap-1 mb-1">
+        <div className="flex items-center gap-1.5 mb-1.5">
           <FlagImage code={product.originCountry?.code ?? ""} size="sm" />
-          <span className="text-[10px] text-gray-400 capitalize tracking-wide truncate font-medium">
+          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider truncate">
             {product.category}
           </span>
           {product.seller?.isVerified && (
-            <span className="ml-auto text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1 py-px rounded flex-shrink-0">✓ Vérifié</span>
+            <span className="ml-auto text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1 py-px rounded flex-shrink-0">✓</span>
           )}
         </div>
 
-        {/* Étoiles */}
-        <StarRow rating={product.rating} count={product.reviewCount} />
-
         {/* Titre */}
         <Link href={`/produits/${product.id}`}>
-          <h3 className="text-[12px] sm:text-[13px] font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-orange-600 transition-colors mb-1.5 min-h-[32px]">
+          <h3 className="text-[14px] sm:text-[15px] font-bold text-gray-900 leading-snug line-clamp-2 group-hover:text-orange-700 transition-colors mb-2.5" style={{ minHeight: "2.6em" }}>
             {product.title}
           </h3>
         </Link>
 
-        {/* Stock faible */}
-        {lowStock && (
-          <p className="text-[9px] font-bold text-red-500 mb-1">⚠ Plus que {product.stock} dispo !</p>
-        )}
-
         {/* Prix */}
-        <div className="mt-auto">
-          <div className="flex items-baseline gap-1 flex-wrap mb-0.5">
-            <span className={cn(
-              "text-sm font-extrabold leading-none whitespace-nowrap",
-              promoActive ? "text-orange-600" : "text-gray-900"
-            )}>
+        <div>
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="text-[17px] font-extrabold leading-none whitespace-nowrap" style={{ color: "#C2850A" }}>
               {format(displayPrice, product.currency)}
             </span>
             {promoActive && (
-              <span className="text-[10px] text-gray-400 line-through leading-none">
+              <span className="text-xs text-gray-400 line-through leading-none">
                 {format(product.price, product.currency)}
               </span>
             )}
           </div>
           {showConversion && (
-            <p className="text-[10px] text-gray-400 mb-1">≈&nbsp;{formatOriginal(displayPrice, product.currency)}</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">≈&nbsp;{formatOriginal(displayPrice, product.currency)}</p>
           )}
           {bestTier && (
-            <div className="flex items-center gap-1 mb-1.5">
+            <div className="flex items-center gap-1 mt-1">
               <span className="text-[9px] font-bold bg-indigo-50 text-indigo-500 px-1.5 py-px rounded-full leading-none">GROS</span>
-              <span className="text-[10px] text-indigo-500 leading-none whitespace-nowrap font-semibold">
+              <span className="text-[10px] text-indigo-500 whitespace-nowrap font-semibold">
                 {format(bestTier.price, product.currency)}
               </span>
             </div>
           )}
-
-          {/* ── Bouton Acheter ── */}
-          {product.isAvailable && product.stock > 0 ? (
-            <button
-              onClick={handleBuyNow}
-              className="w-full h-8 mt-1.5 flex items-center justify-center text-[11px] font-bold text-white transition-all duration-150 active:scale-[0.97] tracking-wide"
-              style={buyBtnStyle}
-            >
-              Acheter
-            </button>
-          ) : (
-            <div className="mt-1.5 flex items-center justify-center">
-              <span className="text-[10px] text-gray-300 font-medium">Indisponible</span>
-            </div>
-          )}
         </div>
+      </div>
+
+      {/* ── BOUTON — séparé par bordure en bas ── */}
+      <div className="border-t border-gray-100">
+        {product.isAvailable && product.stock > 0 ? (
+          <button
+            onClick={handleBuyNow}
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-orange-50 transition-colors active:scale-[0.98]"
+          >
+            <ShoppingCart className="w-4 h-4 text-gray-400" />
+            <span className="text-sm font-semibold" style={{ color: "#C2440A" }}>Acheter</span>
+          </button>
+        ) : (
+          <div className="px-4 py-3 flex items-center justify-center">
+            <span className="text-[11px] text-gray-300 font-medium">Indisponible</span>
+          </div>
+        )}
       </div>
     </div>
   );

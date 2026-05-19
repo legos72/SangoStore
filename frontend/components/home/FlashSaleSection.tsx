@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Zap, Heart, Star } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Zap, Heart, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { api, getImageUrl } from "@/lib/api";
 import { apiToProduct } from "@/lib/adapters";
@@ -118,8 +118,6 @@ function FlashDealCard({ product }: { product: Product }) {
     router.push("/panier");
   }
 
-  const stars = Math.round(product.rating || 4);
-
   return (
     <Link
       href={`/produits/${product.id}`}
@@ -178,27 +176,13 @@ function FlashDealCard({ product }: { product: Product }) {
             )}
           </div>
 
-          {/* Stars */}
-          <div className="flex items-center gap-px">
-            {[1, 2, 3, 4, 5].map(s => (
-              <Star key={s} className={`w-2.5 h-2.5 ${s <= stars ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
-            ))}
-            {(product.reviewCount ?? 0) > 0 && (
-              <span className="text-[9px] text-gray-400 ml-0.5">({product.reviewCount})</span>
-            )}
-          </div>
-
           {/* Bouton Acheter */}
           <button
             onClick={handleBuy}
-            className="w-full h-8 flex items-center justify-center text-[11px] font-bold text-white transition-all active:scale-[0.97]"
-            style={{
-              background: "linear-gradient(180deg, #E5B238 0%, #C99214 100%)",
-              borderRadius: "30px",
-              boxShadow: "0 2px 8px rgba(201,146,20,0.35)",
-            }}
+            className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl border border-gray-100 bg-gray-50 hover:bg-orange-50 hover:border-orange-200 transition-all active:scale-[0.97]"
           >
-            Acheter
+            <ShoppingCart className="w-3.5 h-3.5 text-gray-400" />
+            <span className="text-[11px] font-bold" style={{ color: "#C2440A" }}>Acheter</span>
           </button>
 
         </div>
