@@ -2,12 +2,17 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Zap, Heart, ShoppingCart } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Zap, Heart, ShoppingCart, Package } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { api, getImageUrl } from "@/lib/api";
 import { apiToProduct } from "@/lib/adapters";
 import { useCart } from "@/contexts/CartContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { FlagImage } from "@/components/ui/FlagImage";
 import type { Product } from "@/lib/types";
+
+const BRAND = "#1B3A2D";
+const GOLD  = "#B8860B";
 
 // ─── Countdown hook ───────────────────────────────────────────────────────────
 
@@ -74,18 +79,24 @@ function TimerRow({ timer }: { timer: { h: number; m: number; s: number; expired
 function FlashCardSkeleton() {
   return (
     <div
-      className="flex-shrink-0 bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm"
-      style={{ width: "clamp(148px, 40vw, 175px)" }}
+      className="flex-shrink-0 flex flex-col rounded-xl overflow-hidden bg-white border border-gray-100/80"
+      style={{ width: "clamp(160px, 44vw, 200px)" }}
     >
-      <div className="shimmer-bg" style={{ height: "clamp(158px, 43vw, 188px)" }} />
-      <div className="px-2.5 pt-2 pb-2.5 space-y-1.5">
-        <div className="shimmer-bg rounded-full h-2.5 w-full" />
-        <div className="shimmer-bg rounded-full h-2.5 w-3/4" />
-        <div className="shimmer-bg rounded-full h-4 w-20" />
-        <div className="flex justify-between items-center pt-0.5">
-          <div className="shimmer-bg rounded-full h-2 w-16" />
-          <div className="shimmer-bg rounded-xl h-7 w-7" />
+      <div className="aspect-square shimmer-bg flex-shrink-0" />
+      <div className="px-3 pt-2 pb-2 space-y-1.5">
+        <div className="flex items-center gap-1">
+          <div className="shimmer-bg rounded-full h-2.5 w-2.5" />
+          <div className="shimmer-bg rounded-full h-2 w-12" />
         </div>
+        <div className="space-y-1">
+          <div className="shimmer-bg rounded-full h-3 w-full" />
+          <div className="shimmer-bg rounded-full h-3 w-2/3" />
+        </div>
+        <div className="shimmer-bg rounded-full h-3.5 w-16" />
+      </div>
+      <div className="border-t border-gray-100/80 px-3 py-2 flex items-center justify-between">
+        <div className="shimmer-bg rounded-full h-3 w-3" />
+        <div className="shimmer-bg rounded-full h-3 w-10" />
       </div>
     </div>
   );
@@ -94,22 +105,18 @@ function FlashCardSkeleton() {
 // ─── Flash Deal Card ──────────────────────────────────────────────────────────
 
 function FlashDealCard({ product }: { product: Product }) {
-  const [imgError, setImgError] = useState(false);
-  const [liked, setLiked]       = useState(false);
-  const router                  = useRouter();
-  const { addItem }             = useCart();
+  const [imgError,  setImgError]  = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [liked,     setLiked]     = useState(false);
+  const router    = useRouter();
+  const { addItem } = useCart();
+  const { format }  = useCurrency();
 
-  const imgSrc    = !imgError && product.images[0] ? getImageUrl(product.images[0]) : null;
-  const hasPromo  = product.promoPrice != null && product.promoPrice > 0 && product.promoPrice < product.price;
-  const display   = hasPromo ? product.promoPrice! : product.price;
-  const original  = hasPromo ? product.price : null;
-  const pct       = hasPromo ? Math.round((1 - product.promoPrice! / product.price) * 100) : null;
-
-  const fmt = (p: number) => {
-    if (product.currency === "XAF") return `${Math.round(p).toLocaleString("fr-FR")} F`;
-    if (product.currency === "EUR") return `${p.toLocaleString("fr-FR")} €`;
-    return `$${p.toLocaleString("fr-FR")}`;
-  };
+  const imgSrc   = !imgError && product.images[0] ? getImageUrl(product.images[0]) : null;
+  const hasPromo = product.promoPrice != null && product.promoPrice > 0 && product.promoPrice < product.price;
+  const display  = hasPromo ? product.promoPrice! : product.price;
+  const original = hasPromo ? product.price : null;
+  const pct      = hasPromo ? Math.round((1 - product.promoPrice! / product.price) * 100) : null;
 
   function handleBuy(e: React.MouseEvent) {
     e.preventDefault();
@@ -118,76 +125,101 @@ function FlashDealCard({ product }: { product: Product }) {
     router.push("/panier");
   }
 
+  const imgFallback = (
+    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100">
+      <Package className="w-8 h-8 text-gray-300" />
+    </div>
+  );
+
   return (
-    <Link
-      href={`/produits/${product.id}`}
-      className="group flex-shrink-0"
-      style={{ width: "clamp(148px, 40vw, 175px)" }}
+    <div
+      className="group flex-shrink-0 flex flex-col rounded-xl overflow-hidden bg-white border border-gray-100/80 shadow-[0_1px_8px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.09)] transition-shadow duration-200"
+      style={{ width: "clamp(160px, 44vw, 200px)" }}
     >
-      <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-200 group-hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] group-hover:-translate-y-0.5">
+      {/* Image */}
+      <Link href={`/produits/${product.id}`} className="relative aspect-square overflow-hidden flex-shrink-0 bg-gray-50 block">
+        {!imgLoaded && !imgError && imgSrc && (
+          <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+        )}
+        {imgError || !imgSrc ? imgFallback : (
+          <img
+            src={imgSrc}
+            alt={product.title}
+            onError={() => setImgError(true)}
+            onLoad={() => setImgLoaded(true)}
+            className={`w-full h-full object-cover transition-transform duration-500 ease-out ${imgLoaded ? "opacity-100 group-hover:scale-[1.04]" : "opacity-0"}`}
+            loading="lazy"
+          />
+        )}
 
-        {/* Image zone — dominant */}
-        <div className="relative overflow-hidden bg-gray-50" style={{ height: "clamp(158px, 43vw, 188px)" }}>
-          {imgSrc ? (
-            <img
-              src={imgSrc}
-              alt={product.title}
-              onError={() => setImgError(true)}
-              className="w-full h-full object-cover transition-transform duration-400 group-hover:scale-105"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-3xl text-gray-300">📦</div>
-          )}
+        {/* Promo badge */}
+        {pct != null && (
+          <span className="absolute top-2 left-2 z-20 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: BRAND }}>
+            −{pct}%
+          </span>
+        )}
 
-          {/* Promo badge */}
-          {pct != null && (
-            <div className="absolute top-2 left-2 px-1.5 py-[3px] rounded-md text-[9px] font-bold text-white leading-none"
-              style={{ background: "#1B3A2D" }}>
-              −{pct}%
-            </div>
-          )}
+        {/* Wishlist */}
+        <button
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLiked(l => !l); }}
+          className="absolute top-2 right-2 z-20 w-7 h-7 rounded-full flex items-center justify-center bg-white shadow-[0_1px_4px_rgba(0,0,0,0.10)] transition-all duration-150 active:scale-90"
+          aria-label={liked ? "Retirer des favoris" : "Ajouter aux favoris"}
+        >
+          <Heart className={`w-3.5 h-3.5 ${liked ? "fill-red-400 text-red-400" : "text-gray-300"}`} />
+        </button>
+      </Link>
 
-          {/* Favorite */}
-          <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLiked(l => !l); }}
-            className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/90 shadow-sm flex items-center justify-center transition-all active:scale-90 hover:bg-white"
-          >
-            <Heart className={`w-3 h-3 transition-colors ${liked ? "fill-[#1B3A2D] text-[#1B3A2D]" : "text-gray-300"}`} />
-          </button>
+      {/* Content */}
+      <Link href={`/produits/${product.id}`} className="flex flex-col px-3 pt-2 pb-2">
+        {/* Drapeau + catégorie */}
+        <div className="flex items-center gap-1 mb-1">
+          <FlagImage code={product.originCountry?.code ?? ""} size="sm" />
+          <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider truncate">
+            {product.category}
+          </span>
         </div>
 
-        {/* Content */}
-        <div className="px-2.5 pt-2 pb-2 flex flex-col gap-1.5">
+        {/* Titre */}
+        <h3
+          className="text-[13px] font-semibold text-gray-800 leading-snug line-clamp-2 group-hover:text-[#1B3A2D] transition-colors duration-150 mb-1.5"
+          style={{ minHeight: "2.8em" }}
+        >
+          {product.title}
+        </h3>
 
-          {/* Catégorie invisible / titre */}
-          <p className="text-[11px] font-semibold text-gray-800 line-clamp-2 leading-snug" style={{ minHeight: "2.2em" }}>
-            {product.title}
-          </p>
-
-          {/* Prix */}
-          <div className="flex items-baseline gap-1.5 flex-wrap">
-            <span className="text-[13px] font-semibold leading-none" style={{ color: "#B8860B" }}>
-              {fmt(display)}
+        {/* Prix */}
+        <div className="flex items-baseline gap-1.5 flex-wrap">
+          <span className="text-[14px] font-semibold leading-none whitespace-nowrap" style={{ color: GOLD }}>
+            {format(display, product.currency)}
+          </span>
+          {original != null && (
+            <span className="text-[10px] text-gray-400 line-through leading-none">
+              {format(original, product.currency)}
             </span>
-            {original != null && (
-              <span className="text-[10px] text-gray-400 line-through leading-none">
-                {fmt(original)}
-              </span>
-            )}
-          </div>
+          )}
+        </div>
+      </Link>
 
-          {/* Bouton */}
+      {/* Bouton — séparé par bordure */}
+      <div className="border-t border-gray-100/80 mt-auto">
+        {product.isAvailable && product.stock > 0 ? (
           <button
             onClick={handleBuy}
-            className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg border border-[#D1EAE0] hover:bg-[#F0F7F4] transition-colors active:opacity-70"
+            className="w-full px-3 py-2 flex items-center justify-between hover:bg-[#F0F7F4] transition-all duration-150 active:opacity-60 group/btn"
           >
-            <ShoppingCart className="w-3.5 h-3.5" style={{ color: "#1B3A2D" }} />
-            <span className="text-[11px] font-semibold" style={{ color: "#1B3A2D" }}>Acheter</span>
+            <ShoppingCart
+              className="w-3.5 h-3.5 transition-transform duration-150 group-hover/btn:scale-110"
+              style={{ color: BRAND }}
+            />
+            <span className="text-[11px] font-semibold" style={{ color: BRAND }}>Acheter</span>
           </button>
-
-        </div>
+        ) : (
+          <div className="px-3 py-2 flex items-center justify-center">
+            <span className="text-[10px] text-gray-300 font-medium">Indisponible</span>
+          </div>
+        )}
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -236,7 +268,7 @@ export function FlashSaleSection() {
   if (!loading && products.length === 0) return null;
 
   function scroll(dir: "left" | "right") {
-    scrollRef.current?.scrollBy({ left: dir === "left" ? -195 : 195, behavior: "smooth" });
+    scrollRef.current?.scrollBy({ left: dir === "left" ? -210 : 210, behavior: "smooth" });
   }
 
   return (
