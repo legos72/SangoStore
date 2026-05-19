@@ -98,11 +98,11 @@ export function Navbar() {
         { href: "/produits",               label: "Autres",          icon: Package         },
       ]
     : [
-        { href: "/produits",       label: "Produits",        icon: ShoppingBag },
-        { href: "/mode-africaine", label: "Mode Africaine",  icon: Shirt       },
-        { href: "/transporteurs",  label: "Envoi de colis",  icon: Truck       },
-        { href: "/suivi",          label: "Suivi colis",     icon: Package     },
-        { href: "/auth/register",  label: "Devenir vendeur", icon: Store       },
+        { href: "/",                    label: "Accueil",        icon: Home    },
+        { href: "/mode-africaine",      label: "Mode Africaine", icon: Shirt   },
+        { href: "/produits?promo=true", label: "Promotions",     icon: Tag     },
+        { href: "/transporteurs",       label: "Envoi de colis", icon: Truck   },
+        { href: "/suivi",               label: "Suivi colis",    icon: Package },
       ];
 
   function handleSearch(e: React.FormEvent) {
@@ -474,6 +474,26 @@ export function Navbar() {
           {/* Liens rapides */}
           <div className="flex items-center px-3 gap-0.5 flex-1 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
             <Link
+              href="/"
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
+                pathname === "/" ? "bg-gray-100 text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              )}
+            >
+              <Home className="w-3.5 h-3.5 text-gray-400" />
+              Accueil
+            </Link>
+            <Link
+              href="/mode-africaine"
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
+                pathname === "/mode-africaine" ? "bg-amber-50 text-amber-700 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              )}
+            >
+              <Shirt className="w-3.5 h-3.5" style={{ color: pathname === "/mode-africaine" ? "#D4961E" : "#9CA3AF" }} />
+              Mode africaine
+            </Link>
+            <Link
               href="/produits?promo=true"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors whitespace-nowrap flex-shrink-0"
             >
@@ -494,26 +514,6 @@ export function Navbar() {
             >
               <Truck className="w-3.5 h-3.5 text-gray-400" />
               Envoi de colis
-            </Link>
-            <Link
-              href="/mode-africaine"
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
-                pathname === "/mode-africaine" ? "bg-amber-50 text-amber-700 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              )}
-            >
-              <Shirt className="w-3.5 h-3.5" style={{ color: pathname === "/mode-africaine" ? "#D4961E" : "#9CA3AF" }} />
-              Mode africaine
-            </Link>
-            <Link
-              href="/produits"
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
-                pathname === "/produits" ? "bg-gray-100 text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              )}
-            >
-              <Store className="w-3.5 h-3.5 text-gray-400" />
-              Boutiques officielles
             </Link>
             <Link
               href="/suivi"
