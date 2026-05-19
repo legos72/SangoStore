@@ -10,6 +10,7 @@ import {
   Home, UtensilsCrossed, Dumbbell, Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
 import { LogoCart } from "@/components/ui/LogoCart";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { CurrencySwitcher } from "@/components/ui/CurrencySwitcher";
@@ -53,6 +54,7 @@ export function Navbar() {
   const [searchCategory,  setSearchCategory]  = useState("");
   const [userMenuOpen,    setUserMenuOpen]    = useState(false);
   const [categoriesOpen,  setCategoriesOpen]  = useState(false);
+  const [promoCount,      setPromoCount]      = useState(0);
   const userMenuRef                           = useRef<HTMLDivElement>(null);
   const categoriesRef                         = useRef<HTMLDivElement>(null);
   const pathname                              = usePathname();
@@ -61,6 +63,12 @@ export function Navbar() {
   const { totalItems }                        = useCart();
   const { user: currentUser, logout }         = useAuth();
   const nav                                   = translations.nav;
+
+  useEffect(() => {
+    api.products.list({ promo: "true", limit: "1" } as any)
+      .then((res: any) => setPromoCount(Number(res?.total ?? res?.data?.length ?? 0)))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -471,7 +479,11 @@ export function Navbar() {
             >
               <Tag className="w-3.5 h-3.5 text-orange-400" />
               Promotions
-              <span className="text-[8px] font-extrabold uppercase px-1.5 py-px rounded-full bg-orange-500 text-white leading-none">NOUVEAU</span>
+              {promoCount > 0 && (
+                <span className="min-w-[16px] h-[16px] text-white text-[9px] font-extrabold rounded-full flex items-center justify-center px-1 leading-none" style={{ background: "#f97316" }}>
+                  {promoCount > 99 ? "99+" : promoCount}
+                </span>
+              )}
             </Link>
             <Link
               href="/transporteurs"

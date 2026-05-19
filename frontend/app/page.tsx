@@ -73,7 +73,7 @@ export default function HomePage() {
           {/* Colonne droite : petit espace + bannière + barre de confiance */}
           <div className="flex-1 min-w-0 flex flex-col">
             {/* Espace latéral + bannière */}
-            <div className="flex-1 px-3 py-3">
+            <div className="flex-1 px-3">
               <HeroSection />
             </div>
             {/* Barre de confiance — alignée exactement sous la bannière */}
