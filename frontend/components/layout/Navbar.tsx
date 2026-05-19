@@ -146,13 +146,13 @@ export function Navbar() {
       </div>
 
       <nav>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="px-4 sm:px-6 lg:px-0">
 
         {/* ── Ligne principale : Logo + Recherche + Icônes ───────────── */}
         <div className="flex items-center h-14 sm:h-16 gap-3 sm:gap-4">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0 select-none">
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0 select-none lg:w-60 lg:pl-3">
             <LogoCart size={34} />
             <span
               className="leading-none tracking-tight text-[19px] sm:text-[21px]"
@@ -163,7 +163,7 @@ export function Navbar() {
           </Link>
 
           {/* Barre de recherche desktop avec dropdown catégories */}
-          <form onSubmit={handleSearch} className="hidden sm:flex flex-1 max-w-md lg:max-w-lg mx-2">
+          <form onSubmit={handleSearch} className="hidden sm:flex flex-1 max-w-md lg:max-w-xl mx-2 lg:mx-4">
             <div
               className="flex w-full rounded-xl overflow-hidden border border-gray-200 hover:border-gray-300 bg-white transition-all"
               style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
@@ -195,7 +195,7 @@ export function Navbar() {
           </form>
 
           {/* Actions droite */}
-          <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0 ml-auto sm:ml-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0 ml-auto sm:ml-0 lg:pr-8">
 
             {/* Icône recherche — mobile uniquement */}
             <button
@@ -423,7 +423,6 @@ export function Navbar() {
           <div className="relative h-full w-60 flex-shrink-0" ref={categoriesRef}>
             <button
               onClick={() => setCategoriesOpen(o => !o)}
-              onMouseEnter={() => setCategoriesOpen(true)}
               className="w-full flex items-center gap-2 h-full px-3 text-white text-[13px] font-semibold transition-colors hover:opacity-95"
               style={{ background: "#1B3A2D" }}
             >
