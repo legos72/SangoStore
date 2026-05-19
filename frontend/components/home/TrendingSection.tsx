@@ -69,7 +69,8 @@ export function TrendingSection() {
           </div>
           <Link
             href="/produits?section=trending"
-            className="flex items-center gap-0.5 text-[12px] font-semibold text-gray-500 hover:text-gray-900 transition-colors whitespace-nowrap pb-0.5"
+            className="flex items-center gap-0.5 text-[12px] font-semibold transition-colors whitespace-nowrap pb-0.5"
+            style={{ color: "#1B3A2D" }}
           >
             Voir tout <ArrowRight className="w-3.5 h-3.5" />
           </Link>
@@ -88,7 +89,7 @@ export function TrendingSection() {
                 aria-label="Défiler à gauche"
                 className="pointer-events-auto w-8 h-8 rounded-full bg-white border border-gray-200
                            shadow-[0_2px_10px_rgba(0,0,0,0.15)] flex items-center justify-center
-                           text-gray-500 hover:border-orange-300 hover:text-orange-500
+                           text-gray-500 hover:border-[#2d6a4f] hover:text-[#1B3A2D]
                            transition-all active:scale-90"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -125,7 +126,7 @@ export function TrendingSection() {
                 aria-label="Défiler à droite"
                 className="pointer-events-auto w-8 h-8 rounded-full bg-white border border-gray-200
                            shadow-[0_2px_10px_rgba(0,0,0,0.15)] flex items-center justify-center
-                           text-gray-500 hover:border-orange-300 hover:text-orange-500
+                           text-gray-500 hover:border-[#2d6a4f] hover:text-[#1B3A2D]
                            transition-all active:scale-90"
               >
                 <ChevronRight className="w-4 h-4" />

@@ -28,12 +28,17 @@ function getWishlist(): string[] {
 
 // ─── Badges dynamiques ────────────────────────────────────────────────────────
 
-function getExtraBadge(p: Product): { label: string; cls: string } | null {
-  if (p.isFlashSale)    return { label: "⚡ Flash",     cls: "bg-orange-500" };
-  if (p.isTrending)     return { label: "🔥 Tendance",  cls: "bg-amber-500" };
-  if (p.isFastDelivery) return { label: "🚀 Rapide",    cls: "bg-emerald-600" };
+const BRAND      = "#1B3A2D";
+const BRAND_SOFT = "#2d6a4f";
+const GOLD       = "#B8860B";
+const HOVER_BG   = "#F0F7F4";
+
+function getExtraBadge(p: Product): { label: string } | null {
+  if (p.isFlashSale)    return { label: "⚡ Flash"    };
+  if (p.isTrending)     return { label: "🔥 Tendance" };
+  if (p.isFastDelivery) return { label: "🚀 Rapide"   };
   const isNew = Date.now() - new Date(p.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
-  if (isNew)            return { label: "✦ Nouveau",    cls: "bg-teal-600" };
+  if (isNew)            return { label: "✦ Nouveau"   };
   return null;
 }
 
@@ -129,12 +134,12 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
             />
           )}
           {promoActive && (
-            <span className="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-sm">
-              -{discountPct}%
+            <span className="absolute top-2 left-2 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: BRAND }}>
+              −{discountPct}%
             </span>
           )}
           {extraBadge && !promoActive && (
-            <span className={cn("absolute top-2 left-2 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm", extraBadge.cls)}>
+            <span className="absolute top-2 left-2 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: BRAND }}>
               {extraBadge.label}
             </span>
           )}
@@ -165,7 +170,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
           <div className="mt-auto pt-2 flex items-center justify-between gap-2">
             <div className="min-w-0">
               <div className="flex items-baseline gap-1.5 flex-wrap">
-                <span className="text-[15px] font-bold leading-none whitespace-nowrap" style={{ color: "#D97706" }}>
+                <span className="text-[15px] font-semibold leading-none whitespace-nowrap" style={{ color: GOLD }}>
                   {format(displayPrice, product.currency)}
                 </span>
                 {promoActive && (
@@ -188,10 +193,10 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
             {product.isAvailable && product.stock > 0 ? (
               <button
                 onClick={handleBuyNow}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-100 bg-gray-50 hover:bg-gray-100 transition-colors active:opacity-70 flex-shrink-0"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#D1EAE0] hover:bg-[#F0F7F4] transition-colors active:opacity-70 flex-shrink-0"
               >
-                <ShoppingCart className="w-3.5 h-3.5 text-gray-400" />
-                <span className="text-[11px] font-semibold text-gray-700">Acheter</span>
+                <ShoppingCart className="w-3.5 h-3.5" style={{ color: BRAND }} />
+                <span className="text-[11px] font-semibold" style={{ color: BRAND }}>Acheter</span>
               </button>
             ) : (
               <span className="text-[10px] font-medium text-gray-300 flex-shrink-0">Indispo.</span>
@@ -235,17 +240,14 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
 
         {/* Promo badge */}
         {promoActive && (
-          <span className="absolute top-2 left-2 z-20 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-            -{discountPct}%
+          <span className="absolute top-2 left-2 z-20 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: BRAND }}>
+            −{discountPct}%
           </span>
         )}
 
         {/* Extra badge */}
         {extraBadge && !promoActive && (
-          <span className={cn(
-            "absolute top-2 left-2 z-20 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full",
-            extraBadge.cls
-          )}>
+          <span className="absolute top-2 left-2 z-20 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: BRAND_SOFT }}>
             {extraBadge.label}
           </span>
         )}
@@ -298,7 +300,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
 
         {/* Prix */}
         <div className="flex items-baseline gap-1.5 flex-wrap">
-          <span className="text-[14px] sm:text-[15px] font-bold leading-none whitespace-nowrap" style={{ color: "#D97706" }}>
+          <span className="text-[14px] sm:text-[15px] font-semibold leading-none whitespace-nowrap" style={{ color: GOLD }}>
             {format(displayPrice, product.currency)}
           </span>
           {promoActive && (
@@ -312,8 +314,8 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
         )}
         {bestTier && (
           <div className="flex items-center gap-1 mt-1">
-            <span className="text-[8px] font-bold bg-indigo-50 text-indigo-500 px-1.5 py-px rounded-full leading-none">GROS</span>
-            <span className="text-[10px] text-indigo-500 whitespace-nowrap font-medium">
+            <span className="text-[8px] font-bold px-1.5 py-px rounded-full leading-none" style={{ background: "#EEF5F1", color: BRAND }}>GROS</span>
+            <span className="text-[10px] whitespace-nowrap font-medium" style={{ color: BRAND_SOFT }}>
               {format(bestTier.price, product.currency)}
             </span>
           </div>
@@ -325,10 +327,10 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
         {product.isAvailable && product.stock > 0 ? (
           <button
             onClick={handleBuyNow}
-            className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-gray-50 transition-colors active:opacity-70"
+            className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-[#F0F7F4] transition-colors active:opacity-70"
           >
-            <ShoppingCart className="w-3.5 h-3.5 text-gray-400" />
-            <span className="text-[11px] font-semibold text-gray-700">Acheter</span>
+            <ShoppingCart className="w-3.5 h-3.5" style={{ color: BRAND }} />
+            <span className="text-[11px] font-semibold" style={{ color: BRAND }}>Acheter</span>
           </button>
         ) : (
           <div className="px-3 py-2.5 flex items-center justify-center">
