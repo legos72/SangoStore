@@ -145,7 +145,8 @@ export function Navbar() {
         </div>
       </div>
 
-      <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ── Ligne principale : Logo + Recherche + Icônes ───────────── */}
         <div className="flex items-center h-14 sm:h-16 gap-3 sm:gap-4">
@@ -313,106 +314,6 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* ── Navigation desktop secondaire ──────────────────────────── */}
-        <div className="hidden lg:flex items-center border-t border-gray-100/80 h-11 -mx-4 sm:-mx-6 lg:-mx-8 overflow-visible">
-
-          {/* Toutes les catégories */}
-          <div className="relative h-full flex-shrink-0" ref={categoriesRef}>
-            <button
-              onClick={() => setCategoriesOpen(o => !o)}
-              onMouseEnter={() => setCategoriesOpen(true)}
-              className="flex items-center gap-2 h-full px-3 text-white text-[13px] font-semibold transition-colors hover:opacity-95 flex-shrink-0"
-              style={{ background: "#1B3A2D" }}
-            >
-              <Menu className="w-4 h-4" />
-              Toutes les catégories
-              <ChevronDown className={cn("w-3.5 h-3.5 ml-1 transition-transform duration-200", categoriesOpen && "rotate-180")} />
-            </button>
-
-            {categoriesOpen && (
-              <div
-                className="absolute left-0 top-full w-60 bg-white border border-gray-100 rounded-b-xl shadow-2xl z-50 py-1 animate-fade-in"
-                onMouseLeave={() => setCategoriesOpen(false)}
-              >
-                {DESKTOP_CATEGORIES.map(cat => (
-                  <Link
-                    key={cat.slug}
-                    href={cat.href}
-                    onClick={() => setCategoriesOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 hover:bg-[#F0F7F4] hover:text-[#1B3A2D] transition-colors group"
-                  >
-                    <cat.Icon className="w-4 h-4 flex-shrink-0" style={{ color: cat.iconColor }} />
-                    {cat.label}
-                    <ChevronRight className="w-3.5 h-3.5 ml-auto text-gray-200 group-hover:text-[#1B3A2D] transition-colors" />
-                  </Link>
-                ))}
-                <div className="border-t border-gray-100 mt-1">
-                  <Link
-                    href="/produits"
-                    onClick={() => setCategoriesOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2.5 text-[13px] font-semibold text-[#1B3A2D] hover:bg-[#F0F7F4] transition-colors"
-                  >
-                    Voir toutes les catégories
-                    <ChevronRight className="w-3.5 h-3.5 ml-auto" />
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Liens rapides */}
-          <div className="flex items-center px-3 gap-0.5 flex-1 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-            <Link
-              href="/produits?promo=true"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors whitespace-nowrap flex-shrink-0"
-            >
-              <Tag className="w-3.5 h-3.5 text-orange-400" />
-              Promotions
-              <span className="text-[8px] font-extrabold uppercase px-1.5 py-px rounded-full bg-orange-500 text-white leading-none">NOUVEAU</span>
-            </Link>
-            <Link
-              href="/transporteurs"
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
-                pathname.startsWith("/transporteurs") ? "bg-gray-100 text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              )}
-            >
-              <Truck className="w-3.5 h-3.5 text-gray-400" />
-              Envoi de colis
-            </Link>
-            <Link
-              href="/mode-africaine"
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
-                pathname === "/mode-africaine" ? "bg-amber-50 text-amber-700 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              )}
-            >
-              <Shirt className="w-3.5 h-3.5" style={{ color: pathname === "/mode-africaine" ? "#D4961E" : "#9CA3AF" }} />
-              Mode africaine
-            </Link>
-            <Link
-              href="/produits"
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
-                pathname === "/produits" ? "bg-gray-100 text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              )}
-            >
-              <Store className="w-3.5 h-3.5 text-gray-400" />
-              Boutiques officielles
-            </Link>
-            <Link
-              href="/suivi"
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
-                pathname.startsWith("/suivi") ? "bg-gray-100 text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              )}
-            >
-              <Package className="w-3.5 h-3.5 text-gray-400" />
-              Suivi colis
-            </Link>
-          </div>
-        </div>
-
         {/* ── Mobile quick-access ────────────────────────────────────── */}
         <div
           className="lg:hidden border-t border-gray-100/80 -mx-4 sm:-mx-6 px-3 py-2 flex items-center gap-2 overflow-x-auto"
@@ -513,6 +414,107 @@ export function Navbar() {
             </div>
           </div>
         )}
+        </div>
+
+        {/* ── Navigation desktop secondaire — pleine largeur ──────────── */}
+        <div className="hidden lg:flex items-center border-t border-gray-100/80 h-11 overflow-visible">
+
+          {/* Toutes les catégories */}
+          <div className="relative h-full w-60 flex-shrink-0" ref={categoriesRef}>
+            <button
+              onClick={() => setCategoriesOpen(o => !o)}
+              onMouseEnter={() => setCategoriesOpen(true)}
+              className="w-full flex items-center gap-2 h-full px-3 text-white text-[13px] font-semibold transition-colors hover:opacity-95"
+              style={{ background: "#1B3A2D" }}
+            >
+              <Menu className="w-4 h-4" />
+              Toutes les catégories
+              <ChevronDown className={cn("w-3.5 h-3.5 ml-1 transition-transform duration-200", categoriesOpen && "rotate-180")} />
+            </button>
+
+            {categoriesOpen && (
+              <div
+                className="absolute left-0 top-full w-60 bg-white border border-gray-100 rounded-b-xl shadow-2xl z-50 py-1 animate-fade-in"
+                onMouseLeave={() => setCategoriesOpen(false)}
+              >
+                {DESKTOP_CATEGORIES.map(cat => (
+                  <Link
+                    key={cat.slug}
+                    href={cat.href}
+                    onClick={() => setCategoriesOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 hover:bg-[#F0F7F4] hover:text-[#1B3A2D] transition-colors group"
+                  >
+                    <cat.Icon className="w-4 h-4 flex-shrink-0" style={{ color: cat.iconColor }} />
+                    {cat.label}
+                    <ChevronRight className="w-3.5 h-3.5 ml-auto text-gray-200 group-hover:text-[#1B3A2D] transition-colors" />
+                  </Link>
+                ))}
+                <div className="border-t border-gray-100 mt-1">
+                  <Link
+                    href="/produits"
+                    onClick={() => setCategoriesOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2.5 text-[13px] font-semibold text-[#1B3A2D] hover:bg-[#F0F7F4] transition-colors"
+                  >
+                    Voir toutes les catégories
+                    <ChevronRight className="w-3.5 h-3.5 ml-auto" />
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Liens rapides */}
+          <div className="flex items-center px-3 gap-0.5 flex-1 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+            <Link
+              href="/produits?promo=true"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors whitespace-nowrap flex-shrink-0"
+            >
+              <Tag className="w-3.5 h-3.5 text-orange-400" />
+              Promotions
+              <span className="text-[8px] font-extrabold uppercase px-1.5 py-px rounded-full bg-orange-500 text-white leading-none">NOUVEAU</span>
+            </Link>
+            <Link
+              href="/transporteurs"
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
+                pathname.startsWith("/transporteurs") ? "bg-gray-100 text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              )}
+            >
+              <Truck className="w-3.5 h-3.5 text-gray-400" />
+              Envoi de colis
+            </Link>
+            <Link
+              href="/mode-africaine"
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
+                pathname === "/mode-africaine" ? "bg-amber-50 text-amber-700 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              )}
+            >
+              <Shirt className="w-3.5 h-3.5" style={{ color: pathname === "/mode-africaine" ? "#D4961E" : "#9CA3AF" }} />
+              Mode africaine
+            </Link>
+            <Link
+              href="/produits"
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
+                pathname === "/produits" ? "bg-gray-100 text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              )}
+            >
+              <Store className="w-3.5 h-3.5 text-gray-400" />
+              Boutiques officielles
+            </Link>
+            <Link
+              href="/suivi"
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
+                pathname.startsWith("/suivi") ? "bg-gray-100 text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              )}
+            >
+              <Package className="w-3.5 h-3.5 text-gray-400" />
+              Suivi colis
+            </Link>
+          </div>
+        </div>
       </nav>
     </header>
   );

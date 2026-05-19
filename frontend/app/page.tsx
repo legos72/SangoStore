@@ -44,8 +44,7 @@ export default function HomePage() {
   return (
     <>
       {/* ── Desktop : sidebar catégories + hero côte à côte ─────────────── */}
-      <div className="hidden lg:block bg-white border-b border-gray-100">
-        <div className="flex max-w-6xl mx-auto">
+      <div className="hidden lg:flex bg-white border-b border-gray-100">
 
           {/* Sidebar catégories — alignée avec la navbar */}
           <aside className="w-60 flex-shrink-0 border-r border-gray-100/80 bg-white py-1.5">
@@ -75,8 +74,6 @@ export default function HomePage() {
           <div className="flex-1 min-w-0">
             <HeroSection />
           </div>
-
-        </div>
       </div>
 
       {/* ── Mobile : hero seul ─────────────────────────────────────────── */}
