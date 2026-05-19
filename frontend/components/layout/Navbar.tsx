@@ -5,9 +5,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   ShoppingBag, Truck, Menu, X, Search, MapPin, Globe,
-  Package, ShoppingCart, User, LogOut, ChevronDown,
+  Package, ShoppingCart, User, LogOut, ChevronDown, ChevronRight,
   Shield, Store, Shirt, Briefcase, Smartphone, Sparkles,
-  Home, UtensilsCrossed, Dumbbell,
+  Home, UtensilsCrossed, Dumbbell, Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LogoCart } from "@/components/ui/LogoCart";
@@ -34,13 +34,27 @@ const SEARCH_CATEGORIES = [
   { value: "sport",        label: "Sport & Loisirs"       },
 ];
 
+const DESKTOP_CATEGORIES = [
+  { slug: "mode",         href: "/mode-africaine",         label: "Mode Africaine",   Icon: Shirt,           iconColor: "#F59E0B" },
+  { slug: "mode-femme",   href: "/categorie/mode-femme",   label: "Mode Femme",       Icon: ShoppingBag,     iconColor: "#F472B6" },
+  { slug: "mode-homme",   href: "/categorie/mode-homme",   label: "Mode Homme",       Icon: Briefcase,       iconColor: "#94A3B8" },
+  { slug: "electronique", href: "/categorie/electronique", label: "Électronique",     Icon: Smartphone,      iconColor: "#60A5FA" },
+  { slug: "beaute",       href: "/categorie/beaute",       label: "Beauté & Santé",   Icon: Sparkles,        iconColor: "#F472B6" },
+  { slug: "maison",       href: "/categorie/maison",       label: "Maison & Bureau",  Icon: Home,            iconColor: "#34D399" },
+  { slug: "alimentation", href: "/categorie/alimentation", label: "Alimentation",     Icon: UtensilsCrossed, iconColor: "#FB923C" },
+  { slug: "sport",        href: "/categorie/sport",        label: "Sports & Loisirs", Icon: Dumbbell,        iconColor: "#A78BFA" },
+  { slug: "transport",    href: "/transporteurs",          label: "Envoi de colis",   Icon: Truck,           iconColor: "#6EE7B7" },
+];
+
 export function Navbar() {
   const [mobileOpen,      setMobileOpen]      = useState(false);
   const [searchOpen,      setSearchOpen]      = useState(false);
   const [searchQuery,     setSearchQuery]     = useState("");
   const [searchCategory,  setSearchCategory]  = useState("");
   const [userMenuOpen,    setUserMenuOpen]    = useState(false);
+  const [categoriesOpen,  setCategoriesOpen]  = useState(false);
   const userMenuRef                           = useRef<HTMLDivElement>(null);
+  const categoriesRef                         = useRef<HTMLDivElement>(null);
   const pathname                              = usePathname();
   const router                                = useRouter();
   const { locale }                            = useI18n();
@@ -52,6 +66,9 @@ export function Navbar() {
     function handleClick(e: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setUserMenuOpen(false);
+      }
+      if (categoriesRef.current && !categoriesRef.current.contains(e.target as Node)) {
+        setCategoriesOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClick);
@@ -296,22 +313,104 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* ── Liens navigation desktop ───────────────────────────────── */}
-        <div className="hidden lg:flex items-center gap-0.5 border-t border-gray-100/80 h-10">
-          {NAV_LINKS.map(({ href, label }) => (
+        {/* ── Navigation desktop secondaire ──────────────────────────── */}
+        <div className="hidden lg:flex items-center border-t border-gray-100/80 h-11 -mx-4 sm:-mx-6 lg:-mx-8 overflow-visible">
+
+          {/* Toutes les catégories */}
+          <div className="relative h-full flex-shrink-0" ref={categoriesRef}>
+            <button
+              onClick={() => setCategoriesOpen(o => !o)}
+              onMouseEnter={() => setCategoriesOpen(true)}
+              className="flex items-center gap-2 h-full px-5 text-white text-[13px] font-semibold transition-colors hover:opacity-95 flex-shrink-0"
+              style={{ background: "#1B3A2D" }}
+            >
+              <Menu className="w-4 h-4" />
+              Toutes les catégories
+              <ChevronDown className={cn("w-3.5 h-3.5 ml-1 transition-transform duration-200", categoriesOpen && "rotate-180")} />
+            </button>
+
+            {categoriesOpen && (
+              <div
+                className="absolute left-0 top-full w-64 bg-white border border-gray-100 rounded-b-xl shadow-2xl z-50 py-1 animate-fade-in"
+                onMouseLeave={() => setCategoriesOpen(false)}
+              >
+                {DESKTOP_CATEGORIES.map(cat => (
+                  <Link
+                    key={cat.slug}
+                    href={cat.href}
+                    onClick={() => setCategoriesOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#F0F7F4] hover:text-[#1B3A2D] transition-colors group"
+                  >
+                    <cat.Icon className="w-4 h-4 flex-shrink-0" style={{ color: cat.iconColor }} />
+                    {cat.label}
+                    <ChevronRight className="w-3.5 h-3.5 ml-auto text-gray-200 group-hover:text-[#1B3A2D] transition-colors" />
+                  </Link>
+                ))}
+                <div className="border-t border-gray-100 mt-1">
+                  <Link
+                    href="/produits"
+                    onClick={() => setCategoriesOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-semibold text-[#1B3A2D] hover:bg-[#F0F7F4] transition-colors"
+                  >
+                    Voir toutes les catégories
+                    <ChevronRight className="w-3.5 h-3.5 ml-auto" />
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Liens rapides */}
+          <div className="flex items-center px-3 gap-0.5 flex-1 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
             <Link
-              key={href}
-              href={href}
+              href="/produits?promo=true"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors whitespace-nowrap flex-shrink-0"
+            >
+              <Tag className="w-3.5 h-3.5 text-orange-400" />
+              Promotions
+              <span className="text-[8px] font-extrabold uppercase px-1.5 py-px rounded-full bg-orange-500 text-white leading-none">NOUVEAU</span>
+            </Link>
+            <Link
+              href="/transporteurs"
               className={cn(
-                "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
-                pathname === href || (href !== "/" && pathname.startsWith(href))
-                  ? "bg-gray-100 text-gray-900 font-semibold"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
+                pathname.startsWith("/transporteurs") ? "bg-gray-100 text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               )}
             >
-              {label}
+              <Truck className="w-3.5 h-3.5 text-gray-400" />
+              Envoi de colis
             </Link>
-          ))}
+            <Link
+              href="/mode-africaine"
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
+                pathname === "/mode-africaine" ? "bg-amber-50 text-amber-700 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              )}
+            >
+              <Shirt className="w-3.5 h-3.5" style={{ color: pathname === "/mode-africaine" ? "#D4961E" : "#9CA3AF" }} />
+              Mode africaine
+            </Link>
+            <Link
+              href="/produits"
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
+                pathname === "/produits" ? "bg-gray-100 text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              )}
+            >
+              <Store className="w-3.5 h-3.5 text-gray-400" />
+              Boutiques officielles
+            </Link>
+            <Link
+              href="/suivi"
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap flex-shrink-0",
+                pathname.startsWith("/suivi") ? "bg-gray-100 text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              )}
+            >
+              <Package className="w-3.5 h-3.5 text-gray-400" />
+              Suivi colis
+            </Link>
+          </div>
         </div>
 
         {/* ── Mobile quick-access ────────────────────────────────────── */}

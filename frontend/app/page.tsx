@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Phone } from "lucide-react";
+import { ArrowRight, Phone, ChevronRight, Shirt, ShoppingBag, Briefcase, Smartphone, Sparkles, Home, UtensilsCrossed, Dumbbell, Truck, Package, Shield, CreditCard } from "lucide-react";
 import { CategoriesSection } from "@/components/home/CategoriesSection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
@@ -14,6 +14,25 @@ import { COUNTRIES } from "@/lib/countries";
 const SUPPORT_PHONE    = "+221 78 686 39 69";
 const SUPPORT_WHATSAPP = "221786863969";
 
+const SIDEBAR_CATEGORIES = [
+  { slug: "mode",         href: "/mode-africaine",         label: "Mode Africaine",   Icon: Shirt,           iconColor: "#F59E0B" },
+  { slug: "mode-femme",   href: "/categorie/mode-femme",   label: "Mode Femme",       Icon: ShoppingBag,     iconColor: "#F472B6" },
+  { slug: "mode-homme",   href: "/categorie/mode-homme",   label: "Mode Homme",       Icon: Briefcase,       iconColor: "#94A3B8" },
+  { slug: "electronique", href: "/categorie/electronique", label: "Électronique",     Icon: Smartphone,      iconColor: "#60A5FA" },
+  { slug: "beaute",       href: "/categorie/beaute",       label: "Beauté & Santé",   Icon: Sparkles,        iconColor: "#F472B6" },
+  { slug: "maison",       href: "/categorie/maison",       label: "Maison & Bureau",  Icon: Home,            iconColor: "#34D399" },
+  { slug: "alimentation", href: "/categorie/alimentation", label: "Alimentation",     Icon: UtensilsCrossed, iconColor: "#FB923C" },
+  { slug: "sport",        href: "/categorie/sport",        label: "Sports & Loisirs", Icon: Dumbbell,        iconColor: "#A78BFA" },
+  { slug: "transport",    href: "/transporteurs",          label: "Envoi de colis",   Icon: Truck,           iconColor: "#6EE7B7" },
+];
+
+const TRUST_ITEMS = [
+  { Icon: Shield,     color: "#1B3A2D", title: "Paiement sécurisé",  sub: "100% sécurisé"      },
+  { Icon: Truck,      color: "#2563EB", title: "Livraison rapide",   sub: "Afrique & monde"    },
+  { Icon: Package,    color: "#D97706", title: "Retour facile",      sub: "7 jours garantis"   },
+  { Icon: Phone,      color: "#16A34A", title: "Support 24/7",       sub: "Assistance dédiée"  },
+];
+
 const HOW_IT_WORKS = [
   { step: "01", icon: "📱", title: "Choisissez votre produit",   desc: "Parcourez nos produits envoyés par la diaspora depuis la France, le Sénégal, le Cameroun…" },
   { step: "02", icon: "💳", title: "Payez en toute sécurité",    desc: "Orange Money ou cash. Votre argent est bloqué en escrow jusqu'à la livraison."            },
@@ -24,10 +43,67 @@ const HOW_IT_WORKS = [
 export default function HomePage() {
   return (
     <>
-      <HeroSection />
+      {/* ── Desktop : sidebar catégories + hero côte à côte ─────────────── */}
+      <div className="hidden lg:flex border-b border-gray-100 bg-white">
 
-      {/* ── Catégories populaires ───────────────────────────────────────── */}
-      <CategoriesSection />
+        {/* Sidebar catégories */}
+        <aside className="w-56 xl:w-60 flex-shrink-0 border-r border-gray-100/80 bg-white py-1.5">
+          {SIDEBAR_CATEGORIES.map(cat => (
+            <Link
+              key={cat.slug}
+              href={cat.href}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#F0F7F4] hover:text-[#1B3A2D] transition-colors group"
+            >
+              <cat.Icon className="w-4 h-4 flex-shrink-0" style={{ color: cat.iconColor }} />
+              <span className="flex-1 truncate">{cat.label}</span>
+              <ChevronRight className="w-3.5 h-3.5 text-gray-200 group-hover:text-[#1B3A2D] transition-colors flex-shrink-0" />
+            </Link>
+          ))}
+          <div className="mx-3 mt-1 border-t border-gray-100 pt-1">
+            <Link
+              href="/produits"
+              className="flex items-center gap-2 px-1 py-2 text-[12px] font-semibold text-[#1B3A2D] hover:bg-[#F0F7F4] rounded-lg transition-colors"
+            >
+              Voir toutes les catégories
+              <ChevronRight className="w-3.5 h-3.5 ml-auto" />
+            </Link>
+          </div>
+        </aside>
+
+        {/* Hero banner — prend le reste de l'espace */}
+        <div className="flex-1 min-w-0">
+          <HeroSection />
+        </div>
+      </div>
+
+      {/* ── Mobile : hero seul ─────────────────────────────────────────── */}
+      <div className="lg:hidden">
+        <HeroSection />
+      </div>
+
+      {/* ── Barre de confiance — desktop uniquement ─────────────────────── */}
+      <div className="hidden lg:block bg-white border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-4 divide-x divide-gray-100">
+            {TRUST_ITEMS.map(({ Icon, color, title, sub }) => (
+              <div key={title} className="flex items-center gap-3 px-4 py-3.5">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${color}18` }}>
+                  <Icon className="w-4.5 h-4.5" style={{ color }} />
+                </div>
+                <div>
+                  <p className="text-[13px] font-semibold text-gray-900 leading-tight">{title}</p>
+                  <p className="text-[11px] text-gray-400">{sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Catégories populaires — mobile uniquement ───────────────────── */}
+      <div className="lg:hidden">
+        <CategoriesSection />
+      </div>
 
       {/* ── Pays d'origine ─────────────────────────────────────────────── */}
       <section className="py-3 sm:py-4 bg-white border-t border-gray-100">
