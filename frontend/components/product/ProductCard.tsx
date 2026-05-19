@@ -275,12 +275,12 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
       </Link>
 
       {/* ── CONTENT ── */}
-      <div className="flex flex-col px-3 pt-2.5 pb-2.5">
+      <div className="flex flex-col px-3 pt-2 pb-2">
 
         {/* Flag + catégorie */}
-        <div className="flex items-center gap-1 mb-1.5">
+        <div className="flex items-center gap-1 mb-1">
           <FlagImage code={product.originCountry?.code ?? ""} size="sm" />
-          <span className="text-[9px] font-medium text-gray-400 uppercase tracking-wider truncate">
+          <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider truncate">
             {product.category}
           </span>
           {product.seller?.isVerified && (
@@ -291,8 +291,8 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
         {/* Titre */}
         <Link href={`/produits/${product.id}`}>
           <h3
-            className="text-[12px] sm:text-[13px] font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-[#1B3A2D] transition-colors mb-2"
-            style={{ minHeight: "2.2em" }}
+            className="text-[13px] sm:text-[14px] font-semibold text-gray-800 leading-snug line-clamp-2 group-hover:text-[#1B3A2D] transition-colors duration-150 mb-1.5"
+            style={{ minHeight: "2.8em" }}
           >
             {product.title}
           </h3>
@@ -313,7 +313,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
           <p className="text-[9px] text-gray-400 mt-0.5">≈&nbsp;{formatOriginal(displayPrice, product.currency)}</p>
         )}
         {bestTier && (
-          <div className="flex items-center gap-1 mt-1">
+          <div className="flex items-center gap-1 mt-0.5">
             <span className="text-[8px] font-bold px-1.5 py-px rounded-full leading-none" style={{ background: "#EEF5F1", color: BRAND }}>GROS</span>
             <span className="text-[10px] whitespace-nowrap font-medium" style={{ color: BRAND_SOFT }}>
               {format(bestTier.price, product.currency)}
@@ -327,13 +327,16 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
         {product.isAvailable && product.stock > 0 ? (
           <button
             onClick={handleBuyNow}
-            className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-[#F0F7F4] transition-colors active:opacity-70"
+            className="w-full px-3 py-2 flex items-center justify-between hover:bg-[#F0F7F4] transition-all duration-150 active:opacity-60 group/btn"
           >
-            <ShoppingCart className="w-3.5 h-3.5" style={{ color: BRAND }} />
+            <ShoppingCart
+              className="w-3.5 h-3.5 transition-transform duration-150 group-hover/btn:scale-110"
+              style={{ color: BRAND }}
+            />
             <span className="text-[11px] font-semibold" style={{ color: BRAND }}>Acheter</span>
           </button>
         ) : (
-          <div className="px-3 py-2.5 flex items-center justify-center">
+          <div className="px-3 py-2 flex items-center justify-center">
             <span className="text-[10px] text-gray-300 font-medium">Indisponible</span>
           </div>
         )}

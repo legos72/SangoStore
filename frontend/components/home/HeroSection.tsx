@@ -117,30 +117,37 @@ export function HeroSection() {
       className="relative overflow-hidden w-full"
       style={{ height: "clamp(260px, 50vw, 460px)" }}
     >
-      {/* Fonds rotatifs */}
+      {/* Fonds rotatifs — Ken Burns sur l'image active */}
       {HERO_BG_IMAGES.map((bg, i) => (
         <img
           key={bg.src}
           src={bg.src}
           alt=""
           aria-hidden
-          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
-          style={{ opacity: i === bgIdx ? 1 : 0, objectPosition: bg.pos }}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            opacity:          i === bgIdx ? 1 : 0,
+            transform:        i === bgIdx ? "scale(1.06)" : "scale(1.0)",
+            transition:       "opacity 1200ms ease-in-out, transform 8000ms ease-in-out",
+            objectPosition:   bg.pos,
+            willChange:       "transform, opacity",
+          }}
           loading={i === 0 ? "eager" : "lazy"}
         />
       ))}
 
-      {/* Overlay fixe */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: "linear-gradient(to right, rgba(4,30,12,0.88) 0%, rgba(4,30,12,0.72) 28%, rgba(4,30,12,0.30) 52%, rgba(4,30,12,0.05) 70%, transparent 85%)" }}
-      />
+      {/* Overlay premium — profondeur + vignette bas */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: "linear-gradient(to right, rgba(4,30,12,0.92) 0%, rgba(4,30,12,0.75) 25%, rgba(4,30,12,0.32) 50%, rgba(4,30,12,0.05) 68%, transparent 82%)"
+      }} />
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: "linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 40%)"
+      }} />
 
-      {/* Lueur or subtile */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at 22% 90%, rgba(212,150,30,0.10) 0%, transparent 50%)" }}
-      />
+      {/* Lueur or — bas gauche */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: "radial-gradient(ellipse at 15% 95%, rgba(212,150,30,0.14) 0%, transparent 45%)"
+      }} />
 
       {/* Contenu — texte gauche + mini cadre droit */}
       <div className="relative z-10 h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sm:gap-8">
