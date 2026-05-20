@@ -2,13 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import {
-  Package, ShoppingBag, DollarSign, Star, Plus, Eye, Edit3,
-  Trash2, ToggleLeft, ToggleRight, Search, CheckCircle,
-  Clock, Truck, ArrowLeft, TrendingUp, ArrowUpRight, Bell,
-  ChevronRight, AlertCircle, RefreshCw, BarChart3, Zap,
-  MoreVertical, XCircle, MapPin, Home, Calendar, User,
-} from "lucide-react";
+import { Package, ShoppingBag, DollarSign, Star, Plus, Eye, CreditCard as Edit3, Trash2, ToggleLeft, ToggleRight, Search, CircleCheck as CheckCircle, Clock, Truck, ArrowLeft, TrendingUp, ArrowUpRight, Bell, ChevronRight, CircleAlert as AlertCircle, RefreshCw, ChartBar as BarChart3, Zap, MoveVertical as MoreVertical, Circle as XCircle, MapPin, Hop as Home, Calendar, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { formatPrice, formatDate, ORDER_STATUS_LABELS } from "@/lib/utils";
@@ -295,8 +289,8 @@ export default function VendeurDashboard() {
               "flex-1 py-1.5 rounded-lg text-[11px] font-semibold transition-all",
               section === s ? "text-white" : "bg-gray-100 text-gray-600"
             )}
-            style={section === s ? { background: "linear-gradient(135deg, #C8850A, #E0A320)" } : undefined
-            )}>
+            style={section === s ? { background: "linear-gradient(135deg, #C8850A, #E0A320)" } : undefined}
+            >
               {s === "overview" ? "Dashboard" : s === "products" ? "Produits" : "Commandes"}
             </button>
           ))}
