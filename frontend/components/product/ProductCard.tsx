@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Heart, Package, ShoppingCart } from "lucide-react";
+import { Heart, Package, ShoppingCart, Star } from "lucide-react";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import type { Product } from "@/lib/types";
@@ -189,14 +189,14 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
     );
   }
 
-  /* ── GRID VARIANT ─────────────────────────────────────────────────────────── */
+  /* ── GRID VARIANT — compact premium ──────────────────────────────────────── */
   return (
     <div
       className={cn(
-        "group flex flex-col rounded-2xl overflow-hidden bg-white",
-        "border border-gray-100",
-        "shadow-[0_2px_12px_rgba(0,0,0,0.07)]",
-        "hover:shadow-[0_8px_28px_rgba(0,0,0,0.11)] hover:-translate-y-0.5",
+        "group flex flex-col rounded-xl overflow-hidden bg-white",
+        "border border-gray-100/80",
+        "shadow-[0_1px_6px_rgba(0,0,0,0.06)]",
+        "hover:shadow-[0_6px_20px_rgba(0,0,0,0.10)] hover:-translate-y-0.5",
         "transition-all duration-200",
         className
       )}
@@ -215,7 +215,7 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
             alt={product.title}
             className={cn(
               "w-full h-full object-cover transition-transform duration-500 ease-out",
-              imgLoaded ? "opacity-100 group-hover:scale-[1.06]" : "opacity-0"
+              imgLoaded ? "opacity-100 group-hover:scale-[1.05]" : "opacity-0"
             )}
             loading="lazy"
             onLoad={() => setImgLoaded(true)}
@@ -223,10 +223,10 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
           />
         )}
 
-        {/* Badge réduction — vert vif */}
+        {/* Badge réduction */}
         {promoActive && (
           <span
-            className="absolute top-2.5 left-2.5 z-20 text-white text-[11px] font-extrabold px-2.5 py-1 rounded-full"
+            className="absolute top-2 left-2 z-20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full leading-tight"
             style={{ background: "#16A34A" }}
           >
             -{discountPct}%
@@ -236,29 +236,26 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
         {/* Badge extra */}
         {extraBadge && !promoActive && (
           <span
-            className="absolute top-2.5 left-2.5 z-20 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full"
+            className="absolute top-2 left-2 z-20 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full leading-tight"
             style={{ background: BRAND_SOFT }}
           >
             {extraBadge.label}
           </span>
         )}
 
-        {/* Bouton cœur */}
+        {/* Cœur */}
         <button
           onClick={toggleLike}
-          className={cn(
-            "absolute top-2.5 right-2.5 z-20 w-8 h-8 rounded-full flex items-center justify-center",
-            "bg-white shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition-all duration-150 active:scale-90"
-          )}
+          className="absolute top-2 right-2 z-20 w-7 h-7 rounded-full bg-white shadow-[0_1px_6px_rgba(0,0,0,0.18)] flex items-center justify-center transition-transform duration-150 active:scale-90"
           aria-label={liked ? "Retirer des favoris" : "Ajouter aux favoris"}
         >
-          <Heart className={cn("w-4 h-4", liked ? "fill-red-400 text-red-400" : "text-gray-400")} />
+          <Heart className={cn("w-3.5 h-3.5", liked ? "fill-red-400 text-red-400" : "text-gray-400")} />
         </button>
 
         {/* Indisponible overlay */}
         {(!product.isAvailable || product.stock === 0) && (
           <div className="absolute inset-0 bg-black/25 flex items-center justify-center z-10">
-            <span className="bg-white text-gray-700 text-[10px] font-semibold px-2.5 py-1 rounded-full">
+            <span className="bg-white text-gray-700 text-[9px] font-semibold px-2 py-0.5 rounded-full">
               Indisponible
             </span>
           </div>
@@ -266,91 +263,91 @@ export function ProductCard({ product, className, variant = "grid" }: ProductCar
       </Link>
 
       {/* ── CONTENU ── */}
-      <div className="flex flex-col px-3 pt-2.5 pb-3 flex-1">
+      <div className="flex flex-col px-2.5 pt-2 pb-2.5 flex-1 gap-1">
 
-        {/* Drapeau + catégorie + pays + note */}
-        <div className="flex items-center gap-1 mb-2 min-w-0">
-          <FlagImage code={product.originCountry?.code ?? ""} size="sm" />
-          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide truncate flex-1">
-            {product.category}
-            {product.originCountry?.name ? ` • ${product.originCountry.name}` : ""}
-          </span>
+        {/* Catégorie • Pays  |  ★ note (avis) */}
+        <div className="flex items-center justify-between gap-1 min-w-0">
+          <div className="flex items-center gap-1 min-w-0 overflow-hidden">
+            <FlagImage code={product.originCountry?.code ?? ""} size="sm" />
+            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide truncate leading-none">
+              {product.category}
+              {product.originCountry?.name ? ` • ${product.originCountry.name}` : ""}
+            </span>
+          </div>
           {(product.rating ?? 0) > 0 && (
             <div className="flex items-center gap-0.5 flex-shrink-0">
-              <span className="text-amber-400 text-[11px] leading-none">★</span>
-              <span className="text-[10px] font-semibold text-gray-600 leading-none">
+              <Star className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />
+              <span className="text-[10px] font-semibold text-gray-600 leading-none tabular-nums">
                 {(product.rating ?? 0).toFixed(1)}
               </span>
               {(product.reviewCount ?? 0) > 0 && (
-                <span className="text-[9px] text-gray-400 leading-none">
-                  ({product.reviewCount})
-                </span>
+                <span className="text-[9px] text-gray-400 leading-none">({product.reviewCount})</span>
               )}
             </div>
           )}
         </div>
 
         {/* Titre */}
-        <Link href={`/produits/${product.id}`}>
+        <Link href={`/produits/${product.id}`} className="flex-1">
           <h3
-            className="text-[13px] sm:text-[14px] font-bold text-gray-900 leading-snug line-clamp-2 group-hover:text-[#1B3A2D] transition-colors duration-150 mb-2.5"
-            style={{ minHeight: "2.6em" }}
+            className="text-[12px] sm:text-[13px] font-semibold text-gray-800 leading-snug line-clamp-2 group-hover:text-[#1B3A2D] transition-colors duration-150"
+            style={{ minHeight: "2.4em" }}
           >
             {product.title}
           </h3>
         </Link>
 
         {/* Prix */}
-        <div className="flex items-baseline gap-2 flex-wrap mb-1">
+        <div className="flex items-baseline gap-1.5 flex-wrap">
           <span
-            className="text-[16px] sm:text-[17px] font-extrabold leading-none whitespace-nowrap"
+            className="text-[14px] sm:text-[15px] font-bold leading-none whitespace-nowrap"
             style={{ color: GOLD }}
           >
             {format(displayPrice, product.currency)}
           </span>
           {promoActive && (
-            <span className="text-[11px] text-gray-400 line-through leading-none">
+            <span className="text-[10px] text-gray-400 line-through leading-none">
               {format(product.price, product.currency)}
             </span>
           )}
         </div>
 
         {showConversion && (
-          <p className="text-[9px] text-gray-400 mb-1">≈&nbsp;{formatOriginal(displayPrice, product.currency)}</p>
+          <p className="text-[9px] text-gray-400 -mt-0.5">≈&nbsp;{formatOriginal(displayPrice, product.currency)}</p>
         )}
         {bestTier && (
-          <div className="flex items-center gap-1 mb-1">
+          <div className="flex items-center gap-1">
             <span className="text-[8px] font-bold px-1.5 py-px rounded-full leading-none" style={{ background: "#EEF5F1", color: BRAND }}>GROS</span>
-            <span className="text-[10px] font-medium whitespace-nowrap" style={{ color: BRAND_SOFT }}>
+            <span className="text-[9px] font-medium whitespace-nowrap" style={{ color: BRAND_SOFT }}>
               {format(bestTier.price, product.currency)}
             </span>
           </div>
         )}
 
         {/* ── BOUTONS ── */}
-        <div className="mt-auto pt-2.5">
+        <div className="mt-auto pt-1">
           {product.isAvailable && product.stock > 0 ? (
-            <div className="flex items-center gap-2">
-              {/* Icône panier — ajoute sans rediriger */}
+            <div className="flex items-center gap-1.5">
+              {/* Panier — ajoute sans quitter la page */}
               <button
                 onClick={handleAddToCart}
-                className="w-10 h-10 rounded-xl border-2 border-gray-200 flex items-center justify-center flex-shrink-0 hover:border-[#1B3A2D] hover:bg-[#F0F7F4] transition-all duration-150 active:scale-90"
+                className="w-8 h-8 rounded-lg border-2 border-gray-200 flex items-center justify-center flex-shrink-0 hover:border-[#1B3A2D] hover:bg-[#F0F7F4] transition-all duration-150 active:scale-90"
                 aria-label="Ajouter au panier"
               >
-                <ShoppingCart className="w-4 h-4" style={{ color: BRAND }} />
+                <ShoppingCart className="w-3.5 h-3.5" style={{ color: BRAND }} />
               </button>
-              {/* Bouton principal — acheter maintenant */}
+              {/* Ajouter — acheter maintenant */}
               <button
                 onClick={handleBuyNow}
-                className="flex-1 h-10 rounded-xl text-white text-[13px] font-bold flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition-all duration-150"
+                className="flex-1 h-8 rounded-lg text-white text-[12px] font-semibold flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition-all duration-150"
                 style={{ background: BRAND }}
               >
                 Ajouter
               </button>
             </div>
           ) : (
-            <div className="w-full h-10 rounded-xl border-2 border-gray-100 flex items-center justify-center">
-              <span className="text-[11px] text-gray-300 font-medium">Indisponible</span>
+            <div className="w-full h-8 rounded-lg border border-gray-100 flex items-center justify-center">
+              <span className="text-[10px] text-gray-300 font-medium">Indisponible</span>
             </div>
           )}
         </div>
