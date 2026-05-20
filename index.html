@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SangoStore — Aperçu du nouveau design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --forest: #1B3A2D;
+    --gold: #D4961E;
+    --gold-l: #E8AE38;
+    --cream: #FDFCF8;
+    --cream-bg: #FAF7F1;
+    --border: #EAE2D2;
+    --sc: 0 1px 4px rgba(0,0,0,.06), 0 2px 10px rgba(0,0,0,.05);
+    --sh: 0 4px 18px rgba(0,0,0,.10), 0 1px 4px rgba(0,0,0,.06);
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; background:#f0f0ee; color:#1a1a1a; }
+  a { text-decoration:none; color:inherit; cursor:pointer; }
+  button { cursor:pointer; font-family:inherit; }
+  img { display:block; }
+
+  /* ── Animations ── */
+  @keyframes shimmer { 0%{background-position:-500px 0} 100%{background-position:500px 0} }
+  .shimmer { background:linear-gradient(90deg,#ede8e0 25%,#e3ddd5 50%,#ede8e0 75%); background-size:1000px 100%; animation:shimmer 1.6s ease-in-out infinite; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+  .fade-up { animation:fadeUp .5s .1s ease-out both; }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:.7} 50%{transform:scale(2);opacity:0} }
+  .ping { animation:pulse 1.3s ease-in-out infinite; }
+
+  /* ── Demo bar ── */
+  .demo-bar { background:#111827; color:white; font-size:11px; font-weight:700; text-align:center; padding:7px 16px; display:flex; align-items:center; justify-content:center; gap:10px; letter-spacing:.03em; }
+  .demo-dot { width:7px; height:7px; border-radius:50%; background:var(--gold); }
+
+  /* ── Tabs ── */
+  .tabs { display:flex; background:#1f2937; padding:0 16px; position:sticky; top:0; z-index:200; overflow-x:auto; scrollbar-width:none; border-bottom:1px solid rgba(255,255,255,.05); }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab { padding:10px 18px; font-size:12px; font-weight:600; color:rgba(255,255,255,.4); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; transition:all .15s; }
+  .tab.on { color:var(--gold-l); border-bottom-color:var(--gold-l); }
+  .tab:hover:not(.on) { color:rgba(255,255,255,.65); }
+
+  /* ════════════════════ NAVBAR ════════════════════ */
+  .navbar {
+    background:white; border-bottom:1px solid var(--border);
+    box-shadow:0 2px 14px rgba(0,0,0,.07);
+    padding:0 20px; height:60px; display:flex; align-items:center; gap:14px;
+    position:sticky; top:41px; z-index:100;
+  }
+  .logo { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .logo-icon { width:32px; height:32px; border-radius:10px; background:var(--forest); color:white; font-weight:900; font-size:14px; display:flex; align-items:center; justify-content:center; }
+  .logo-text { font-size:17px; font-weight:900; letter-spacing:-.5px; }
+  .logo-text .g { color:var(--gold); }
+  .logo-text .f { color:var(--forest); }
+  .search { flex:1; max-width:500px; display:flex; height:38px; border:1.5px solid var(--border); border-radius:12px; overflow:hidden; background:var(--cream); transition:border-color .15s; }
+  .search:focus-within { border-color:#c4a96a; }
+  .search input { flex:1; border:none; outline:none; background:transparent; font-size:13px; padding:0 12px; color:#333; }
+  .search-btn { height:100%; padding:0 16px; background:var(--forest); color:white; border:none; font-size:13px; font-weight:600; white-space:nowrap; }
+  .nav-r { margin-left:auto; display:flex; align-items:center; gap:12px; }
+  .nav-link { font-size:13px; font-weight:600; color:#555; white-space:nowrap; }
+  .cart-wrap { position:relative; }
+  .cart-btn { width:40px; height:40px; border-radius:12px; border:1.5px solid var(--border); background:white; display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .cart-badge { position:absolute; top:-5px; right:-5px; min-width:18px; height:18px; border-radius:99px; background:var(--gold); color:white; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; border:2px solid white; }
+  .user-av { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--gold),var(--forest)); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:13px; }
+
+  /* ════════════════════ HERO ════════════════════ */
+  .hero {
+    position:relative; overflow:hidden;
+    height:clamp(220px,38vw,400px);
+    background:linear-gradient(135deg,#1B3A2D,#0D2318);
+    display:flex; align-items:center;
+  }
+  .hero-bg {
+    position:absolute; inset:0;
+    background:url('https://images.pexels.com/photos/1005638/pexels-photo-1005638.jpeg?auto=compress&cs=tinysrgb&w=1400') center/cover no-repeat;
+    opacity:.14;
+  }
+  .hero-content { position:relative; z-index:2; padding:0 28px; max-width:520px; }
+  .hero-badge { display:inline-flex; align-items:center; background:rgba(212,150,30,.15); border:1px solid rgba(212,150,30,.3); border-radius:99px; padding:4px 12px; margin-bottom:14px; }
+  .hero-badge span { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--gold-l); }
+  .hero-title { font-size:clamp(18px,2.8vw,32px); font-weight:900; color:white; line-height:1.15; margin-bottom:10px; }
+  .hero-title em { font-style:normal; background:linear-gradient(90deg,#E8AE38,#F5C842); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .hero-sub { font-size:13px; color:rgba(255,255,255,.55); margin-bottom:18px; }
+  .hero-btns { display:flex; gap:10px; flex-wrap:wrap; }
+  .btn-gold { padding:10px 22px; border-radius:12px; font-size:13px; font-weight:700; color:#1a0f00; background:linear-gradient(135deg,#E8AE38,#D4961E); box-shadow:0 4px 18px rgba(212,150,30,.35); border:none; }
+  .btn-ghost { padding:10px 20px; border-radius:12px; font-size:13px; font-weight:600; color:white; border:1.5px solid rgba(255,255,255,.22); background:transparent; }
+  .dots { display:flex; gap:6px; margin-top:16px; }
+  .dot { height:3px; border-radius:99px; }
+  .dot.on { width:28px; background:linear-gradient(90deg,var(--gold),var(--gold-l)); }
+  .dot.off { width:8px; background:rgba(255,255,255,.2); }
+
+  /* ════════════════════ SIDEBAR ROW ════════════════════ */
+  .hero-row { display:flex; background:white; border-bottom:1px solid var(--border); }
+  .sidebar { width:218px; flex-shrink:0; border-right:1px solid var(--border); background:var(--cream); padding:4px 0; }
+  .si { display:flex; align-items:center; gap:10px; padding:10px 12px; font-size:13px; color:#444; transition:background .12s; }
+  .si:hover { background:#F0F7F4; color:var(--forest); }
+  .si-icon { width:24px; height:24px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+  .si-lbl { flex:1; font-weight:500; }
+  .si-ch { color:#ddd; font-size:11px; }
+  .hero-right { flex:1; min-width:0; display:flex; flex-direction:column; }
+
+  /* ════════════════════ TRUST BAR ════════════════════ */
+  .trust-bar { display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--border); margin:0 12px; }
+  .ti { display:flex; align-items:center; gap:10px; padding:11px 14px; border-right:1px solid var(--border); }
+  .ti:last-child { border-right:none; }
+  .ti-icon { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+  .ti-t { font-size:12px; font-weight:700; color:#111; }
+  .ti-s { font-size:11px; color:#aaa; }
+
+  /* ════════════════════ COUNTRY STRIP ════════════════════ */
+  .cstrip { background:white; border-top:1px solid var(--border); padding:7px 20px; }
+  .cs { display:flex; align-items:center; gap:8px; overflow-x:auto; scrollbar-width:none; }
+  .cs::-webkit-scrollbar { display:none; }
+  .pill { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:99px; font-size:11px; font-weight:500; white-space:nowrap; flex-shrink:0; border:1px solid var(--border); background:var(--cream); color:#555; }
+  .pill.on { background:var(--forest); color:white; border-color:var(--forest); font-weight:700; }
+  .pill:hover:not(.on) { border-color:#f59e0b; color:#b45309; background:#fffbeb; }
+  .cs-label { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.12em; color:#bbb; display:flex; align-items:center; gap:6px; flex-shrink:0; }
+  .cs-div { width:2px; height:16px; background:var(--border); flex-shrink:0; }
+
+  /* ════════════════════ SECTIONS ════════════════════ */
+  .sec { padding:32px 0; }
+  .sec.cream { background:var(--cream-bg); }
+  .sec.white { background:white; }
+  .sec-in { max-width:1280px; margin:0 auto; padding:0 20px; }
+  .sec-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
+  .s-label { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+  .s-bar { width:14px; height:3px; border-radius:99px; flex-shrink:0; }
+  .s-tag { font-size:10px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+  .s-h2 { font-size:21px; font-weight:900; color:#111; letter-spacing:-.3px; }
+  .see-all { font-size:13px; font-weight:700; color:var(--gold); display:flex; align-items:center; gap:4px; white-space:nowrap; margin-top:4px; }
+
+  /* ════════════════════ PROMO BLOCKS ════════════════════ */
+  .promo-grid { display:grid; grid-template-columns:1fr; gap:12px; }
+  @media(min-width:640px) { .promo-grid { grid-template-columns:repeat(3,1fr); } }
+  .promo-card { border-radius:16px; overflow:hidden; position:relative; height:clamp(110px,18vw,175px); display:flex; align-items:flex-end; }
+  .p-bg { position:absolute; inset:0; background-size:cover; background-position:center; transition:transform .4s; }
+  .promo-card:hover .p-bg { transform:scale(1.04); }
+  .p-ov { position:absolute; inset:0; }
+  .p-body { position:relative; z-index:2; padding:12px 16px; width:100%; }
+  .p-tag { font-size:8px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-bottom:4px; }
+  .p-title { font-size:14px; font-weight:900; color:white; line-height:1.2; }
+  .p-cta { display:inline-flex; align-items:center; gap:4px; margin-top:8px; padding:5px 12px; border-radius:99px; font-size:11px; font-weight:700; border:none; }
+
+  /* ════════════════════ FLASH CARDS ════════════════════ */
+  .h-scroll { display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; scrollbar-width:none; }
+  .h-scroll::-webkit-scrollbar { display:none; }
+  .fc { flex-shrink:0; width:clamp(152px,42vw,192px); display:flex; flex-direction:column; border-radius:12px; overflow:hidden; background:white; border:1px solid var(--border); box-shadow:var(--sc); transition:all .3s; }
+  .fc:hover { transform:translateY(-2px); box-shadow:var(--sh); }
+  .fc-img { aspect-ratio:1; position:relative; overflow:hidden; background:#f0ece4; }
+  .fc-img img { width:100%; height:100%; object-fit:cover; transition:transform .5s; }
+  .fc:hover .fc-img img { transform:scale(1.05); }
+  .fc-body { padding:8px 11px; display:flex; flex-direction:column; gap:3px; }
+  .fc-cat { font-size:9px; font-weight:700; color:#bbb; text-transform:uppercase; letter-spacing:.07em; }
+  .fc-title { font-size:12px; font-weight:600; color:#1f2937; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.6em; }
+  .fc-price { font-size:13px; font-weight:700; color:#C48A10; }
+  .fc-foot { border-top:1px solid rgba(0,0,0,.04); padding:6px 11px; display:flex; align-items:center; justify-content:space-between; }
+  .fc-buy { font-size:11px; font-weight:700; color:var(--forest); background:none; border:none; }
+
+  /* ════════════════════ TIMER ════════════════════ */
+  .timer { display:flex; align-items:center; gap:5px; }
+  .t-lbl { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#9ca3af; }
+  .t-blk { display:flex; flex-direction:column; align-items:center; gap:1px; }
+  .t-num { min-width:26px; height:26px; padding:0 4px; border-radius:6px; background:#111827; color:white; font-size:11px; font-weight:900; display:flex; align-items:center; justify-content:center; }
+  .t-unit { font-size:7px; color:#9ca3af; text-transform:uppercase; }
+  .t-sep { font-size:11px; font-weight:700; color:#9ca3af; padding-bottom:13px; }
+
+  /* ════════════════════ PRODUCT CARD ════════════════════ */
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(172px,1fr)); gap:12px; }
+  @media(min-width:640px) { .grid { grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:14px; } }
+
+  .pc { display:flex; flex-direction:column; border-radius:12px; overflow:hidden; background:var(--cream); border:1px solid var(--border); box-shadow:var(--sc); transition:all .25s; }
+  .pc:hover { box-shadow:var(--sh); transform:translateY(-4px); border-color:#f0c97a; }
+  .pc-img { position:relative; overflow:hidden; background:#f0ece4; aspect-ratio:4/3; }
+  .pc-img img { width:100%; height:100%; object-fit:cover; transition:transform .5s; }
+  .pc:hover .pc-img img { transform:scale(1.06); }
+  .badge { position:absolute; top:8px; left:8px; z-index:2; color:white; font-size:9px; font-weight:800; padding:2px 7px; border-radius:99px; }
+  .b-promo { background:#16A34A; box-shadow:0 2px 6px rgba(22,163,74,.35); }
+  .b-flash { background:var(--gold); }
+  .b-trend { background:#E05252; }
+  .b-new   { background:var(--forest); }
+  .w-btn { position:absolute; top:8px; right:8px; z-index:2; width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,.9); display:flex; align-items:center; justify-content:center; font-size:12px; box-shadow:0 1px 6px rgba(0,0,0,.15); border:none; transition:all .15s; }
+  .w-btn:hover { background:white; transform:scale(1.1); }
+  .pc-body { display:flex; flex-direction:column; padding:10px 12px 12px; flex:1; gap:5px; }
+  .pc-meta { display:flex; align-items:center; justify-content:space-between; gap:4px; }
+  .pc-cat { font-size:10px; font-weight:600; color:#aaa; text-transform:uppercase; letter-spacing:.05em; }
+  .pc-rating { display:flex; align-items:center; gap:2px; font-size:10px; font-weight:700; color:#374151; flex-shrink:0; }
+  .pc-title { font-size:12.5px; font-weight:600; color:#1f2937; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.7em; }
+  .pc:hover .pc-title { color:var(--forest); }
+  .pc-price { display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; }
+  .ppm { font-size:15px; font-weight:800; color:#C48A10; white-space:nowrap; }
+  .ppo { font-size:10px; color:#ccc; text-decoration:line-through; }
+  .pc-btns { display:flex; gap:6px; margin-top:auto; padding-top:4px; }
+  .pc-cart { width:36px; height:36px; border-radius:10px; flex-shrink:0; border:2px solid #D1EAE0; display:flex; align-items:center; justify-content:center; font-size:14px; background:transparent; transition:all .15s; }
+  .pc-cart:hover { border-color:var(--forest); background:#F0F7F4; }
+  .pc-buy { flex:1; height:36px; border-radius:10px; border:none; background:var(--forest); color:white; font-size:12px; font-weight:700; box-shadow:0 2px 8px rgba(27,58,45,.20); transition:all .15s; }
+  .pc-buy:hover { filter:brightness(1.1); }
+  .pc-unavail { width:100%; height:36px; border-radius:10px; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; background:var(--cream-bg); font-size:10px; color:#ccc; font-weight:500; }
+  .sk { border-radius:99px; margin-bottom:6px; }
+  .sk-img { aspect-ratio:4/3; width:100%; }
+  .sk-row { display:flex; gap:6px; margin-top:8px; }
+  .sk-sq { width:36px; height:36px; border-radius:10px; }
+  .sk-fl { flex:1; height:36px; border-radius:10px; }
+
+  /* ════════════════════ LIST CARD ════════════════════ */
+  .lc { display:flex; border-radius:16px; overflow:hidden; background:var(--cream); border:1px solid var(--border); box-shadow:var(--sc); transition:all .25s; }
+  .lc:hover { transform:translateY(-2px); box-shadow:var(--sh); border-color:#f0c97a; }
+  .lc-img { width:112px; height:112px; flex-shrink:0; background:#f0ece4; overflow:hidden; position:relative; }
+  @media(min-width:640px) { .lc-img { width:140px; height:140px; } }
+  .lc-img img { width:100%; height:100%; object-fit:cover; transition:transform .5s; }
+  .lc:hover .lc-img img { transform:scale(1.06); }
+  .lc-body { flex:1; min-width:0; display:flex; flex-direction:column; padding:12px; }
+  .lc-title { font-size:14px; font-weight:600; color:#1f2937; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .lc-foot { margin-top:auto; padding-top:8px; display:flex; align-items:center; justify-content:space-between; }
+  .lc-buy { display:flex; align-items:center; gap:5px; padding:7px 12px; border-radius:10px; border:2px solid #D1EAE0; background:transparent; font-size:11px; font-weight:700; color:var(--forest); }
+
+  /* ════════════════════ CATEGORIES ════════════════════ */
+  .cat-cc { flex-shrink:0; width:clamp(86px,14vw,140px); border-radius:12px; overflow:hidden; border:2px solid transparent; box-shadow:0 2px 8px rgba(0,0,0,.07); transition:all .2s; }
+  .cat-cc:hover { border-color:#f59e0b; box-shadow:0 4px 18px rgba(212,150,30,.22); }
+  .cat-img { aspect-ratio:1; position:relative; overflow:hidden; }
+  .cat-img img { width:100%; height:100%; object-fit:cover; object-position:top; transition:transform .3s; }
+  .cat-cc:hover .cat-img img { transform:scale(1.05); }
+  .cat-ov { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.55),transparent); }
+  .cat-ic-row { display:flex; justify-content:center; margin-top:-13px; position:relative; z-index:1; }
+  .cat-circle { width:28px; height:28px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,.2); font-size:12px; }
+  .cat-name { background:white; text-align:center; padding:4px 4px 8px; font-size:9.5px; font-weight:700; color:#333; }
+  .cat-cc:hover .cat-name { background:#fffbeb; color:#b45309; }
+
+  /* ════════════════════ TRANSPORTER CARD ════════════════════ */
+  .tc { flex-shrink:0; width:clamp(240px,68vw,300px); border-radius:16px; overflow:hidden; background:white; border:1px solid var(--border); box-shadow:var(--sc); transition:all .3s; }
+  .tc:hover { transform:translateY(-3px); box-shadow:var(--sh); }
+  .tc-head { background:linear-gradient(135deg,#1B3A2D,#0D2318); padding:14px 16px; display:flex; align-items:center; gap:12px; }
+  .tc-av { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:16px; border:2px solid rgba(255,255,255,.2); flex-shrink:0; }
+  .tc-name { color:white; font-weight:700; font-size:14px; }
+  .tc-route { color:rgba(255,255,255,.5); font-size:11px; margin-top:1px; }
+  .tc-body { padding:12px 14px; display:flex; flex-direction:column; gap:8px; }
+  .tc-tags { display:flex; gap:6px; flex-wrap:wrap; }
+  .tc-tag { font-size:10px; font-weight:600; padding:3px 8px; border-radius:99px; background:#F0F7F4; color:var(--forest); border:1px solid #D1EAE0; }
+  .tc-info { font-size:11px; color:#888; display:flex; justify-content:space-between; }
+  .tc-btn { width:100%; padding:9px; border-radius:10px; background:var(--forest); color:white; font-size:12px; font-weight:700; border:none; }
+
+  /* ════════════════════ STEPS ════════════════════ */
+  .steps { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+  @media(min-width:1024px) { .steps { grid-template-columns:repeat(4,1fr); } }
+  .step { text-align:center; }
+  .step-ic { width:clamp(48px,7vw,64px); height:clamp(48px,7vw,64px); margin:0 auto 12px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:clamp(18px,3vw,24px); background:var(--cream); border:2px solid var(--border); box-shadow:0 2px 12px rgba(0,0,0,.06); position:relative; }
+  .step-n { position:absolute; top:-8px; right:-8px; width:20px; height:20px; border-radius:50%; background:var(--gold); color:white; font-size:9px; font-weight:900; display:flex; align-items:center; justify-content:center; }
+  .step-t { font-size:12px; font-weight:800; color:#111; margin-bottom:5px; line-height:1.3; }
+  .step-d { font-size:11px; color:#888; line-height:1.6; }
+
+  /* ════════════════════ SUPPORT ════════════════════ */
+  .support { background:white; border:1px solid var(--border); border-radius:16px; padding:14px 20px; box-shadow:var(--sc); display:flex; flex-direction:column; gap:12px; }
+  @media(min-width:640px) { .support { flex-direction:row; align-items:center; } }
+  .sup-l { display:flex; align-items:center; gap:12px; flex:1; }
+  .sup-icon-w { position:relative; flex-shrink:0; }
+  .sup-icon { width:36px; height:36px; border-radius:10px; background:#F0F7F4; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .sup-dot { position:absolute; bottom:-2px; right:-2px; width:11px; height:11px; border-radius:50%; background:#22c55e; border:2px solid white; }
+  .sup-online { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:#16a34a; margin-bottom:2px; }
+  .sup-text { font-size:13px; font-weight:600; color:#1f2937; }
+  .sup-r { display:flex; gap:8px; }
+  .btn-wa { display:inline-flex; align-items:center; gap:5px; padding:8px 14px; border-radius:10px; background:#22c55e; color:white; font-size:12px; font-weight:700; border:none; box-shadow:0 2px 10px rgba(34,197,94,.28); white-space:nowrap; }
+  .btn-ph { display:inline-flex; align-items:center; gap:5px; padding:8px 14px; border-radius:10px; background:var(--cream-bg); border:1px solid var(--border); color:#555; font-size:12px; font-weight:500; white-space:nowrap; }
+
+  /* ════════════════════ CTA ════════════════════ */
+  .cta { padding:52px 24px; text-align:center; background:linear-gradient(135deg,#1B3A2D,#0D2318 45%,#0A1C12); }
+  .cta-eye { font-size:10px; font-weight:800; letter-spacing:.15em; text-transform:uppercase; color:#E8AE38; margin-bottom:12px; display:flex; align-items:center; justify-content:center; gap:10px; }
+  .cta-ln { width:28px; height:1px; background:rgba(212,150,30,.4); }
+  .cta-h2 { font-size:clamp(20px,3.5vw,30px); font-weight:900; color:white; letter-spacing:-.5px; margin-bottom:10px; }
+  .cta-sub { font-size:13px; color:rgba(255,255,255,.45); margin-bottom:28px; max-width:400px; margin-left:auto; margin-right:auto; line-height:1.6; }
+  .cta-btns { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; }
+  .cta-bp { padding:13px 28px; border-radius:12px; font-size:14px; font-weight:700; color:#1a0f00; background:linear-gradient(135deg,#E8AE38,#D4961E); box-shadow:0 4px 22px rgba(212,150,30,.4); border:none; }
+  .cta-bs { padding:13px 28px; border-radius:12px; font-size:14px; font-weight:600; color:white; border:1.5px solid rgba(255,255,255,.2); background:transparent; }
+
+  /* ════════════════════ FOOTER ════════════════════ */
+  .footer { background:#0A1018; color:white; padding:36px 24px 20px; }
+  .ft-in { max-width:1280px; margin:0 auto; }
+  .ft-top { display:flex; flex-wrap:wrap; gap:28px; padding-bottom:24px; border-bottom:1px solid rgba(255,255,255,.07); }
+  .ft-brand { min-width:200px; flex:1; }
+  .ft-logo { font-size:18px; font-weight:900; font-style:italic; margin-bottom:10px; }
+  .ft-logo span { background:linear-gradient(90deg,#E8AE38,#D4961E); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .ft-desc { font-size:12px; color:rgba(255,255,255,.3); line-height:1.7; }
+  .ft-col { min-width:130px; }
+  .ft-col h4 { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.35); margin-bottom:12px; }
+  .ft-col a { display:block; font-size:12px; color:rgba(255,255,255,.45); margin-bottom:7px; }
+  .ft-col a:hover { color:var(--gold); }
+  .ft-bot { padding-top:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+  .ft-copy { font-size:11px; color:rgba(255,255,255,.2); }
+
+  /* ════════════════════ MOBILE FRAME ════════════════════ */
+  .m-wrap { background:#e5e7eb; padding:20px 0; }
+  .m-label { text-align:center; font-size:11px; color:#888; margin-bottom:12px; font-weight:600; }
+  .m-frame { max-width:390px; margin:0 auto; background:white; box-shadow:0 0 50px rgba(0,0,0,.2); }
+  .m-nav { background:white; border-bottom:1px solid var(--border); padding:0 12px; height:50px; display:flex; align-items:center; gap:10px; }
+</style>
+</head>
+<body>
+
+<div class="demo-bar">
+  <div class="demo-dot"></div>
+  SangoStore — Aperçu visuel du nouveau design
+  <div class="demo-dot"></div>
+</div>
+
+<div class="tabs">
+  <div class="tab on"  onclick="show('desktop')">🖥 Desktop</div>
+  <div class="tab"     onclick="show('mobile')">📱 Mobile</div>
+  <div class="tab"     onclick="show('cards')">🃏 Cartes Produits</div>
+  <div class="tab"     onclick="show('flash')">⚡ Flash Sale</div>
+</div>
+
+<!-- ══════ DESKTOP ══════ -->
+<div id="v-desktop">
+
+  <nav class="navbar">
+    <div class="logo">
+      <div class="logo-icon">S</div>
+      <div class="logo-text"><span class="g">Sango</span><span class="f">Store</span></div>
+    </div>
+    <div class="search">
+      <input placeholder="Rechercher un produit, une marque…">
+      <button class="search-btn">🔍 Rechercher</button>
+    </div>
+    <div class="nav-r">
+      <span class="nav-link">🏠 Accueil</span>
+      <span class="nav-link">Mode Africaine</span>
+      <span class="nav-link">🚚 Transporteurs</span>
+      <div class="cart-wrap">
+        <div class="cart-btn">🛒</div>
+        <div class="cart-badge">3</div>
+      </div>
+      <div class="user-av">D</div>
+    </div>
+  </nav>
+
+  <!-- Sidebar + Hero -->
+  <div class="hero-row">
+    <aside class="sidebar">
+      <div class="si"><div class="si-icon" style="background:#D4961E18">👗</div><span class="si-lbl">Mode Africaine</span><span class="si-ch">›</span></div>
+      <div class="si"><div class="si-icon" style="background:#F472B618">👜</div><span class="si-lbl">Mode Femme</span><span class="si-ch">›</span></div>
+      <div class="si"><div class="si-icon" style="background:#64748B18">💼</div><span class="si-lbl">Mode Homme</span><span class="si-ch">›</span></div>
+      <div class="si"><div class="si-icon" style="background:#3B82F618">📱</div><span class="si-lbl">Électronique</span><span class="si-ch">›</span></div>
+      <div class="si"><div class="si-icon" style="background:#EC489918">💎</div><span class="si-lbl">Beauté & Santé</span><span class="si-ch">›</span></div>
+      <div class="si"><div class="si-icon" style="background:#10B98118">🏠</div><span class="si-lbl">Maison & Bureau</span><span class="si-ch">›</span></div>
+      <div class="si"><div class="si-icon" style="background:#F9731618">☕</div><span class="si-lbl">Alimentation</span><span class="si-ch">›</span></div>
+      <div class="si"><div class="si-icon" style="background:#8B5CF618">🏋</div><span class="si-lbl">Sports & Loisirs</span><span class="si-ch">›</span></div>
+      <div class="si"><div class="si-icon" style="background:#06B6D418">📦</div><span class="si-lbl">Envoi de colis</span><span class="si-ch">›</span></div>
+      <div style="border-top:1px solid var(--border);margin:4px 0;padding-top:4px;">
+        <div class="si" style="font-weight:700;font-size:12px;color:var(--forest);">Voir toutes les catégories ›</div>
+      </div>
+    </aside>
+    <div class="hero-right">
+      <div style="flex:1;padding:10px 10px 0">
+        <div class="hero">
+          <div class="hero-bg"></div>
+          <div class="hero-content fade-up">
+            <div class="hero-badge"><span>✦ Nouveau sur Bangui Market</span></div>
+            <h1 class="hero-title">Les meilleurs produits<br>de la diaspora <em>livrés à Bangui</em></h1>
+            <p class="hero-sub">France · Sénégal · Cameroun → Bangui 🇨🇫</p>
+            <div class="hero-btns">
+              <button class="btn-gold">Découvrir les produits</button>
+              <button class="btn-ghost">Comment ça marche ?</button>
+            </div>
+            <div class="dots"><div class="dot on"></div><div class="dot off"></div><div class="dot off"></div><div class="dot off"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="trust-bar">
+        <div class="ti"><div class="ti-icon" style="background:#1B3A2D18">🔒</div><div><div class="ti-t">Paiement sécurisé</div><div class="ti-s">100% sécurisé</div></div></div>
+        <div class="ti"><div class="ti-icon" style="background:#2563EB18">🚚</div><div><div class="ti-t">Livraison rapide</div><div class="ti-s">Afrique & monde</div></div></div>
+        <div class="ti"><div class="ti-icon" style="background:#D9770618">📦</div><div><div class="ti-t">Retour facile</div><div class="ti-s">7 jours garantis</div></div></div>
+        <div class="ti"><div class="ti-icon" style="background:#16A34A18">📞</div><div><div class="ti-t">Support 24/7</div><div class="ti-s">Assistance dédiée</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Country pills -->
+  <div class="cstrip">
+    <div class="cs">
+      <div class="cs-label"><span style="width:3px;height:16px;border-radius:99px;background:#f97316;display:inline-block"></span> Pays d'origine</div>
+      <div class="cs-div"></div>
+      <div class="pill on">🌍 Tous les pays</div>
+      <div class="pill">🇫🇷 France</div>
+      <div class="pill">🇸🇳 Sénégal</div>
+      <div class="pill">🇨🇲 Cameroun</div>
+      <div class="pill">🇨🇮 Côte d'Ivoire</div>
+      <div class="pill">🇧🇯 Bénin</div>
+      <div class="pill">🇲🇱 Mali</div>
+      <div class="pill">🇬🇳 Guinée</div>
+    </div>
+  </div>
+
+  <!-- Promo blocks -->
+  <div class="sec white" style="padding:24px 0">
+    <div class="sec-in">
+      <div class="promo-grid">
+        <div class="promo-card"><div class="p-bg" style="background-image:url('https://images.pexels.com/photos/1456291/pexels-photo-1456291.jpeg?auto=compress&cs=tinysrgb&w=600')"></div><div class="p-ov" style="background:linear-gradient(to top,rgba(27,58,45,.85),rgba(27,58,45,.1))"></div><div class="p-body"><div class="p-tag" style="color:#E8AE38">Mode Africaine</div><div class="p-title">Boubous & tenues traditionnelles</div><button class="p-cta" style="background:#E8AE38;color:#1a0f00">Découvrir →</button></div></div>
+        <div class="promo-card"><div class="p-bg" style="background-image:url('https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=600')"></div><div class="p-ov" style="background:linear-gradient(to top,rgba(21,58,105,.85),rgba(21,58,105,.1))"></div><div class="p-body"><div class="p-tag" style="color:#93C5FD">Électronique</div><div class="p-title">Smartphones & Accessoires</div><button class="p-cta" style="background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3)">Voir les offres →</button></div></div>
+        <div class="promo-card"><div class="p-bg" style="background-image:url('https://images.pexels.com/photos/3622608/pexels-photo-3622608.jpeg?auto=compress&cs=tinysrgb&w=600')"></div><div class="p-ov" style="background:linear-gradient(to top,rgba(157,23,77,.85),rgba(157,23,77,.1))"></div><div class="p-body"><div class="p-tag" style="color:#F9A8D4">Beauté & Soins</div><div class="p-title">Cosmétiques naturels</div><button class="p-cta" style="background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3)">Explorer →</button></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flash Sale -->
+  <div class="sec cream">
+    <div class="sec-in">
+      <div class="sec-head">
+        <div>
+          <div class="s-label"><div class="s-bar" style="background:var(--gold)"></div><span class="s-tag" style="color:var(--gold)">Offres limitées</span></div>
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px">
+            <span class="s-h2">Offres Flash</span>
+            <div class="timer"><span class="t-lbl">Fin dans</span><div class="t-blk"><div class="t-num">02</div><div class="t-unit">j</div></div><span class="t-sep">:</span><div class="t-blk"><div class="t-num">14</div><div class="t-unit">h</div></div><span class="t-sep">:</span><div class="t-blk"><div class="t-num">38</div><div class="t-unit">min</div></div><span class="t-sep">:</span><div class="t-blk"><div class="t-num">52</div><div class="t-unit">sec</div></div></div>
+          </div>
+        </div>
+        <a class="see-all">Voir tout →</a>
+      </div>
+      <div class="h-scroll">
+        <div class="fc"><div class="fc-img"><img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-flash">−30%</div><button class="w-btn">🤍</button></div><div class="fc-body"><div class="fc-cat">🇸🇳 Mode</div><div class="fc-title">Boubou brodé homme grande taille</div><div class="fc-price">35 000 FCFA</div></div><div class="fc-foot"><span style="color:var(--forest);font-size:14px">🛒</span><button class="fc-buy">Acheter</button></div></div>
+        <div class="fc"><div class="fc-img"><img src="https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-flash">−25%</div><button class="w-btn">❤️</button></div><div class="fc-body"><div class="fc-cat">🇫🇷 Beauté</div><div class="fc-title">Crème visage naturelle karité bio</div><div class="fc-price">12 500 FCFA</div></div><div class="fc-foot"><span style="color:var(--forest);font-size:14px">🛒</span><button class="fc-buy">Acheter</button></div></div>
+        <div class="fc"><div class="fc-img"><img src="https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-trend">🔥 Tendance</div><button class="w-btn">🤍</button></div><div class="fc-body"><div class="fc-cat">🇫🇷 Électro</div><div class="fc-title">Smartphone 128Go double SIM</div><div class="fc-price">89 000 FCFA</div></div><div class="fc-foot"><span style="color:var(--forest);font-size:14px">🛒</span><button class="fc-buy">Acheter</button></div></div>
+        <div class="fc"><div class="fc-img"><img src="https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-new">✦ Nouveau</div><button class="w-btn">🤍</button></div><div class="fc-body"><div class="fc-cat">🇨🇲 Accessoires</div><div class="fc-title">Sac à main wax africain</div><div class="fc-price">22 000 FCFA</div></div><div class="fc-foot"><span style="color:var(--forest);font-size:14px">🛒</span><button class="fc-buy">Acheter</button></div></div>
+        <div class="fc"><div class="fc-img"><img src="https://images.pexels.com/photos/2611815/pexels-photo-2611815.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-flash">−20%</div><button class="w-btn">🤍</button></div><div class="fc-body"><div class="fc-cat">🇸🇳 Mode</div><div class="fc-title">Chaussures cuir artisanal homme</div><div class="fc-price">28 000 FCFA</div></div><div class="fc-foot"><span style="color:var(--forest);font-size:14px">🛒</span><button class="fc-buy">Acheter</button></div></div>
+        <div class="fc" style="opacity:.4;pointer-events:none"><div class="shimmer sk-img" style="aspect-ratio:1"></div><div class="fc-body"><div class="sk shimmer" style="width:50%;height:8px"></div><div class="sk shimmer" style="width:85%;height:11px"></div><div class="sk shimmer" style="width:40%;height:12px"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Products -->
+  <div class="sec white">
+    <div class="sec-in">
+      <div class="sec-head">
+        <div><div class="s-label"><div class="s-bar" style="background:var(--gold)"></div><span class="s-tag" style="color:var(--gold)">Sélection du moment</span></div><span class="s-h2">Produits populaires</span></div>
+        <a class="see-all">Voir tout →</a>
+      </div>
+      <div class="grid">
+        <div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-promo">−30%</div><button class="w-btn">🤍</button></div><div class="pc-body"><div class="pc-meta"><span class="pc-cat">🇸🇳 Mode</span><div class="pc-rating">⭐ 4.8 <span style="color:#ccc;font-weight:400">(24)</span></div></div><div class="pc-title">Boubou brodé homme grande taille premium</div><div class="pc-price"><span class="ppm">35 000 FCFA</span><span class="ppo">50 000 FCFA</span></div><div class="pc-btns"><button class="pc-cart">🛒</button><button class="pc-buy">Ajouter</button></div></div></div>
+        <div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-flash">⚡ Flash</div><button class="w-btn">🤍</button></div><div class="pc-body"><div class="pc-meta"><span class="pc-cat">🇫🇷 Électro</span><div class="pc-rating">⭐ 4.6</div></div><div class="pc-title">Smartphone 128Go double SIM Android 14</div><div class="pc-price"><span class="ppm">89 000 FCFA</span></div><div class="pc-btns"><button class="pc-cart">🛒</button><button class="pc-buy">Ajouter</button></div></div></div>
+        <div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-new">✦ Nouveau</div><button class="w-btn">❤️</button></div><div class="pc-body"><div class="pc-meta"><span class="pc-cat">🇫🇷 Beauté</span><div class="pc-rating">⭐ 5.0</div></div><div class="pc-title">Crème hydratante karité & huile d'argan</div><div class="pc-price"><span class="ppm">12 500 FCFA</span></div><div class="pc-btns"><button class="pc-cart">🛒</button><button class="pc-buy">Ajouter</button></div></div></div>
+        <div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-trend">🔥 Tendance</div><button class="w-btn">🤍</button></div><div class="pc-body"><div class="pc-meta"><span class="pc-cat">🇨🇲 Accesso.</span></div><div class="pc-title">Sac à main wax african motif kente</div><div class="pc-price"><span class="ppm">22 000 FCFA</span></div><div class="pc-btns"><button class="pc-cart">🛒</button><button class="pc-buy">Ajouter</button></div></div></div>
+        <div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/2611815/pexels-photo-2611815.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><button class="w-btn">🤍</button></div><div class="pc-body"><div class="pc-meta"><span class="pc-cat">🇸🇳 Mode</span></div><div class="pc-title">Chaussures cuir artisanal homme</div><div class="pc-price"><span class="ppm">28 000 FCFA</span></div><div style="display:flex;align-items:center;gap:5px;margin-bottom:2px"><span style="font-size:8px;font-weight:800;padding:2px 6px;border-radius:99px;background:#EEF5F1;color:var(--forest)">GROS</span><span style="font-size:9px;color:#2d6a4f">24 000 FCFA/u</span></div><div class="pc-btns"><button class="pc-cart">🛒</button><button class="pc-buy">Ajouter</button></div></div></div>
+        <div class="pc" style="opacity:.7"><div class="pc-img" style="position:relative"><img src="https://images.pexels.com/photos/1005638/pexels-photo-1005638.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div style="position:absolute;inset:0;background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;z-index:3"><span style="background:white;color:#555;font-size:9px;font-weight:700;padding:4px 10px;border-radius:99px">Indisponible</span></div></div><div class="pc-body"><div class="pc-meta"><span class="pc-cat">🇨🇮 Tissu</span></div><div class="pc-title">Tissu wax Holland 6 yards</div><div class="pc-price"><span class="ppm">18 000 FCFA</span></div><div class="pc-unavail">Indisponible</div></div></div>
+        <div class="pc" style="pointer-events:none"><div class="shimmer sk-img"></div><div class="pc-body"><div class="sk shimmer" style="width:55%;height:8px"></div><div class="sk shimmer" style="width:88%;height:12px"></div><div class="sk shimmer" style="width:66%;height:12px"></div><div class="sk shimmer" style="width:36%;height:14px"></div><div class="sk-row"><div class="sk-sq shimmer"></div><div class="sk-fl shimmer"></div></div></div></div>
+        <div class="pc" style="pointer-events:none"><div class="shimmer sk-img"></div><div class="pc-body"><div class="sk shimmer" style="width:48%;height:8px"></div><div class="sk shimmer" style="width:80%;height:12px"></div><div class="sk shimmer" style="width:60%;height:12px"></div><div class="sk shimmer" style="width:34%;height:14px"></div><div class="sk-row"><div class="sk-sq shimmer"></div><div class="sk-fl shimmer"></div></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Support -->
+  <div class="sec cream" style="padding-top:14px;padding-bottom:14px">
+    <div class="sec-in">
+      <div class="support">
+        <div class="sup-l"><div class="sup-icon-w"><div class="sup-icon">🎧</div><div class="sup-dot"></div></div><div><div class="sup-online">Support en ligne</div><div class="sup-text">Besoin d'aide pour commander ? <span style="font-size:11px;font-weight:400;color:#aaa">Notre équipe répond en quelques minutes — 7j/7</span></div></div></div>
+        <div class="sup-r"><button class="btn-wa">💬 WhatsApp</button><button class="btn-ph">📞 +221 78 686 39 69</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transporteurs -->
+  <div class="sec cream">
+    <div class="sec-in">
+      <div class="sec-head">
+        <div><div class="s-label"><div class="s-bar" style="background:var(--forest)"></div><span class="s-tag" style="color:var(--forest)">Confiance & sécurité</span></div><span class="s-h2">Transporteurs certifiés</span><p style="font-size:12px;color:#aaa;margin-top:4px">Nos GPs et transitaires de confiance vers Bangui</p></div>
+        <a class="see-all" style="color:var(--forest)">Tous les transporteurs →</a>
+      </div>
+      <div class="h-scroll">
+        <div class="tc"><div class="tc-head"><div class="tc-av" style="background:var(--gold)">M</div><div><div class="tc-name">Mamadou Diallo</div><div class="tc-route">🇫🇷 Paris → 🇨🇫 Bangui</div></div></div><div class="tc-body"><div class="tc-tags"><span class="tc-tag">✈️ Vol direct</span><span class="tc-tag">⚡ Express</span><span class="tc-tag">✅ Vérifié</span></div><div class="tc-info"><span>🗓 15 juin 2025</span><span>⭐ 4.9 (38)</span></div><button class="tc-btn">Voir le trajet</button></div></div>
+        <div class="tc"><div class="tc-head"><div class="tc-av" style="background:#D4961E">A</div><div><div class="tc-name">Aminata Koné</div><div class="tc-route">🇸🇳 Dakar → 🇨🇫 Bangui</div></div></div><div class="tc-body"><div class="tc-tags"><span class="tc-tag">🚛 Terrestre</span><span class="tc-tag">✅ Vérifié</span></div><div class="tc-info"><span>🗓 20 juin 2025</span><span>⭐ 4.7 (22)</span></div><button class="tc-btn">Voir le trajet</button></div></div>
+        <div class="tc"><div class="tc-head"><div class="tc-av" style="background:#2563EB">J</div><div><div class="tc-name">Jean-Baptiste Ndolo</div><div class="tc-route">🇨🇲 Douala → 🇨🇫 Bangui</div></div></div><div class="tc-body"><div class="tc-tags"><span class="tc-tag">📦 Fret</span><span class="tc-tag">💰 Économique</span><span class="tc-tag">✅ Vérifié</span></div><div class="tc-info"><span>🗓 25 juin 2025</span><span>⭐ 4.5 (15)</span></div><button class="tc-btn">Voir le trajet</button></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comment ça marche -->
+  <div class="sec white">
+    <div class="sec-in">
+      <div style="text-align:center;margin-bottom:36px">
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px"><div style="width:20px;height:2px;border-radius:99px;background:var(--gold)"></div><span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:var(--gold)">Simple & sécurisé</span><div style="width:20px;height:2px;border-radius:99px;background:var(--gold)"></div></div>
+        <h2 style="font-size:clamp(20px,3vw,28px);font-weight:900;color:#111;margin-bottom:8px">Comment ça marche ?</h2>
+        <p style="font-size:13px;color:#aaa;max-width:360px;margin:0 auto;line-height:1.6">Pensé pour la diaspora africaine, simple depuis votre téléphone</p>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-ic"><span>📱</span><div class="step-n">01</div></div><div class="step-t">Choisissez votre produit</div><div class="step-d">Parcourez nos produits envoyés par la diaspora depuis la France, le Sénégal, le Cameroun…</div></div>
+        <div class="step"><div class="step-ic"><span>💳</span><div class="step-n">02</div></div><div class="step-t">Payez en toute sécurité</div><div class="step-d">Orange Money ou cash. Votre argent est bloqué en escrow jusqu'à la livraison.</div></div>
+        <div class="step"><div class="step-ic"><span>🚚</span><div class="step-n">03</div></div><div class="step-t">Le vendeur expédie via GP</div><div class="step-d">Le vendeur choisit un transporteur certifié. Le colis part vers Bangui.</div></div>
+        <div class="step"><div class="step-ic"><span>🇨🇫</span><div class="step-n">04</div></div><div class="step-t">Récupérez à Bangui</div><div class="step-d">Le colis arrive au point de retrait. Vous récupérez, l'argent est libéré au vendeur.</div></div>
+      </div>
+      <div style="text-align:center;margin-top:32px"><button style="padding:11px 28px;border-radius:12px;border:2px solid var(--border);background:transparent;font-size:13px;font-weight:700;color:var(--forest)">En savoir plus →</button></div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <div class="cta-eye"><div class="cta-ln"></div>✦ Bangui Market ✦<div class="cta-ln"></div></div>
+    <h2 class="cta-h2">Prêt à recevoir vos produits à Bangui ?</h2>
+    <p class="cta-sub">Créez votre compte gratuitement et commandez dès aujourd'hui depuis n'importe où dans le monde.</p>
+    <div class="cta-btns"><button class="cta-bp">Créer mon compte</button><button class="cta-bs">Parcourir les produits</button></div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="ft-in">
+      <div class="ft-top">
+        <div class="ft-brand"><div class="ft-logo"><span>Sango</span>Store</div><p class="ft-desc">La marketplace de la diaspora centrafricaine. Achetez depuis le monde entier, recevez à Bangui.</p></div>
+        <div class="ft-col"><h4>Boutique</h4><a>Mode Africaine</a><a>Électronique</a><a>Beauté & Soins</a><a>Maison & Déco</a></div>
+        <div class="ft-col"><h4>Services</h4><a>Transporteurs</a><a>Publier un trajet</a><a>Suivi de colis</a></div>
+        <div class="ft-col"><h4>Support</h4><a>Comment ça marche</a><a>FAQ</a><a>Contact</a></div>
+      </div>
+      <div class="ft-bot"><span class="ft-copy">© 2025 SangoStore — Conçu pour la diaspora centrafricaine 🇨🇫</span><div style="display:flex;gap:12px;font-size:11px;color:rgba(255,255,255,.2)"><a>Confidentialité</a><a>CGV</a><a>Mentions légales</a></div></div>
+    </div>
+  </footer>
+
+</div><!-- /desktop -->
+
+
+<!-- ══════ MOBILE ══════ -->
+<div id="v-mobile" style="display:none">
+  <div class="m-wrap">
+    <div class="m-label">Simulation iPhone 14 Pro — 390px</div>
+    <div class="m-frame">
+      <nav class="m-nav">
+        <div class="logo"><div class="logo-icon" style="width:26px;height:26px;font-size:12px">S</div><div class="logo-text" style="font-size:15px"><span class="g">Sango</span><span class="f">Store</span></div></div>
+        <div style="flex:1"></div>
+        <span style="font-size:20px">🔍</span>
+        <div style="position:relative"><span style="font-size:20px">🛒</span><div class="cart-badge" style="top:-4px;right:-4px">3</div></div>
+        <span style="font-size:20px">☰</span>
+      </nav>
+
+      <div class="hero" style="height:195px">
+        <div class="hero-bg"></div>
+        <div class="hero-content fade-up" style="padding:0 16px">
+          <div class="hero-badge" style="margin-bottom:8px"><span style="font-size:9px">✦ Nouveau</span></div>
+          <h1 class="hero-title" style="font-size:17px;margin-bottom:8px">Les meilleurs produits de la diaspora <em>livrés à Bangui</em></h1>
+          <div class="hero-btns"><button class="btn-gold" style="padding:8px 16px;font-size:12px">Découvrir</button><button class="btn-ghost" style="padding:8px 14px;font-size:12px">Comment ça marche ?</button></div>
+          <div class="dots" style="margin-top:12px"><div class="dot on"></div><div class="dot off"></div><div class="dot off"></div></div>
+        </div>
+      </div>
+
+      <!-- Mobile cats -->
+      <div style="background:white;border-top:1px solid var(--border);padding:12px">
+        <div class="s-label" style="margin-bottom:10px"><div class="s-bar" style="background:var(--gold)"></div><span class="s-tag" style="color:var(--gold)">Catégories populaires</span></div>
+        <div class="h-scroll">
+          <div class="cat-cc"><div class="cat-img"><img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=200" alt=""><div class="cat-ov"></div></div><div class="cat-ic-row"><div class="cat-circle">👗</div></div><div class="cat-name">Mode<br>Africaine</div></div>
+          <div class="cat-cc"><div class="cat-img"><img src="https://images.pexels.com/photos/3622608/pexels-photo-3622608.jpeg?auto=compress&cs=tinysrgb&w=200" alt=""><div class="cat-ov"></div></div><div class="cat-ic-row"><div class="cat-circle">💎</div></div><div class="cat-name">Beauté<br>& Soins</div></div>
+          <div class="cat-cc"><div class="cat-img"><img src="https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=200" alt=""><div class="cat-ov"></div></div><div class="cat-ic-row"><div class="cat-circle">📱</div></div><div class="cat-name">Électro-<br>nique</div></div>
+          <div class="cat-cc"><div class="cat-img"><img src="https://images.pexels.com/photos/1005638/pexels-photo-1005638.jpeg?auto=compress&cs=tinysrgb&w=200" alt=""><div class="cat-ov"></div></div><div class="cat-ic-row"><div class="cat-circle">🏠</div></div><div class="cat-name">Maison</div></div>
+          <div class="cat-cc"><div class="cat-img"><img src="https://images.pexels.com/photos/2611815/pexels-photo-2611815.jpeg?auto=compress&cs=tinysrgb&w=200" alt=""><div class="cat-ov"></div></div><div class="cat-ic-row"><div class="cat-circle">🏋</div></div><div class="cat-name">Sport</div></div>
+        </div>
+      </div>
+
+      <!-- Mobile Flash -->
+      <div style="background:var(--cream-bg);padding:14px 12px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+          <div><div class="s-label"><div class="s-bar" style="background:var(--gold)"></div><span class="s-tag" style="color:var(--gold)">Offres limitées</span></div><div style="display:flex;align-items:center;gap:8px"><span class="s-h2" style="font-size:16px">Offres Flash</span><div class="timer" style="gap:4px"><div class="t-blk"><div class="t-num" style="min-width:22px;height:22px;font-size:10px">14</div><div class="t-unit">h</div></div><span class="t-sep" style="font-size:10px;padding-bottom:12px">:</span><div class="t-blk"><div class="t-num" style="min-width:22px;height:22px;font-size:10px">38</div><div class="t-unit">min</div></div></div></div></div>
+          <a class="see-all" style="font-size:11px;margin-top:2px">Voir tout →</a>
+        </div>
+        <div class="h-scroll" style="gap:8px">
+          <div class="fc" style="width:148px"><div class="fc-img"><img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=300" alt=""><div class="badge b-flash" style="font-size:8px">−30%</div><button class="w-btn" style="width:24px;height:24px;font-size:11px">🤍</button></div><div class="fc-body" style="padding:7px 9px"><div class="fc-cat">🇸🇳 Mode</div><div class="fc-title" style="font-size:11.5px">Boubou brodé homme</div><div class="fc-price" style="font-size:12px">35 000 FCFA</div></div><div class="fc-foot" style="padding:5px 9px"><span style="font-size:11px;color:var(--forest)">🛒</span><button class="fc-buy" style="font-size:10px">Acheter</button></div></div>
+          <div class="fc" style="width:148px"><div class="fc-img"><img src="https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=300" alt=""><div class="badge b-flash" style="font-size:8px">−25%</div><button class="w-btn" style="width:24px;height:24px;font-size:11px">🤍</button></div><div class="fc-body" style="padding:7px 9px"><div class="fc-cat">🇫🇷 Beauté</div><div class="fc-title" style="font-size:11.5px">Crème karité naturelle</div><div class="fc-price" style="font-size:12px">12 500 FCFA</div></div><div class="fc-foot" style="padding:5px 9px"><span style="font-size:11px;color:var(--forest)">🛒</span><button class="fc-buy" style="font-size:10px">Acheter</button></div></div>
+          <div class="fc" style="width:148px"><div class="fc-img"><img src="https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg?auto=compress&cs=tinysrgb&w=300" alt=""><div class="badge b-trend" style="font-size:8px">🔥</div><button class="w-btn" style="width:24px;height:24px;font-size:11px">🤍</button></div><div class="fc-body" style="padding:7px 9px"><div class="fc-cat">🇫🇷 Électro</div><div class="fc-title" style="font-size:11.5px">Smartphone 128Go</div><div class="fc-price" style="font-size:12px">89 000 FCFA</div></div><div class="fc-foot" style="padding:5px 9px"><span style="font-size:11px;color:var(--forest)">🛒</span><button class="fc-buy" style="font-size:10px">Acheter</button></div></div>
+        </div>
+      </div>
+
+      <!-- Mobile product grid -->
+      <div style="background:white;padding:14px 12px">
+        <div class="sec-head" style="margin-bottom:12px"><div><div class="s-label"><div class="s-bar" style="background:var(--gold)"></div><span class="s-tag" style="color:var(--gold)">Sélection</span></div><span class="s-h2" style="font-size:16px">Populaires</span></div><a class="see-all" style="font-size:11px">Voir tout →</a></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=300" alt=""><div class="badge b-promo">−30%</div><button class="w-btn" style="width:24px;height:24px;font-size:10px">🤍</button></div><div class="pc-body" style="padding:8px 8px 10px;gap:4px"><span class="pc-cat">🇸🇳 Mode</span><div class="pc-title" style="font-size:11px;min-height:2.4em">Boubou brodé homme</div><span class="ppm" style="font-size:13px">35 000 FCFA</span><div class="pc-btns" style="gap:4px;margin-top:4px"><button class="pc-cart" style="width:30px;height:30px;border-radius:8px;font-size:12px">🛒</button><button class="pc-buy" style="height:30px;font-size:11px;border-radius:8px">Ajouter</button></div></div></div>
+          <div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=300" alt=""><div class="badge b-new">✦ Nouveau</div><button class="w-btn" style="width:24px;height:24px;font-size:10px">❤️</button></div><div class="pc-body" style="padding:8px 8px 10px;gap:4px"><span class="pc-cat">🇫🇷 Beauté</span><div class="pc-title" style="font-size:11px;min-height:2.4em">Crème karité & argan</div><span class="ppm" style="font-size:13px">12 500 FCFA</span><div class="pc-btns" style="gap:4px;margin-top:4px"><button class="pc-cart" style="width:30px;height:30px;border-radius:8px;font-size:12px">🛒</button><button class="pc-buy" style="height:30px;font-size:11px;border-radius:8px">Ajouter</button></div></div></div>
+          <div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg?auto=compress&cs=tinysrgb&w=300" alt=""><div class="badge b-flash">⚡ Flash</div><button class="w-btn" style="width:24px;height:24px;font-size:10px">🤍</button></div><div class="pc-body" style="padding:8px 8px 10px;gap:4px"><span class="pc-cat">🇫🇷 Électro</span><div class="pc-title" style="font-size:11px;min-height:2.4em">Smartphone 128Go</div><span class="ppm" style="font-size:13px">89 000 FCFA</span><div class="pc-btns" style="gap:4px;margin-top:4px"><button class="pc-cart" style="width:30px;height:30px;border-radius:8px;font-size:12px">🛒</button><button class="pc-buy" style="height:30px;font-size:11px;border-radius:8px">Ajouter</button></div></div></div>
+          <div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg?auto=compress&cs=tinysrgb&w=300" alt=""><div class="badge b-trend">🔥 Tendance</div><button class="w-btn" style="width:24px;height:24px;font-size:10px">🤍</button></div><div class="pc-body" style="padding:8px 8px 10px;gap:4px"><span class="pc-cat">🇨🇲 Accesso.</span><div class="pc-title" style="font-size:11px;min-height:2.4em">Sac wax africain</div><span class="ppm" style="font-size:13px">22 000 FCFA</span><div class="pc-btns" style="gap:4px;margin-top:4px"><button class="pc-cart" style="width:30px;height:30px;border-radius:8px;font-size:12px">🛒</button><button class="pc-buy" style="height:30px;font-size:11px;border-radius:8px">Ajouter</button></div></div></div>
+        </div>
+      </div>
+
+      <div class="cta" style="padding:28px 16px">
+        <h3 style="color:white;font-size:18px;font-weight:900;margin-bottom:8px">Prêt à commander ?</h3>
+        <p style="color:rgba(255,255,255,.45);font-size:12px;margin-bottom:16px">Créez votre compte gratuitement</p>
+        <button class="cta-bp" style="font-size:13px;padding:11px 24px">Créer mon compte</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /mobile -->
+
+
+<!-- ══════ CARDS ══════ -->
+<div id="v-cards" style="display:none;padding:32px 24px;background:#f5f5f5">
+  <div style="max-width:1100px;margin:0 auto">
+    <h2 style="font-size:17px;font-weight:800;color:#111;margin-bottom:4px">Toutes les variantes ProductCard</h2>
+    <p style="font-size:12px;color:#888;margin-bottom:28px">États, badges, skeleton — ratio image 4:3</p>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="width:3px;height:16px;border-radius:99px;background:var(--gold);display:inline-block"></span><span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#555">Grille (variant=grid) — Ratio 4:3</span></div>
+    <div class="grid" style="margin-bottom:40px">
+      <div><div style="font-size:9px;font-weight:700;color:#aaa;text-transform:uppercase;margin-bottom:6px">Normal</div><div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/2611815/pexels-photo-2611815.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><button class="w-btn">🤍</button></div><div class="pc-body"><div class="pc-meta"><span class="pc-cat">🇸🇳 Mode</span><div class="pc-rating">⭐ 4.5</div></div><div class="pc-title">Chaussures cuir artisanal homme Sénégal</div><div class="pc-price"><span class="ppm">28 000 FCFA</span></div><div class="pc-btns"><button class="pc-cart">🛒</button><button class="pc-buy">Ajouter</button></div></div></div></div>
+      <div><div style="font-size:9px;font-weight:700;color:#16A34A;text-transform:uppercase;margin-bottom:6px">Promo −30%</div><div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-promo">−30%</div><button class="w-btn">🤍</button></div><div class="pc-body"><div class="pc-meta"><span class="pc-cat">🇸🇳 Mode</span></div><div class="pc-title">Boubou brodé homme grande taille</div><div class="pc-price"><span class="ppm">35 000 FCFA</span><span class="ppo">50 000 FCFA</span></div><div class="pc-btns"><button class="pc-cart">🛒</button><button class="pc-buy">Ajouter</button></div></div></div></div>
+      <div><div style="font-size:9px;font-weight:700;color:var(--gold);text-transform:uppercase;margin-bottom:6px">⚡ Flash Sale</div><div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-flash">⚡ Flash</div><button class="w-btn">🤍</button></div><div class="pc-body"><div class="pc-meta"><span class="pc-cat">🇫🇷 Électro</span><div class="pc-rating">⭐ 4.6</div></div><div class="pc-title">Smartphone 128Go Android 14</div><div class="pc-price"><span class="ppm">89 000 FCFA</span></div><div class="pc-btns"><button class="pc-cart">🛒</button><button class="pc-buy">Ajouter</button></div></div></div></div>
+      <div><div style="font-size:9px;font-weight:700;color:#E05252;text-transform:uppercase;margin-bottom:6px">🔥 Tendance</div><div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-trend">🔥 Tendance</div><button class="w-btn">🤍</button></div><div class="pc-body"><div class="pc-meta"><span class="pc-cat">🇨🇲 Accesso.</span></div><div class="pc-title">Sac à main wax african kente</div><div class="pc-price"><span class="ppm">22 000 FCFA</span></div><div class="pc-btns"><button class="pc-cart">🛒</button><button class="pc-buy">Ajouter</button></div></div></div></div>
+      <div><div style="font-size:9px;font-weight:700;color:var(--forest);text-transform:uppercase;margin-bottom:6px">✦ Nouveau</div><div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-new">✦ Nouveau</div><button class="w-btn">❤️</button></div><div class="pc-body"><div class="pc-meta"><span class="pc-cat">🇫🇷 Beauté</span><div class="pc-rating">⭐ 5.0</div></div><div class="pc-title">Crème hydratante karité & argan</div><div class="pc-price"><span class="ppm">12 500 FCFA</span></div><div class="pc-btns"><button class="pc-cart">🛒</button><button class="pc-buy">Ajouter</button></div></div></div></div>
+      <div><div style="font-size:9px;font-weight:700;color:#2d6a4f;text-transform:uppercase;margin-bottom:6px">Prix gros</div><div class="pc"><div class="pc-img"><img src="https://images.pexels.com/photos/1005638/pexels-photo-1005638.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><button class="w-btn">🤍</button></div><div class="pc-body"><div class="pc-meta"><span class="pc-cat">🇨🇮 Tissu</span></div><div class="pc-title">Tissu wax Holland 6 yards</div><div class="pc-price"><span class="ppm">18 000 FCFA</span></div><div style="display:flex;align-items:center;gap:5px;margin-bottom:2px"><span style="font-size:8px;font-weight:800;padding:2px 6px;border-radius:99px;background:#EEF5F1;color:var(--forest)">GROS</span><span style="font-size:9px;color:#2d6a4f">15 000 FCFA/u</span></div><div class="pc-btns"><button class="pc-cart">🛒</button><button class="pc-buy">Ajouter</button></div></div></div></div>
+      <div><div style="font-size:9px;font-weight:700;color:#ccc;text-transform:uppercase;margin-bottom:6px">Indisponible</div><div class="pc" style="opacity:.7"><div class="pc-img" style="position:relative"><img src="https://images.pexels.com/photos/1456291/pexels-photo-1456291.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div style="position:absolute;inset:0;background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;z-index:3"><span style="background:white;color:#555;font-size:9px;font-weight:700;padding:4px 10px;border-radius:99px">Indisponible</span></div></div><div class="pc-body"><div class="pc-meta"><span class="pc-cat">🇨🇮 Mode Femme</span></div><div class="pc-title">Robe pagne moderne femme</div><div class="pc-price"><span class="ppm">19 000 FCFA</span></div><div class="pc-unavail">Indisponible</div></div></div></div>
+      <div><div style="font-size:9px;font-weight:700;color:#ccc;text-transform:uppercase;margin-bottom:6px">Skeleton</div><div class="pc" style="pointer-events:none"><div class="shimmer sk-img"></div><div class="pc-body"><div class="sk shimmer" style="width:55%;height:8px"></div><div class="sk shimmer" style="width:88%;height:12px"></div><div class="sk shimmer" style="width:66%;height:12px"></div><div class="sk shimmer" style="width:36%;height:14px"></div><div class="sk-row"><div class="sk-sq shimmer"></div><div class="sk-fl shimmer"></div></div></div></div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="width:3px;height:16px;border-radius:99px;background:var(--forest);display:inline-block"></span><span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#555">Liste (variant=list)</span></div>
+    <div style="display:grid;gap:10px;max-width:540px">
+      <div class="lc"><div class="lc-img"><img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=300" alt=""><div class="badge b-promo" style="top:6px;left:6px">−30%</div></div><div class="lc-body"><div style="font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;margin-bottom:4px">🇸🇳 Mode</div><div class="lc-title">Boubou brodé homme grande taille premium</div><div class="lc-foot"><div class="pc-price"><span class="ppm" style="font-size:14px">35 000 FCFA</span><span class="ppo">50 000 FCFA</span></div><button class="lc-buy">🛒 Acheter</button></div></div></div>
+      <div class="lc"><div class="lc-img"><img src="https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg?auto=compress&cs=tinysrgb&w=300" alt=""><div class="badge b-flash" style="top:6px;left:6px">⚡ Flash</div></div><div class="lc-body"><div style="font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;margin-bottom:4px">🇫🇷 Électronique</div><div class="lc-title">Smartphone 128Go double SIM Android 14</div><div class="lc-foot"><div class="pc-price"><span class="ppm" style="font-size:14px">89 000 FCFA</span></div><button class="lc-buy">🛒 Acheter</button></div></div></div>
+      <div class="lc" style="pointer-events:none"><div class="shimmer" style="width:112px;height:112px;flex-shrink:0"></div><div class="lc-body"><div class="sk shimmer" style="width:48%;height:8px"></div><div class="sk shimmer" style="width:78%;height:12px"></div><div class="sk shimmer" style="width:58%;height:12px"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:8px"><div class="sk shimmer" style="width:90px;height:14px;border-radius:99px"></div><div class="shimmer" style="width:76px;height:30px;border-radius:10px"></div></div></div></div>
+    </div>
+  </div>
+</div><!-- /cards -->
+
+
+<!-- ══════ FLASH ══════ -->
+<div id="v-flash" style="display:none;padding:32px 24px;background:var(--cream-bg)">
+  <div style="max-width:900px;margin:0 auto">
+    <h2 style="font-size:17px;font-weight:800;color:#111;margin-bottom:4px">Section Offres Flash — zoom</h2>
+    <p style="font-size:12px;color:#888;margin-bottom:24px">Timer, cards Flash, scroll horizontal, badges</p>
+    <div class="sec-head">
+      <div><div class="s-label"><div class="s-bar" style="background:var(--gold)"></div><span class="s-tag" style="color:var(--gold)">Offres limitées</span></div><div style="display:flex;flex-wrap:wrap;align-items:center;gap:14px"><span class="s-h2">Offres Flash</span><div class="timer"><span class="t-lbl">Fin dans</span><div class="t-blk"><div class="t-num">02</div><div class="t-unit">j</div></div><span class="t-sep">:</span><div class="t-blk"><div class="t-num">14</div><div class="t-unit">h</div></div><span class="t-sep">:</span><div class="t-blk"><div class="t-num">38</div><div class="t-unit">min</div></div><span class="t-sep">:</span><div class="t-blk"><div class="t-num">52</div><div class="t-unit">sec</div></div></div></div></div>
+      <a class="see-all">Voir tout →</a>
+    </div>
+    <div class="h-scroll" style="gap:12px">
+      <div class="fc" style="width:192px"><div class="fc-img"><img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-flash">−30%</div><button class="w-btn">🤍</button></div><div class="fc-body"><div class="fc-cat">🇸🇳 Mode africaine</div><div class="fc-title">Boubou brodé homme grande taille</div><div class="fc-price">35 000 <span style="font-size:10px;color:#ccc;text-decoration:line-through">50 000</span></div></div><div class="fc-foot"><span style="color:var(--forest);font-size:14px">🛒</span><button class="fc-buy">Acheter</button></div></div>
+      <div class="fc" style="width:192px"><div class="fc-img"><img src="https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-flash">−25%</div><button class="w-btn">❤️</button></div><div class="fc-body"><div class="fc-cat">🇫🇷 Beauté & Soins</div><div class="fc-title">Crème visage naturelle karité bio</div><div class="fc-price">12 500 FCFA</div></div><div class="fc-foot"><span style="color:var(--forest);font-size:14px">🛒</span><button class="fc-buy">Acheter</button></div></div>
+      <div class="fc" style="width:192px"><div class="fc-img"><img src="https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-trend">🔥 Tendance</div><button class="w-btn">🤍</button></div><div class="fc-body"><div class="fc-cat">🇫🇷 Électronique</div><div class="fc-title">Smartphone 128Go double SIM</div><div class="fc-price">89 000 FCFA</div></div><div class="fc-foot"><span style="color:var(--forest);font-size:14px">🛒</span><button class="fc-buy">Acheter</button></div></div>
+      <div class="fc" style="width:192px"><div class="fc-img"><img src="https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-new">✦ Nouveau</div><button class="w-btn">🤍</button></div><div class="fc-body"><div class="fc-cat">🇨🇲 Accessoires</div><div class="fc-title">Sac à main wax africain</div><div class="fc-price">22 000 FCFA</div></div><div class="fc-foot"><span style="color:var(--forest);font-size:14px">🛒</span><button class="fc-buy">Acheter</button></div></div>
+      <div class="fc" style="width:192px"><div class="fc-img"><img src="https://images.pexels.com/photos/2611815/pexels-photo-2611815.jpeg?auto=compress&cs=tinysrgb&w=400" alt=""><div class="badge b-flash">−20%</div><button class="w-btn">🤍</button></div><div class="fc-body"><div class="fc-cat">🇸🇳 Mode</div><div class="fc-title">Chaussures cuir artisanal</div><div class="fc-price">28 000 FCFA</div></div><div class="fc-foot"><span style="color:var(--forest);font-size:14px">🛒</span><button class="fc-buy">Acheter</button></div></div>
+      <div class="fc" style="width:192px;opacity:.4;pointer-events:none"><div class="shimmer sk-img" style="aspect-ratio:1"></div><div class="fc-body"><div class="sk shimmer" style="width:50%;height:8px"></div><div class="sk shimmer" style="width:84%;height:11px"></div><div class="sk shimmer" style="width:40%;height:12px"></div></div></div>
+    </div>
+  </div>
+</div><!-- /flash -->
+
+<script type="module">
+function show(v) {
+  ['desktop','mobile','cards','flash'].forEach(id => {
+    document.getElementById('v-'+id).style.display = id===v ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('on', ['desktop','mobile','cards','flash'][i]===v);
+  });
+  window.scrollTo(0,0);
+}
+window.show = show;
+</script>
+</body>
+</html>
