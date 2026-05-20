@@ -3,13 +3,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import {
-  Star, ShoppingCart, Package, Shield, Phone,
-  MessageCircle, CheckCircle, Truck, Weight, Minus, Plus,
-  Calendar, MapPin, Home, ChevronRight, ChevronDown, ChevronUp,
-  Info, Plane, Globe, X, User, Loader2, ChevronLeft, ZoomIn, ZoomOut,
-  Expand,
-} from "lucide-react";
+import { Star, ShoppingCart, Package, Shield, Phone, MessageCircle, CircleCheck as CheckCircle, Truck, Weight, Minus, Plus, Calendar, MapPin, Hop as Home, ChevronRight, ChevronDown, ChevronUp, Info, Plane, Globe, X, User, Loader as Loader2, ChevronLeft, ZoomIn, ZoomOut, Expand } from "lucide-react";
 import { MOCK_PRODUCTS, MOCK_TRIPS } from "@/lib/data";
 import { formatPrice, CATEGORY_LABELS, CATEGORY_ICONS } from "@/lib/utils";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -229,17 +223,23 @@ function TransporterGroupCard({
   const isAnySelected = trips.some((t) => t.id === selectedTripId);
 
   return (
-    <div className={cn(
-      "rounded-2xl border-2 transition-all",
-      isAnySelected ? "border-orange-400 shadow-md" : "border-gray-100"
-    )}>
+    <div
+      className="rounded-2xl border-2 transition-all"
+      style={isAnySelected
+        ? { borderColor: "#C8850A", boxShadow: "0 4px 20px rgba(200,133,10,.15)" }
+        : { borderColor: "#EEE8DF" }
+      }
+    >
       {/* Transporter header */}
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between p-4 sm:p-5 text-left"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-orange-100 flex items-center justify-center font-extrabold text-orange-600 text-lg flex-shrink-0">
+          <div
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center font-extrabold text-white text-lg flex-shrink-0"
+            style={{ background: "linear-gradient(135deg, #1B3A2D, #2d5e48)" }}
+          >
             {transporter.companyName.charAt(0)}
           </div>
           <div>
@@ -301,12 +301,11 @@ function TransporterGroupCard({
               <button
                 key={trip.id}
                 onClick={() => onSelect(trip)}
-                className={cn(
-                  "w-full text-left rounded-xl border-2 p-3 sm:p-4 transition-all",
-                  isSelected
-                    ? "border-orange-400 bg-orange-50"
-                    : "border-gray-100 hover:border-orange-200 hover:bg-orange-50/40"
-                )}
+                className="w-full text-left rounded-xl border-2 p-3 sm:p-4 transition-all"
+                style={isSelected
+                  ? { borderColor: "#C8850A", background: "rgba(200,133,10,.06)" }
+                  : { borderColor: "#EEE8DF" }
+                }
               >
                 <div className="flex items-start justify-between gap-3">
                   {/* Left: route + dates */}
@@ -358,7 +357,10 @@ function TransporterGroupCard({
                       {trip.availableCapacity} kg dispo
                     </div>
                     {isSelected && (
-                      <span className="inline-flex items-center gap-1 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mt-1.5">
+                      <span
+                        className="inline-flex items-center gap-1 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mt-1.5"
+                        style={{ background: "linear-gradient(135deg, #C8850A, #E0A320)" }}
+                      >
                         <CheckCircle className="w-2.5 h-2.5" /> Choisi
                       </span>
                     )}
@@ -418,9 +420,12 @@ function PriceSummary({
   const sameCurrency = selectedTrip && selectedTrip.currency === productCurrency;
 
   return (
-    <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 sm:p-5 space-y-3">
+    <div
+      className="rounded-2xl p-4 sm:p-5 space-y-3"
+      style={{ background: "rgba(200,133,10,.05)", border: "1px solid rgba(200,133,10,.18)" }}
+    >
       <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2">
-        <Shield className="w-4 h-4 text-orange-500" /> Récapitulatif des coûts
+        <Shield className="w-4 h-4" style={{ color: "#C8850A" }} /> Récapitulatif des coûts
       </h3>
 
       <div className="space-y-2 text-sm">
@@ -466,7 +471,7 @@ function PriceSummary({
         {sameCurrency ? (
           <div className="flex items-center justify-between">
             <span className="font-bold text-gray-900">Total estimé</span>
-            <span className="font-extrabold text-lg text-orange-600">
+            <span className="font-extrabold text-lg" style={{ color: "#C8850A" }}>
               {formatPrice(subtotal + (transportCost ?? 0) + localCost, productCurrency)}
             </span>
           </div>
@@ -568,18 +573,26 @@ export default function ProductDetailPage() {
   // ── Guard after all hooks ──
   if (apiLoading) {
     return (
-      <div className="page-container py-20 text-center">
-        <Loader2 className="w-8 h-8 animate-spin text-orange-400 mx-auto" />
+      <div className="page-container py-20 text-center" style={{ background: "#F5F2EC" }}>
+        <Loader2 className="w-8 h-8 animate-spin mx-auto" style={{ color: "#C8850A" }} />
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="page-container py-20 text-center">
-        <div className="text-5xl mb-4">😕</div>
+      <div className="page-container py-20 text-center" style={{ background: "#F5F2EC" }}>
+        <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mx-auto mb-4 shadow-sm">
+          <Package className="w-8 h-8 text-gray-300" />
+        </div>
         <h1 className="text-xl font-bold text-gray-900">Produit introuvable</h1>
-        <Link href="/produits" className="btn-primary mt-6 inline-flex">Retour aux produits</Link>
+        <Link
+          href="/produits"
+          className="mt-6 inline-flex items-center gap-2 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all active:scale-[0.97]"
+          style={{ background: "linear-gradient(135deg, #1B3A2D, #2d5e48)", boxShadow: "0 4px 14px rgba(27,58,45,.25)" }}
+        >
+          Retour aux produits
+        </Link>
       </div>
     );
   }
@@ -647,13 +660,13 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="page-container py-6 sm:py-8">
+    <div className="page-container py-6 sm:py-8" style={{ background: "#F5F2EC" }}>
 
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-400 mb-4 sm:mb-6">
-        <Link href="/" className="hover:text-orange-500 transition-colors">Accueil</Link>
+        <Link href="/" className="hover:text-[#1B3A2D] transition-colors">Accueil</Link>
         <ChevronRight className="w-3.5 h-3.5" />
-        <Link href="/produits" className="hover:text-orange-500 transition-colors">Produits</Link>
+        <Link href="/produits" className="hover:text-[#1B3A2D] transition-colors">Produits</Link>
         <ChevronRight className="w-3.5 h-3.5" />
         <span className="text-gray-700 font-medium truncate max-w-[160px] sm:max-w-xs">{product.title}</span>
       </nav>
@@ -665,7 +678,7 @@ export default function ProductDetailPage() {
         <div className="space-y-4">
 
           {/* ── Main image ── */}
-          <div className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm group">
+          <div className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-[#E5DDD0] shadow-sm group" style={{ boxShadow: "0 4px 24px rgba(0,0,0,.07)" }}>
             {validImages.length > 0 ? (
               <>
                 <img
@@ -694,7 +707,10 @@ export default function ProductDetailPage() {
             )}
 
             {/* Country badge */}
-            <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-orange-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-lg pointer-events-none">
+            <div
+              className="absolute top-3 left-3 inline-flex items-center gap-1.5 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-lg pointer-events-none"
+              style={{ background: "linear-gradient(135deg, #1B3A2D, #2d5e48)" }}
+            >
               <Package className="w-3.5 h-3.5" />
               {product.originCountry.flag} {product.originCountry.name}
             </div>
@@ -749,7 +765,7 @@ export default function ProductDetailPage() {
           )}
 
           {/* ── Description (sous l'image) ── */}
-          <div className="bg-white border border-gray-100 rounded-2xl p-4 sm:p-5">
+          <div className="bg-white border border-[#E5DDD0] rounded-2xl p-4 sm:p-5">
             <h3 className="font-bold text-gray-900 text-sm mb-2.5">Description</h3>
             <p className={cn(
               "text-gray-600 leading-relaxed text-sm",
@@ -809,21 +825,24 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Price + stock */}
-          <div className="bg-gradient-to-br from-orange-50 to-white border border-orange-100 rounded-2xl p-4 sm:p-5">
+          <div
+            className="rounded-2xl p-4 sm:p-5"
+            style={{ background: "linear-gradient(135deg, rgba(200,133,10,.06), rgba(200,133,10,.02))", border: "1px solid rgba(200,133,10,.20)" }}
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className="text-3xl sm:text-4xl font-extrabold text-gray-900">
                   {formatPrice(product.price, product.currency)}
                 </div>
                 <div className="text-xs text-gray-400 mt-1.5 flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5 text-green-500" />
+                  <Shield className="w-3.5 h-3.5 text-emerald-500" />
                   Paiement bloqué en escrow · libéré à la réception
                 </div>
               </div>
               <span className={cn(
                 "text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0",
-                product.stock > 5 ? "bg-green-100 text-green-700" :
-                product.stock > 0 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"
+                product.stock > 5 ? "bg-emerald-50 text-emerald-700 border border-emerald-100" :
+                product.stock > 0 ? "bg-amber-50 text-amber-700 border border-amber-100" : "bg-red-50 text-red-700 border border-red-100"
               )}>
                 {product.stock > 0 ? `${product.stock} en stock` : "Rupture"}
               </span>
@@ -1274,17 +1293,24 @@ export default function ProductDetailPage() {
           {/* CTA — toujours actif, validation au clic */}
           <button
             onClick={handleOrder}
-            className="w-full inline-flex items-center justify-center gap-2 font-bold px-6 py-4 rounded-xl shadow-md transition-all text-sm bg-orange-500 hover:bg-orange-600 active:scale-[0.98] text-white"
+            className="w-full inline-flex items-center justify-center gap-2 font-bold px-6 py-4 rounded-xl text-sm text-white transition-all active:scale-[0.98]"
+            style={{
+              background: "linear-gradient(135deg, #C8850A, #E0A320)",
+              boxShadow: "0 4px 18px rgba(200,133,10,.38)",
+            }}
           >
             <ShoppingCart className="w-5 h-5" />
             Acheter maintenant
           </button>
 
           {/* Seller info */}
-          <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+          <div className="bg-white border border-[#E5DDD0] rounded-2xl p-4">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Vendeur</p>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-bold text-orange-600 flex-shrink-0 text-lg">
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 text-base"
+                style={{ background: "linear-gradient(135deg, #1B3A2D, #2d5e48)" }}
+              >
                 {product.seller.name.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
@@ -1375,9 +1401,12 @@ export default function ProductDetailPage() {
       {/* ── RELATED PRODUCTS ── */}
       {related.length > 0 && (
         <section>
-          <h2 className="text-lg sm:text-xl font-extrabold text-gray-900 mb-4 sm:mb-6">
-            Plus de produits depuis {product.originCountry.flag} {product.originCountry.name}
-          </h2>
+          <div className="flex items-center gap-3 mb-4 sm:mb-6">
+            <span className="inline-block w-5 h-[2.5px] rounded-full flex-shrink-0" style={{ background: "linear-gradient(90deg, #C8850A, #E0A320)" }} />
+            <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">
+              Plus de produits depuis {product.originCountry.flag} {product.originCountry.name}
+            </h2>
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {related.map((p) => (
               <ProductCard key={p.id} product={p} />
@@ -1453,13 +1482,15 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={handleTripCancel}
-                className="py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+                className="py-3 rounded-xl border text-sm font-semibold text-gray-600 hover:bg-[#F5F2EC] transition-colors"
+                style={{ borderColor: "#E5DDD0" }}
               >
                 Annuler
               </button>
               <button
                 onClick={handleTripConfirm}
-                className="py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold transition-colors"
+                className="py-3 rounded-xl text-white text-sm font-bold transition-all active:scale-[0.97]"
+                style={{ background: "linear-gradient(135deg, #C8850A, #E0A320)", boxShadow: "0 4px 14px rgba(200,133,10,.30)" }}
               >
                 Confirmer
               </button>
@@ -1517,7 +1548,8 @@ export default function ProductDetailPage() {
             </div>
             <button
               onClick={handleModalClose}
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl transition-colors text-sm"
+              className="w-full text-white font-bold py-3.5 rounded-xl transition-all active:scale-[0.97] text-sm"
+              style={{ background: "linear-gradient(135deg, #C8850A, #E0A320)", boxShadow: "0 4px 14px rgba(200,133,10,.30)" }}
             >
               Choisir la livraison
             </button>

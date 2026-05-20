@@ -45,7 +45,7 @@ export function FeaturedProducts() {
   }
 
   return (
-    <section className="py-8 sm:py-12 bg-white">
+    <section className="py-8 sm:py-12 bg-white border-t border-[#EEE8DF]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div className="mb-6 sm:mb-8">
@@ -82,7 +82,7 @@ export function FeaturedProducts() {
         ) : (
           <>
             {/* Desktop : grille paginée 4 colonnes */}
-            <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-3.5">
               {pageSlice.map(product => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -101,7 +101,8 @@ export function FeaturedProducts() {
                 <button
                   onClick={() => goTo(page - 1)}
                   disabled={page === 0}
-                  className="w-9 h-9 rounded-full border-[1.5px] border-[#EAE2D2] flex items-center justify-center text-gray-400 hover:border-orange-400 hover:text-orange-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:text-[#1B3A2D] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150 active:scale-90"
+                  style={{ boxShadow: "0 1px 6px rgba(0,0,0,.10), 0 0 0 1px rgba(0,0,0,.06)", background: "white" }}
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -115,8 +116,9 @@ export function FeaturedProducts() {
                       width: i === page ? 28 : 9,
                       height: 9,
                       background: i === page
-                        ? "linear-gradient(90deg, #D4961E, #B87814)"
-                        : "#E5E7EB",
+                        ? "linear-gradient(90deg, #C8850A, #E0A320)"
+                        : "#DDD6CE",
+                      boxShadow: i === page ? "0 1px 6px rgba(200,133,10,.40)" : "none",
                     }}
                     aria-label={`Page ${i + 1}`}
                   />
@@ -125,7 +127,8 @@ export function FeaturedProducts() {
                 <button
                   onClick={() => goTo(page + 1)}
                   disabled={page === totalPages - 1}
-                  className="w-9 h-9 rounded-full border-[1.5px] border-[#EAE2D2] flex items-center justify-center text-gray-400 hover:border-orange-400 hover:text-orange-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:text-[#1B3A2D] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150 active:scale-90"
+                  style={{ boxShadow: "0 1px 6px rgba(0,0,0,.10), 0 0 0 1px rgba(0,0,0,.06)", background: "white" }}
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>

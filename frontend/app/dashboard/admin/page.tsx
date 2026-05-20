@@ -2,17 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import {
-  Users, ShoppingBag, Package, Truck, DollarSign, TrendingUp,
-  AlertTriangle, CheckCircle, XCircle, Eye, Ban, Search,
-  LayoutDashboard, Settings, Bell, LogOut, ChevronDown,
-  ArrowUpRight, ArrowDownRight, Shield, Star, Clock,
-  MoreVertical, RefreshCw, Zap, Globe, Menu, X,
-  CreditCard, UserCheck, BarChart3, Activity,
-  ChevronRight, Phone, Mail, AlertCircle, Trash2,
-  Power, Send, MessageSquare, ToggleLeft, ToggleRight,
-  Flame, Tag,
-} from "lucide-react";
+import { Users, ShoppingBag, Package, Truck, DollarSign, TrendingUp, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle, Circle as XCircle, Eye, Ban, Search, LayoutDashboard, Settings, Bell, LogOut, ChevronDown, ArrowUpRight, ArrowDownRight, Shield, Star, Clock, MoveVertical as MoreVertical, RefreshCw, Zap, Globe, Menu, X, CreditCard, UserCheck, ChartBar as BarChart3, Activity, ChevronRight, Phone, Mail, CircleAlert as AlertCircle, Trash2, Power, Send, MessageSquare, ToggleLeft, ToggleRight, Flame, Tag } from "lucide-react";
 import { api, getImageUrl } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatPrice, formatDate, ORDER_STATUS_LABELS } from "@/lib/utils";
@@ -397,7 +387,7 @@ export default function AdminDashboard() {
             <button
               onClick={handleSendEmail}
               disabled={modalLoading || !emailSubject.trim() || !emailBody.trim()}
-              className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl text-sm font-bold disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-2.5 text-white rounded-xl text-sm font-bold disabled:opacity-50 flex items-center justify-center gap-2" style={{ background: "linear-gradient(135deg, #C8850A, #E0A320)" }}
             >
               <Send className="w-4 h-4" /> {modalLoading ? "Envoi…" : "Envoyer"}
             </button>
@@ -560,7 +550,7 @@ export default function AdminDashboard() {
             <button
               onClick={handleSaveFlags}
               disabled={modalLoading}
-              className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl text-sm font-bold disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-2.5 text-white rounded-xl text-sm font-bold disabled:opacity-50 flex items-center justify-center gap-2" style={{ background: "linear-gradient(135deg, #C8850A, #E0A320)" }}
             >
               <Flame className="w-4 h-4" />
               {modalLoading ? "Sauvegarde…" : "Sauvegarder les sections"}
@@ -579,7 +569,7 @@ export default function AdminDashboard() {
       )}>
         <div className="px-5 py-5 border-b border-white/5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #C8850A, #E0A320)", boxShadow: "0 4px 12px rgba(200,133,10,.35)" }}>
               <Zap className="w-5 h-5 text-white" />
             </div>
             <div>

@@ -5,26 +5,42 @@ import Link from "next/link";
 import { ArrowRight, Shirt, Smartphone, Gem, Hop as Home, Coffee, Dumbbell, ShoppingBag, Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
 
 const MAIN_CATEGORIES = [
-  { slug: "mode",         href: "/mode-africaine",         label: "Mode Africaine", shortLabel: "Africaine", img: "/categories/homme.png",    grad: "from-amber-900   to-amber-700",   Icon: Shirt,           iconColor: "#F59E0B" },
-  { slug: "mode-femme",   href: "/categorie/mode-femme",   label: "Mode Femme",     shortLabel: "Femme",     img: "/categoriHome/Mf1h.png",   grad: "from-pink-900    to-pink-700",    Icon: ShoppingBag,     iconColor: "#F472B6" },
-  { slug: "mode-homme",   href: "/categorie/mode-homme",   label: "Mode Homme",     shortLabel: "Homme",     img: "/categoriHome/HCatH.png",  grad: "from-slate-900   to-slate-700",   Icon: Briefcase,       iconColor: "#94A3B8" },
-  { slug: "electronique", href: "/categorie/electronique", label: "Électronique",   shortLabel: "Électro",   img: "/categoriHome/electro.png", grad: "from-blue-900    to-blue-700",    Icon: Smartphone,      iconColor: "#60A5FA" },
-  { slug: "beaute",       href: "/categorie/beaute",       label: "Beauté & Soins", shortLabel: "Beauté",    img: "/categoriHome/Soin1.png",  grad: "from-rose-900    to-rose-700",    Icon: Gem,        iconColor: "#F472B6" },
-  { slug: "maison",       href: "/categorie/maison",       label: "Maison",         shortLabel: "Maison",    img: "/categoriHome/lit.png",    grad: "from-emerald-900 to-emerald-700", Icon: Home,            iconColor: "#34D399" },
-  { slug: "alimentation", href: "/categorie/alimentation", label: "Supermarché",    shortLabel: "Aliment.",  img: "/categoriHome/alim.png",   grad: "from-orange-900  to-orange-700",  Icon: Coffee, iconColor: "#FB923C" },
-  { slug: "sport",        href: "/categorie/sport",        label: "Sport & Loisirs",shortLabel: "Sport",     img: "/categoriHome/alte.png",   grad: "from-violet-900  to-violet-700",  Icon: Dumbbell,        iconColor: "#A78BFA" },
+  { slug: "mode",         href: "/mode-africaine",         label: "Mode Africaine", img: "/categories/homme.png",    grad: "from-amber-950 to-amber-700",    Icon: Shirt,       iconColor: "#F59E0B", accent: "rgba(245,158,11,.15)" },
+  { slug: "mode-femme",   href: "/categorie/mode-femme",   label: "Mode Femme",     img: "/categoriHome/Mf1h.png",   grad: "from-pink-950 to-pink-700",      Icon: ShoppingBag, iconColor: "#F472B6", accent: "rgba(244,114,182,.15)" },
+  { slug: "mode-homme",   href: "/categorie/mode-homme",   label: "Mode Homme",     img: "/categoriHome/HCatH.png",  grad: "from-slate-950 to-slate-700",    Icon: Briefcase,   iconColor: "#94A3B8", accent: "rgba(148,163,184,.12)" },
+  { slug: "electronique", href: "/categorie/electronique", label: "Électronique",   img: "/categoriHome/electro.png",grad: "from-blue-950 to-blue-700",      Icon: Smartphone,  iconColor: "#60A5FA", accent: "rgba(96,165,250,.14)" },
+  { slug: "beaute",       href: "/categorie/beaute",       label: "Beauté & Soins", img: "/categoriHome/Soin1.png",  grad: "from-rose-950 to-rose-700",      Icon: Gem,         iconColor: "#F472B6", accent: "rgba(244,114,182,.14)" },
+  { slug: "maison",       href: "/categorie/maison",       label: "Maison",         img: "/categoriHome/lit.png",    grad: "from-emerald-950 to-emerald-700",Icon: Home,        iconColor: "#34D399", accent: "rgba(52,211,153,.14)" },
+  { slug: "alimentation", href: "/categorie/alimentation", label: "Supermarché",    img: "/categoriHome/alim.png",   grad: "from-orange-950 to-orange-700",  Icon: Coffee,      iconColor: "#FB923C", accent: "rgba(251,146,60,.14)" },
+  { slug: "sport",        href: "/categorie/sport",        label: "Sport & Loisirs",img: "/categoriHome/alte.png",   grad: "from-violet-950 to-violet-700",  Icon: Dumbbell,    iconColor: "#A78BFA", accent: "rgba(167,139,250,.14)" },
 ];
+
+function ScrollArrow({ dir, onClick }: { dir: "left" | "right"; onClick: () => void }) {
+  const Icon = dir === "left" ? ChevronLeft : ChevronRight;
+  return (
+    <button
+      onClick={onClick}
+      aria-label={dir === "left" ? "Défiler à gauche" : "Défiler à droite"}
+      className="pointer-events-auto w-9 h-9 rounded-full bg-white flex items-center justify-center text-gray-600 hover:text-[#1B3A2D] transition-all duration-150 active:scale-90"
+      style={{
+        boxShadow: "0 2px 12px rgba(0,0,0,.14), 0 0 0 1px rgba(0,0,0,.06)",
+      }}
+    >
+      <Icon className="w-4 h-4" />
+    </button>
+  );
+}
 
 export function CategoriesSection() {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft,  setCanScrollLeft]  = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [canLeft,  setCanLeft]  = useState(false);
+  const [canRight, setCanRight] = useState(true);
 
   const updateArrows = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 4);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+    setCanLeft(el.scrollLeft > 4);
+    setCanRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
   }, []);
 
   useEffect(() => {
@@ -40,91 +56,81 @@ export function CategoriesSection() {
   }, [updateArrows]);
 
   function scroll(dir: "left" | "right") {
-    scrollRef.current?.scrollBy({ left: dir === "left" ? -260 : 260, behavior: "smooth" });
+    scrollRef.current?.scrollBy({ left: dir === "left" ? -280 : 280, behavior: "smooth" });
   }
 
   return (
-    <section className="py-6 sm:py-10 bg-white border-t border-[#EAE2D2]">
+    <section className="py-7 sm:py-10 bg-white border-t border-[#EEE8DF]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 mb-5">
+        <div className="flex items-center justify-between gap-4 mb-5">
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="inline-block w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: "#D4961E" }} />
-              <span className="text-[10px] font-extrabold uppercase tracking-[0.14em]" style={{ color: "#D4961E" }}>
-                Catégories populaires
-              </span>
+            <div className="section-accent">
+              <span className="section-label">Catégories populaires</span>
             </div>
-            <h2 className="text-xl font-extrabold text-gray-900 tracking-tight leading-tight">Découvrez nos catégories</h2>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight">
+              Découvrez nos catégories
+            </h2>
           </div>
           <Link
             href="/produits"
-            className="flex items-center gap-1 text-sm font-semibold transition-colors mt-1"
-            style={{ color: "#D4961E" }}
+            className="flex items-center gap-1 text-sm font-semibold transition-colors hover:opacity-80 flex-shrink-0"
+            style={{ color: "#C8850A" }}
           >
             Voir tout <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        {/* Carousel avec flèches Jumia-style */}
+        {/* Carousel */}
         <div className="relative">
-
-          {canScrollLeft && (
+          {canLeft && (
             <div
               className="hidden sm:flex absolute left-0 top-0 bottom-2 z-10 items-center pr-6 pointer-events-none"
-              style={{ background: "linear-gradient(to right, white 50%, transparent)" }}
+              style={{ background: "linear-gradient(to right, white 40%, transparent)" }}
             >
-              <button
-                onClick={() => scroll("left")}
-                aria-label="Défiler à gauche"
-                className="pointer-events-auto w-8 h-8 rounded-full bg-white border border-gray-200
-                           shadow-[0_2px_10px_rgba(0,0,0,0.15)] flex items-center justify-center
-                           text-gray-500 hover:border-amber-300 hover:text-amber-600
-                           transition-all active:scale-90"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
+              <ScrollArrow dir="left" onClick={() => scroll("left")} />
             </div>
           )}
 
           <div
             ref={scrollRef}
-            className="flex gap-2 sm:gap-3 overflow-x-auto pb-1"
-            style={{ scrollbarWidth: "none" }}
+            className="flex gap-2.5 sm:gap-3 overflow-x-auto pb-1.5 scrollbar-none"
+            style={{ scrollSnapType: "x mandatory" }}
           >
-            {MAIN_CATEGORIES.map(({ slug, href, label, shortLabel, img, grad, Icon, iconColor }) => (
+            {MAIN_CATEGORIES.map(({ slug, href, label, img, grad, Icon, iconColor, accent }) => (
               <Link
                 key={slug}
                 href={href}
-                className="group flex flex-col rounded-xl sm:rounded-2xl overflow-hidden border-2 border-transparent flex-shrink-0
-                           hover:border-amber-300 hover:shadow-[0_4px_18px_rgba(212,150,30,0.25)]
-                           transition-all duration-200 shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
-                style={{ width: "clamp(100px, 18vw, 160px)" }}
+                className="group flex flex-col flex-shrink-0 rounded-2xl overflow-hidden border border-[#EEE8DF] hover:border-amber-200 bg-white transition-all duration-300 hover:shadow-[0_6px_24px_rgba(200,133,10,.14)] hover:-translate-y-0.5"
+                style={{ width: "clamp(100px, 18vw, 155px)", scrollSnapAlign: "start" }}
               >
-                <div className={`aspect-square w-full relative overflow-hidden bg-gradient-to-br ${grad}`}>
-                  {img ? (
+                {/* Image */}
+                <div className={`aspect-square relative overflow-hidden bg-gradient-to-br ${grad}`}>
+                  {img && (
                     <img
-                      src={img} alt={label}
-                      className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                      src={img}
+                      alt={label}
+                      className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-106 transition-transform duration-500 ease-out"
+                      style={{ transitionTimingFunction: "cubic-bezier(0.22,1,0.36,1)" }}
                     />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-white/40" />
-                    </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                </div>
-
-                <div className="flex justify-center -mt-3.5 relative z-10">
-                  <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center
-                                  shadow-[0_2px_8px_rgba(0,0,0,0.22)] border-2 border-white">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+                  {/* Icon badge */}
+                  <div
+                    className="absolute bottom-2 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full flex items-center justify-center"
+                    style={{ background: "rgba(255,255,255,0.92)", boxShadow: "0 2px 8px rgba(0,0,0,.20)" }}
+                  >
                     <Icon className="w-3.5 h-3.5" style={{ color: iconColor }} />
                   </div>
                 </div>
 
-                <div className="px-1.5 pt-1 pb-2 text-center bg-white group-hover:bg-amber-50 transition-colors">
-                  <p className="text-[9px] sm:text-[11px] font-bold leading-tight text-gray-800 group-hover:text-amber-700 transition-colors hyphens-auto break-words">
+                {/* Label */}
+                <div
+                  className="px-2 py-2.5 text-center transition-colors"
+                  style={{ background: "white" }}
+                >
+                  <p className="text-[10px] sm:text-[11px] font-bold text-gray-800 group-hover:text-[#1B3A2D] transition-colors leading-tight">
                     {label}
                   </p>
                 </div>
@@ -132,24 +138,14 @@ export function CategoriesSection() {
             ))}
           </div>
 
-          {canScrollRight && (
+          {canRight && (
             <div
               className="hidden sm:flex absolute right-0 top-0 bottom-2 z-10 items-center justify-end pl-6 pointer-events-none"
-              style={{ background: "linear-gradient(to left, white 50%, transparent)" }}
+              style={{ background: "linear-gradient(to left, white 40%, transparent)" }}
             >
-              <button
-                onClick={() => scroll("right")}
-                aria-label="Défiler à droite"
-                className="pointer-events-auto w-8 h-8 rounded-full bg-white border border-gray-200
-                           shadow-[0_2px_10px_rgba(0,0,0,0.15)] flex items-center justify-center
-                           text-gray-500 hover:border-amber-300 hover:text-amber-600
-                           transition-all active:scale-90"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
+              <ScrollArrow dir="right" onClick={() => scroll("right")} />
             </div>
           )}
-
         </div>
       </div>
     </section>

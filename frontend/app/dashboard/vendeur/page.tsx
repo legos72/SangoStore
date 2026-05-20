@@ -278,8 +278,11 @@ export default function VendeurDashboard() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Link href="/dashboard/vendeur/nouveau-produit"
-              className="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors shadow-sm shadow-orange-200">
+            <Link
+              href="/dashboard/vendeur/nouveau-produit"
+              className="flex items-center gap-1.5 text-white text-xs font-bold px-3 py-2 rounded-xl transition-all active:scale-[0.97]"
+              style={{ background: "linear-gradient(135deg, #C8850A, #E0A320)", boxShadow: "0 2px 10px rgba(200,133,10,.30)" }}
+            >
               <Plus className="w-3.5 h-3.5" /> Nouveau produit
             </Link>
           </div>
@@ -290,7 +293,9 @@ export default function VendeurDashboard() {
           {(["overview", "products", "orders"] as Section[]).map(s => (
             <button key={s} onClick={() => setSection(s)} className={cn(
               "flex-1 py-1.5 rounded-lg text-[11px] font-semibold transition-all",
-              section === s ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-600"
+              section === s ? "text-white" : "bg-gray-100 text-gray-600"
+            )}
+            style={section === s ? { background: "linear-gradient(135deg, #C8850A, #E0A320)" } : undefined
             )}>
               {s === "overview" ? "Dashboard" : s === "products" ? "Produits" : "Commandes"}
             </button>
@@ -307,19 +312,22 @@ export default function VendeurDashboard() {
           <div className="space-y-6">
 
             {/* Profile hero */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 via-orange-600 to-amber-500 p-5 text-white shadow-lg shadow-orange-200">
+            <div
+              className="relative overflow-hidden rounded-2xl p-5 text-white"
+              style={{ background: "linear-gradient(135deg, #1B3A2D 0%, #2d5e48 50%, #1B3A2D 100%)", boxShadow: "0 8px 32px rgba(27,58,45,.25)" }}
+            >
               <div className="absolute inset-0 opacity-10" style={{
                 backgroundImage: "radial-gradient(circle at 80% 10%, white 1px, transparent 1px)",
                 backgroundSize: "32px 32px",
               }} />
               <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur border border-white/30 flex items-center justify-center text-2xl font-extrabold">
+                  <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur border border-white/25 flex items-center justify-center text-2xl font-extrabold">
                     {currentUser?.name?.charAt(0) ?? "V"}
                   </div>
                   <div>
                     <h2 className="text-xl font-extrabold">{currentUser?.name}</h2>
-                    <p className="text-orange-100 text-sm">Vendeur · {currentUser?.email}</p>
+                    <p className="text-emerald-100 text-sm">Vendeur · {currentUser?.email}</p>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="inline-flex items-center gap-1 bg-white/20 backdrop-blur text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/20">
                         <CheckCircle className="w-3 h-3" /> Compte actif
