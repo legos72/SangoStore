@@ -6,71 +6,69 @@
 
 @layer base {
   :root {
-    --color-brand:      #D4961E;
-    --color-brand-dark: #B87814;
-    --color-bg:         #F7F4EE;
-    --color-surface:    #FDFCF8;
+    --color-brand:        #D4961E;
+    --color-brand-dark:   #B87814;
+    --color-brand-light:  #FAE8A8;
+    --color-forest:       #1B3A2D;
+    --color-forest-dark:  #102419;
+    --color-forest-muted: #F0F7F4;
+    --color-bg:           #F7F4EE;
+    --color-surface:      #FDFCF8;
+    --color-border:       #E8E0D0;
+    --color-border-light: #F0E8DA;
   }
 
   * { box-sizing: border-box; }
 
   html {
     scroll-behavior: smooth;
-    /* Momentum scrolling iOS */
     -webkit-overflow-scrolling: touch;
   }
 
   body {
-    background-color: #F7F4EE;
+    background-color: var(--color-bg);
     @apply text-gray-900 font-sans antialiased;
-    /* Prevent layout shift from scrollbar appearing */
     overflow-y: scroll;
-    /* Better text rendering */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
 
-  /* Prevent overscroll bounce on mobile (looks cheap) */
   body { overscroll-behavior-y: none; }
 
-  /* Scrollbar premium — desktop only */
   @media (min-width: 768px) {
     ::-webkit-scrollbar       { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: #EAE2D2; }
-    ::-webkit-scrollbar-thumb { background: #D4961E; border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #B87814; }
+    ::-webkit-scrollbar-thumb { background: #1B3A2D; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2d6a4f; }
   }
 
-  /* Headings */
-  h1, h2, h3 { letter-spacing: -0.02em; }
+  h1, h2, h3, h4 { letter-spacing: -0.025em; }
+  h1             { letter-spacing: -0.03em; }
 
-  /* Remove tap highlight on mobile */
   a, button { -webkit-tap-highlight-color: transparent; }
-
-  /* Better image rendering */
   img { image-rendering: auto; }
 }
 
-/* ── Premium shimmer skeleton ─────────────────────────────────────────────── */
+/* ── Shimmer skeleton ──────────────────────────────────────────────────────── */
 .shimmer-bg {
   background: linear-gradient(
     90deg,
-    #f0ece4 0%,
-    #e6e0d6 40%,
-    #f0ece4 80%,
-    #f0ece4 100%
+    #ede7df 0%,
+    #e2dbd3 35%,
+    #ede7df 70%,
+    #ede7df 100%
   );
   background-size: 600px 100%;
-  animation: shimmer 1.6s ease-in-out infinite;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 
-/* ── Scroll-reveal: add class "reveal" to any section, JS-free via CSS ────── */
+/* ── Scroll-reveal ─────────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: no-preference) {
   .reveal {
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity .5s ease-out, transform .5s ease-out;
+    transform: translateY(22px);
+    transition: opacity .55s ease-out, transform .55s ease-out;
   }
   .reveal.visible {
     opacity: 1;
@@ -80,88 +78,94 @@
 
 @layer components {
 
-  /* ── Boutons ──────────────────────────────────────────────── */
+  /* ── Boutons ──────────────────────────────────────────────────────────────── */
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl
+    @apply inline-flex items-center justify-center gap-2
+           px-5 py-2.5 rounded-xl
            bg-orange-500 text-white font-bold text-sm
            hover:bg-orange-600 active:bg-orange-700
            transition-all duration-200
            shadow-gold hover:shadow-gold-lg
-           disabled:opacity-50 disabled:cursor-not-allowed;
+           disabled:opacity-50 disabled:cursor-not-allowed
+           select-none;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl
-           bg-cream-50 text-gray-900 font-semibold text-sm
+    @apply inline-flex items-center justify-center gap-2
+           px-5 py-2.5 rounded-xl
+           bg-cream-50 text-gray-800 font-semibold text-sm
            border border-cream-300
-           hover:bg-cream-100 hover:border-cream-300
+           hover:bg-cream-100 hover:border-cream-400
            active:bg-cream-200
            transition-all duration-150
-           disabled:opacity-50 disabled:cursor-not-allowed;
+           disabled:opacity-50 disabled:cursor-not-allowed
+           select-none;
   }
 
   .btn-outline-orange {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl
-           bg-transparent text-orange-500 font-semibold text-sm
-           border border-orange-400
-           hover:bg-orange-50 hover:border-orange-500
+    @apply inline-flex items-center justify-center gap-2
+           px-5 py-2.5 rounded-xl
+           bg-transparent text-orange-600 font-semibold text-sm
+           border-2 border-orange-400
+           hover:bg-orange-50 hover:border-orange-500 hover:text-orange-700
            active:bg-orange-100
-           transition-all duration-150;
+           transition-all duration-150
+           select-none;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+    @apply inline-flex items-center justify-center gap-2
+           px-4 py-2 rounded-lg
            text-gray-600 font-medium text-sm
            hover:bg-cream-200 hover:text-gray-900
-           transition-all duration-150;
+           transition-all duration-150
+           select-none;
   }
 
-  /* ── Cartes ───────────────────────────────────────────────── */
+  /* ── Cartes ───────────────────────────────────────────────────────────────── */
 
   .card {
-    /* Blanc ivoire + bordure chaude + ombre premium */
     background-color: #FDFCF8;
     @apply rounded-2xl border border-[#EAE2D2] overflow-hidden shadow-card;
   }
 
   .card-hover {
-    @apply card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200;
+    @apply card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300;
   }
 
-  /* Carte "glassmorphism" pour sections dark */
   .card-glass {
     @apply rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md;
   }
 
-  /* ── Badges ───────────────────────────────────────────────── */
+  /* ── Badges ───────────────────────────────────────────────────────────────── */
 
-  .badge         { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold; }
-  .badge-gold    { @apply badge bg-orange-100 text-orange-700 border border-orange-200; }
-  .badge-orange  { @apply badge-gold; }
-  .badge-green   { @apply badge bg-green-100 text-green-700 border border-green-200; }
-  .badge-blue    { @apply badge bg-blue-100 text-blue-700 border border-blue-200; }
-  .badge-gray    { @apply badge bg-cream-200 text-gray-600 border border-cream-300; }
+  .badge        { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold leading-none; }
+  .badge-gold   { @apply badge bg-orange-100 text-orange-700 border border-orange-200/80; }
+  .badge-orange { @apply badge-gold; }
+  .badge-green  { @apply badge bg-green-100 text-green-700 border border-green-200/80; }
+  .badge-blue   { @apply badge bg-blue-100 text-blue-700 border border-blue-200/80; }
+  .badge-gray   { @apply badge bg-cream-200 text-gray-600 border border-cream-300; }
 
-  /* ── Inputs ───────────────────────────────────────────────── */
+  /* ── Inputs ───────────────────────────────────────────────────────────────── */
 
   .input {
     @apply w-full px-4 py-2.5 rounded-xl text-sm text-gray-900
-           border border-[#E2D9C8]
            placeholder-gray-400
-           focus:outline-none focus:ring-2 focus:ring-orange-500/25 focus:border-orange-400
-           transition-all duration-150;
+           focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400
+           transition-all duration-200;
     background-color: #FDFCF8;
+    border: 1.5px solid var(--color-border);
   }
 
   .select { @apply input appearance-none cursor-pointer; }
 
-  /* ── Titres de section ────────────────────────────────────── */
+  /* ── Titres de section ────────────────────────────────────────────────────── */
 
-  .section-title    { @apply text-2xl font-bold text-gray-900 tracking-tight; }
-  .section-subtitle { @apply text-gray-500 text-sm mt-1; }
+  .section-title    { @apply text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight leading-tight; }
+  .section-subtitle { @apply text-gray-500 text-sm mt-1.5 leading-relaxed; }
 
-  /* ── Pill pays ────────────────────────────────────────────── */
+  /* ── Pill pays ─────────────────────────────────────────────────────────────── */
 
   .country-pill {
     @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium
@@ -176,20 +180,35 @@
            hover:border-orange-600 hover:bg-orange-600 hover:text-white;
   }
 
-  /* ── Container page ───────────────────────────────────────── */
+  /* ── Container page ──────────────────────────────────────────────────────── */
 
   .page-container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
 
-  /* ── Séparateur décoratif ─────────────────────────────────── */
+  /* ── Séparateur décoratif ────────────────────────────────────────────────── */
 
   .divider-gold {
     height: 2px;
     background: linear-gradient(90deg, transparent, #D4961E 40%, #D4961E 60%, transparent);
     border-radius: 9999px;
   }
+
+  /* ── Gradient text ───────────────────────────────────────────────────────── */
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #D4961E 0%, #E8AE38 50%, #B87814 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Hover lift ──────────────────────────────────────────────────────────── */
+
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover;
+  }
 }
 
-/* ── Keyframes ───────────────────────────────────────────────────────────── */
+/* ── Keyframes ───────────────────────────────────────────────────────────────── */
 
 @keyframes shimmer {
   0%   { background-position: -600px 0; }
@@ -197,13 +216,13 @@
 }
 
 @keyframes fade-slide {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0);    }
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0);    }
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
@@ -211,36 +230,29 @@
   to   { opacity: 1; }
 }
 
-/* ── Animation classes ───────────────────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-4px); }
+}
 
-.animate-fade-slide  { animation: fade-slide  0.55s ease-out both; }
-.animate-fade-in-up  { animation: fadeInUp    0.35s ease-out both; }
-.animate-fade-in     { animation: fadeIn      0.25s ease-out both; }
+/* ── Animation classes ───────────────────────────────────────────────────────── */
 
-/* ── Product card — image hover premium ──────────────────────────────────── */
+.animate-fade-slide  { animation: fade-slide 0.55s ease-out both; }
+.animate-fade-in-up  { animation: fadeInUp   0.4s ease-out both; }
+.animate-fade-in     { animation: fadeIn     0.25s ease-out both; }
+
+/* ── Product card image hover ────────────────────────────────────────────────── */
 .product-img {
-  transition: transform 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 600ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 .group:hover .product-img {
-  transform: scale(1.04);
+  transform: scale(1.05);
 }
 
-/* ── Skeleton shimmer — warm & refined ───────────────────────────────────── */
-.shimmer-bg {
-  background: linear-gradient(
-    90deg,
-    #f2ede6 0%,
-    #e8e2da 40%,
-    #ede8e1 60%,
-    #f2ede6 100%
-  );
-  background-size: 600px 100%;
-  animation: shimmer 1.4s ease-in-out infinite;
-}
-
-/* ── Scrollbar brand green ───────────────────────────────────────────────── */
-@media (min-width: 768px) {
-  ::-webkit-scrollbar-thumb { background: #1B3A2D !important; }
-  ::-webkit-scrollbar-thumb:hover { background: #2d6a4f !important; }
-}
+/* ── Staggered animation delays ─────────────────────────────────────────────── */
+.delay-75  { animation-delay: 75ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
 

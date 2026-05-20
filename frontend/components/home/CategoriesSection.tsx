@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ArrowRight, Shirt, Smartphone, Sparkles, Home, UtensilsCrossed, Dumbbell, ShoppingBag, Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Shirt, Smartphone, Sparkles, Hop as Home, UtensilsCrossed, Dumbbell, ShoppingBag, Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
 
 const MAIN_CATEGORIES = [
   { slug: "mode",         href: "/mode-africaine",         label: "Mode Africaine", shortLabel: "Africaine", img: "/categories/homme.png",    grad: "from-amber-900   to-amber-700",   Icon: Shirt,           iconColor: "#F59E0B" },
@@ -44,21 +44,24 @@ export function CategoriesSection() {
   }
 
   return (
-    <section className="py-6 sm:py-10 bg-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-6 sm:py-10 bg-white border-t border-[#EAE2D2]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div className="flex items-start justify-between gap-4 mb-5">
           <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-widest mb-0.5" style={{ color: "#F59E0B" }}>
-              Catégories populaires
-            </p>
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight">Découvrez nos catégories</h2>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="inline-block w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: "#D4961E" }} />
+              <span className="text-[10px] font-extrabold uppercase tracking-[0.14em]" style={{ color: "#D4961E" }}>
+                Catégories populaires
+              </span>
+            </div>
+            <h2 className="text-xl font-extrabold text-gray-900 tracking-tight leading-tight">Découvrez nos catégories</h2>
           </div>
           <Link
             href="/produits"
-            className="flex items-center gap-1 text-xs sm:text-sm font-semibold transition-colors hover:opacity-80"
-            style={{ color: "#1B3A2D" }}
+            className="flex items-center gap-1 text-sm font-semibold transition-colors mt-1"
+            style={{ color: "#D4961E" }}
           >
             Voir tout <ArrowRight className="w-3.5 h-3.5" />
           </Link>

@@ -133,7 +133,7 @@ function FlashDealCard({ product }: { product: Product }) {
 
   return (
     <div
-      className="group flex-shrink-0 flex flex-col rounded-xl overflow-hidden bg-white border border-gray-100/80 shadow-[0_1px_8px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.09)] transition-shadow duration-200"
+      className="group flex-shrink-0 flex flex-col rounded-xl overflow-hidden bg-white border border-[#EAE2D2] shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300"
       style={{ width: "clamp(160px, 44vw, 200px)" }}
     >
       {/* Image */}
@@ -272,33 +272,31 @@ export function FlashSaleSection() {
   }
 
   return (
-    <section className="pt-4 pb-5 sm:pt-5 sm:pb-7 bg-white border-t border-gray-100">
-      <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
+    <section className="py-8 sm:py-12" style={{ background: "#FAF7F1" }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ── Header ─────────────────────────────────────────────────────── */}
-        <div className="flex items-end justify-between gap-4 mb-4 sm:mb-5">
+        <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <div className="flex items-center gap-1.5 mb-1">
-              <div className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 bg-orange-500">
-                <Zap className="w-2.5 h-2.5 text-white fill-white stroke-none" />
-              </div>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-orange-500">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="inline-block w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: "#D4961E" }} />
+              <span className="text-[10px] font-extrabold uppercase tracking-[0.14em]" style={{ color: "#D4961E" }}>
                 Offres limitées
               </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                Offres Flash
+              </h2>
               {soonestEnd && !timer.expired && (
-                <span className="ml-1">
-                  <TimerRow timer={timer} />
-                </span>
+                <TimerRow timer={timer} />
               )}
             </div>
-            <h2 className="text-[18px] sm:text-[20px] font-bold text-gray-900 leading-tight">
-              Offres Flash
-            </h2>
           </div>
           <Link
             href="/produits?section=flashsale"
-            className="flex items-center gap-0.5 text-[12px] font-semibold transition-colors whitespace-nowrap pb-0.5"
-            style={{ color: "#1B3A2D" }}
+            className="flex items-center gap-1 text-sm font-semibold whitespace-nowrap flex-shrink-0 mt-1 transition-colors"
+            style={{ color: "#D4961E" }}
           >
             Voir tout <ArrowRight className="w-3.5 h-3.5" />
           </Link>
@@ -310,12 +308,12 @@ export function FlashSaleSection() {
           {canScrollLeft && (
             <div
               className="hidden sm:flex absolute left-0 top-0 bottom-2 z-10 items-center pr-6 pointer-events-none"
-              style={{ background: "linear-gradient(to right, white 50%, transparent)" }}
+              style={{ background: "linear-gradient(to right, #FAF7F1 50%, transparent)" }}
             >
               <button
                 onClick={() => scroll("left")}
                 aria-label="Défiler à gauche"
-                className="pointer-events-auto w-8 h-8 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-500 hover:border-[#2d6a4f] hover:text-[#1B3A2D] transition-all active:scale-90"
+                className="pointer-events-auto w-9 h-9 rounded-full bg-white border-[1.5px] border-[#EAE2D2] shadow-card-lg flex items-center justify-center text-gray-500 hover:border-orange-300 hover:text-orange-500 transition-all active:scale-90"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -344,12 +342,12 @@ export function FlashSaleSection() {
           {canScrollRight && (
             <div
               className="hidden sm:flex absolute right-0 top-0 bottom-2 z-10 items-center justify-end pl-6 pointer-events-none"
-              style={{ background: "linear-gradient(to left, white 50%, transparent)" }}
+              style={{ background: "linear-gradient(to left, #FAF7F1 50%, transparent)" }}
             >
               <button
                 onClick={() => scroll("right")}
                 aria-label="Défiler à droite"
-                className="pointer-events-auto w-8 h-8 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-500 hover:border-[#2d6a4f] hover:text-[#1B3A2D] transition-all active:scale-90"
+                className="pointer-events-auto w-9 h-9 rounded-full bg-white border-[1.5px] border-[#EAE2D2] shadow-card-lg flex items-center justify-center text-gray-500 hover:border-orange-300 hover:text-orange-500 transition-all active:scale-90"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import Link from "next/link";
-import { ArrowRight, Tag, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductCardSkeleton } from "@/components/product/ProductCardSkeleton";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { api } from "@/lib/api";
 import { apiToProduct } from "@/lib/adapters";
 import type { Product } from "@/lib/types";
@@ -49,49 +49,29 @@ export function NewArrivalsSection() {
   }
 
   return (
-    <section className="py-5 sm:py-8 bg-white border-t border-gray-100">
-      <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
+    <section className="py-8 sm:py-12 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* Header */}
-        <div className="flex items-end justify-between gap-4 mb-4 sm:mb-5">
-          <div>
-            <div className="flex items-center gap-1.5 mb-1">
-              <div className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
-                style={{ background: "#1B3A2D" }}>
-                <Tag className="w-2.5 h-2.5 text-amber-400" />
-              </div>
-              <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "#1B3A2D" }}>
-                Nouveautés
-              </span>
-            </div>
-            <h2 className="text-[18px] sm:text-[20px] font-bold text-gray-900 leading-tight">
-              Nos derniers produits
-            </h2>
-          </div>
-          <Link
+        <div className="mb-6">
+          <SectionHeader
+            label="Nouveautés"
+            title="Derniers produits arrivés"
+            subtitle="Les toutes dernières additions à notre catalogue"
             href="/produits?sortBy=newest"
-            className="flex items-center gap-0.5 text-[12px] font-semibold transition-colors whitespace-nowrap pb-0.5"
-            style={{ color: "#1B3A2D" }}
-          >
-            Voir tout <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+            hrefLabel="Voir tout"
+          />
         </div>
 
-        {/* Carousel */}
         <div className="relative">
-
           {canScrollLeft && (
             <div
-              className="hidden sm:flex absolute left-0 top-0 bottom-2 z-10 items-center pr-6 pointer-events-none"
+              className="hidden sm:flex absolute left-0 top-0 bottom-2 z-10 items-center pr-8 pointer-events-none"
               style={{ background: "linear-gradient(to right, white 50%, transparent)" }}
             >
               <button
                 onClick={() => scroll("left")}
                 aria-label="Défiler à gauche"
-                className="pointer-events-auto w-8 h-8 rounded-full bg-white border border-gray-200
-                           shadow-[0_2px_10px_rgba(0,0,0,0.15)] flex items-center justify-center
-                           text-gray-500 hover:border-[#2d6a4f] hover:text-[#1B3A2D]
-                           transition-all active:scale-90"
+                className="pointer-events-auto w-9 h-9 rounded-full bg-white border-[1.5px] border-[#EAE2D2] shadow-card-lg flex items-center justify-center text-gray-500 hover:border-orange-300 hover:text-orange-500 transition-all active:scale-90"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -100,18 +80,18 @@ export function NewArrivalsSection() {
 
           <div
             ref={scrollRef}
-            className="flex gap-3 overflow-x-auto pb-2"
+            className="flex gap-3 sm:gap-4 overflow-x-auto pb-2"
             style={{ scrollbarWidth: "none" }}
           >
             {loading
               ? Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="flex-shrink-0 flex flex-col" style={{ width: "clamp(180px, 44vw, 240px)" }}>
+                  <div key={i} className="flex-shrink-0" style={{ width: "clamp(180px, 44vw, 240px)" }}>
                     <ProductCardSkeleton />
                   </div>
                 ))
               : products.map(product => (
-                  <div key={product.id} className="flex-shrink-0 flex flex-col" style={{ width: "clamp(180px, 44vw, 240px)" }}>
-                    <ProductCard product={product} className="flex-1" />
+                  <div key={product.id} className="flex-shrink-0" style={{ width: "clamp(180px, 44vw, 240px)" }}>
+                    <ProductCard product={product} />
                   </div>
                 ))
             }
@@ -119,22 +99,18 @@ export function NewArrivalsSection() {
 
           {canScrollRight && (
             <div
-              className="hidden sm:flex absolute right-0 top-0 bottom-2 z-10 items-center justify-end pl-6 pointer-events-none"
+              className="hidden sm:flex absolute right-0 top-0 bottom-2 z-10 items-center justify-end pl-8 pointer-events-none"
               style={{ background: "linear-gradient(to left, white 50%, transparent)" }}
             >
               <button
                 onClick={() => scroll("right")}
                 aria-label="Défiler à droite"
-                className="pointer-events-auto w-8 h-8 rounded-full bg-white border border-gray-200
-                           shadow-[0_2px_10px_rgba(0,0,0,0.15)] flex items-center justify-center
-                           text-gray-500 hover:border-[#2d6a4f] hover:text-[#1B3A2D]
-                           transition-all active:scale-90"
+                className="pointer-events-auto w-9 h-9 rounded-full bg-white border-[1.5px] border-[#EAE2D2] shadow-card-lg flex items-center justify-center text-gray-500 hover:border-orange-300 hover:text-orange-500 transition-all active:scale-90"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           )}
-
         </div>
       </div>
     </section>
