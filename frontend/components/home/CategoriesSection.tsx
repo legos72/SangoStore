@@ -2,16 +2,16 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ArrowRight, Shirt, Smartphone, Sparkles, Hop as Home, UtensilsCrossed, Dumbbell, ShoppingBag, Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Shirt, Smartphone, Gem, Hop as Home, Coffee, Dumbbell, ShoppingBag, Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
 
 const MAIN_CATEGORIES = [
   { slug: "mode",         href: "/mode-africaine",         label: "Mode Africaine", shortLabel: "Africaine", img: "/categories/homme.png",    grad: "from-amber-900   to-amber-700",   Icon: Shirt,           iconColor: "#F59E0B" },
   { slug: "mode-femme",   href: "/categorie/mode-femme",   label: "Mode Femme",     shortLabel: "Femme",     img: "/categoriHome/Mf1h.png",   grad: "from-pink-900    to-pink-700",    Icon: ShoppingBag,     iconColor: "#F472B6" },
   { slug: "mode-homme",   href: "/categorie/mode-homme",   label: "Mode Homme",     shortLabel: "Homme",     img: "/categoriHome/HCatH.png",  grad: "from-slate-900   to-slate-700",   Icon: Briefcase,       iconColor: "#94A3B8" },
   { slug: "electronique", href: "/categorie/electronique", label: "Électronique",   shortLabel: "Électro",   img: "/categoriHome/electro.png", grad: "from-blue-900    to-blue-700",    Icon: Smartphone,      iconColor: "#60A5FA" },
-  { slug: "beaute",       href: "/categorie/beaute",       label: "Beauté & Soins", shortLabel: "Beauté",    img: "/categoriHome/Soin1.png",  grad: "from-rose-900    to-rose-700",    Icon: Sparkles,        iconColor: "#F472B6" },
+  { slug: "beaute",       href: "/categorie/beaute",       label: "Beauté & Soins", shortLabel: "Beauté",    img: "/categoriHome/Soin1.png",  grad: "from-rose-900    to-rose-700",    Icon: Gem,        iconColor: "#F472B6" },
   { slug: "maison",       href: "/categorie/maison",       label: "Maison",         shortLabel: "Maison",    img: "/categoriHome/lit.png",    grad: "from-emerald-900 to-emerald-700", Icon: Home,            iconColor: "#34D399" },
-  { slug: "alimentation", href: "/categorie/alimentation", label: "Supermarché",    shortLabel: "Aliment.",  img: "/categoriHome/alim.png",   grad: "from-orange-900  to-orange-700",  Icon: UtensilsCrossed, iconColor: "#FB923C" },
+  { slug: "alimentation", href: "/categorie/alimentation", label: "Supermarché",    shortLabel: "Aliment.",  img: "/categoriHome/alim.png",   grad: "from-orange-900  to-orange-700",  Icon: Coffee, iconColor: "#FB923C" },
   { slug: "sport",        href: "/categorie/sport",        label: "Sport & Loisirs",shortLabel: "Sport",     img: "/categoriHome/alte.png",   grad: "from-violet-900  to-violet-700",  Icon: Dumbbell,        iconColor: "#A78BFA" },
 ];
 

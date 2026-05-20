@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Loader as Loader2 } from "lucide-react";
+import { ArrowRight, Loader } from "lucide-react";
 import { api } from "@/lib/api";
 import { TransporterCard } from "@/components/transporter/TransporterCard";
 import { CardSlider } from "@/components/ui/CardSlider";
@@ -41,7 +41,7 @@ export function HomeTransporters() {
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-orange-400" />
+            <Loader className="w-6 h-6 animate-spin text-orange-400" />
           </div>
         ) : transporters.length === 0 ? (
           <div className="text-center text-gray-400 py-8 text-sm">

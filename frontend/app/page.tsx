@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Phone, ChevronRight, Shirt, ShoppingBag, Briefcase, Smartphone, Sparkles, Hop as Home, UtensilsCrossed, Dumbbell, Truck, Package, Shield } from "lucide-react";
+import { ArrowRight, Phone, ChevronRight, Shirt, ShoppingBag, Briefcase, Smartphone, Gem, Hop as Home, Coffee, Dumbbell, Truck, Package, Shield } from "lucide-react";
 import { CategoriesSection } from "@/components/home/CategoriesSection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
@@ -19,9 +19,9 @@ const SIDEBAR_CATEGORIES = [
   { slug: "mode-femme",   href: "/categorie/mode-femme",   label: "Mode Femme",       Icon: ShoppingBag,     iconColor: "#F472B6" },
   { slug: "mode-homme",   href: "/categorie/mode-homme",   label: "Mode Homme",       Icon: Briefcase,       iconColor: "#64748B" },
   { slug: "electronique", href: "/categorie/electronique", label: "Électronique",     Icon: Smartphone,      iconColor: "#3B82F6" },
-  { slug: "beaute",       href: "/categorie/beaute",       label: "Beauté & Santé",   Icon: Sparkles,        iconColor: "#EC4899" },
+  { slug: "beaute",       href: "/categorie/beaute",       label: "Beauté & Santé",   Icon: Gem,        iconColor: "#EC4899" },
   { slug: "maison",       href: "/categorie/maison",       label: "Maison & Bureau",  Icon: Home,            iconColor: "#10B981" },
-  { slug: "alimentation", href: "/categorie/alimentation", label: "Alimentation",     Icon: UtensilsCrossed, iconColor: "#F97316" },
+  { slug: "alimentation", href: "/categorie/alimentation", label: "Alimentation",     Icon: Coffee, iconColor: "#F97316" },
   { slug: "sport",        href: "/categorie/sport",        label: "Sports & Loisirs", Icon: Dumbbell,        iconColor: "#8B5CF6" },
   { slug: "transport",    href: "/transporteurs",          label: "Envoi de colis",   Icon: Truck,           iconColor: "#06B6D4" },
 ];

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ShoppingBag, Truck, Menu, X, Search, Package, ShoppingCart, User, LogOut, ChevronDown, ChevronRight, Shield, Store, Shirt, Briefcase, Smartphone, Sparkles, Hop as Home, UtensilsCrossed, Dumbbell, Tag } from "lucide-react";
+import { ShoppingBag, Truck, Menu, X, Search, Package, ShoppingCart, User, LogOut, ChevronDown, ChevronRight, Shield, Building2, Shirt, Briefcase, Smartphone, Gem, Hop as Home, Coffee, Dumbbell, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
 import { LogoCart } from "@/components/ui/LogoCart";
@@ -15,7 +15,7 @@ import { useI18n } from "@/lib/i18n/context";
 import { translations, t } from "@/lib/i18n/translations";
 
 const ROLE_DASHBOARD: Record<string, { href: string; label: string; icon: React.ElementType; color: string }> = {
-  vendeur:      { href: "/dashboard/vendeur",      label: "Espace vendeur",      icon: Store,  color: "text-orange-600 bg-orange-50 hover:bg-orange-100" },
+  vendeur:      { href: "/dashboard/vendeur",      label: "Espace vendeur",      icon: Building2,  color: "text-orange-600 bg-orange-50 hover:bg-orange-100" },
   admin:        { href: "/dashboard/admin",         label: "Dashboard Admin",     icon: Shield, color: "text-blue-600 bg-blue-50 hover:bg-blue-100"       },
   transporteur: { href: "/dashboard/transporteur",  label: "Espace transporteur", icon: Truck,  color: "text-teal-600 bg-teal-50 hover:bg-teal-100"       },
 };
@@ -35,9 +35,9 @@ const DESKTOP_CATEGORIES = [
   { slug: "mode-femme",   href: "/categorie/mode-femme",   label: "Mode Femme",       Icon: ShoppingBag,     iconColor: "#F472B6" },
   { slug: "mode-homme",   href: "/categorie/mode-homme",   label: "Mode Homme",       Icon: Briefcase,       iconColor: "#64748B" },
   { slug: "electronique", href: "/categorie/electronique", label: "Électronique",     Icon: Smartphone,      iconColor: "#3B82F6" },
-  { slug: "beaute",       href: "/categorie/beaute",       label: "Beauté & Santé",   Icon: Sparkles,        iconColor: "#EC4899" },
+  { slug: "beaute",       href: "/categorie/beaute",       label: "Beauté & Santé",   Icon: Gem,        iconColor: "#EC4899" },
   { slug: "maison",       href: "/categorie/maison",       label: "Maison & Bureau",  Icon: Home,            iconColor: "#10B981" },
-  { slug: "alimentation", href: "/categorie/alimentation", label: "Alimentation",     Icon: UtensilsCrossed, iconColor: "#F97316" },
+  { slug: "alimentation", href: "/categorie/alimentation", label: "Alimentation",     Icon: Coffee, iconColor: "#F97316" },
   { slug: "sport",        href: "/categorie/sport",        label: "Sports & Loisirs", Icon: Dumbbell,        iconColor: "#8B5CF6" },
   { slug: "transport",    href: "/transporteurs",          label: "Envoi de colis",   Icon: Truck,           iconColor: "#06B6D4" },
 ];
@@ -89,9 +89,9 @@ export function Navbar() {
         { href: "/categorie/mode-femme",   label: "Mode Femme",      icon: ShoppingBag     },
         { href: "/categorie/mode-homme",   label: "Mode Homme",      icon: Briefcase       },
         { href: "/categorie/electronique", label: "Électronique",    icon: Smartphone      },
-        { href: "/categorie/beaute",       label: "Beauté & Soins",  icon: Sparkles        },
+        { href: "/categorie/beaute",       label: "Beauté & Soins",  icon: Gem        },
         { href: "/categorie/maison",       label: "Maison",          icon: Home            },
-        { href: "/categorie/alimentation", label: "Supermarché",     icon: UtensilsCrossed },
+        { href: "/categorie/alimentation", label: "Supermarché",     icon: Coffee },
         { href: "/categorie/sport",        label: "Sport & Loisirs", icon: Dumbbell        },
         { href: "/produits",               label: "Autres",          icon: Package         },
       ]

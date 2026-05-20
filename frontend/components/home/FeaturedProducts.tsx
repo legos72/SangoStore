@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { CircleAlert as AlertCircle, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
+import { TriangleAlert, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductCardSkeleton } from "@/components/product/ProductCardSkeleton";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -64,7 +64,7 @@ export function FeaturedProducts() {
           </div>
         ) : error ? (
           <div className="text-center py-12 bg-red-50/60 rounded-2xl border border-red-100">
-            <AlertCircle className="w-10 h-10 text-red-300 mx-auto mb-3" />
+            <TriangleAlert className="w-10 h-10 text-red-300 mx-auto mb-3" />
             <p className="text-gray-700 font-semibold mb-1">Impossible de charger les produits</p>
             <p className="text-gray-400 text-sm mb-5">Vérifiez votre connexion et réessayez.</p>
             <button
